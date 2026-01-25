@@ -8629,6 +8629,7 @@
             
             // Set mode
             const savedMode = data.mode || 'new';
+            const isExistingMode = savedMode === 'existing';
             setMode(savedMode);
             
             // Load contact info
@@ -8658,7 +8659,7 @@
                 const linesInput = document.getElementById(`${rowId}-lines`);
                 if (linesInput && quoteData.lines !== undefined) {
                     linesInput.value = quoteData.lines;
-                    if (isExisting) {
+                    if (isExistingMode) {
                         validateUpgrades(linesInput, rowId);
                     } else {
                         // Lines column is always visible, just validate
@@ -8667,14 +8668,14 @@
                 }
                 
                 // Set plan
-                if (!isExisting && quoteData.plan) {
+                if (!isExistingMode && quoteData.plan) {
                     document.getElementById(`${rowId}-plan`).value = quoteData.plan;
                     document.getElementById(`${rowId}-plan-trigger`).value = quoteData.plan;
                     handleStandardPlan(rowId);
                 }
                 
                 // Set manual price for existing mode
-                if (isExisting && quoteData.manualPrice) {
+                if (isExistingMode && quoteData.manualPrice) {
                     const manualPrice = document.getElementById(`${rowId}-manual-price`);
                     if (manualPrice) {
                         manualPrice.value = quoteData.manualPrice;
@@ -9274,11 +9275,23 @@
             document.getElementById('plan-modal-row-id').value = rowId;
             document.getElementById('plan-search-box').value = '';
             
+            // Only expose Internet tab while in compare mode
+            const isCompareView = document.body.classList.contains('compare-mode');
+            const internetTab = document.querySelector('.plan-tab[data-plan-type="Internet"]');
+            if (internetTab) {
+                internetTab.style.display = isCompareView ? '' : 'none';
+            }
+            
             // Get currently selected plan and its type
             const selectedPlan = document.getElementById(`${rowId}-plan`).value;
             if (selectedPlan && PLANS_DATA[selectedPlan]) {
                 currentPlanTab = PLANS_DATA[selectedPlan].planType || 'Normal';
             } else {
+                currentPlanTab = 'Normal';
+            }
+
+            // Fall back to Consumer tab if Internet is hidden
+            if (!isCompareView && currentPlanTab === 'Internet') {
                 currentPlanTab = 'Normal';
             }
             document.getElementById('plan-modal-tab').value = currentPlanTab;
