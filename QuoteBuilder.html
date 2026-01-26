@@ -467,6 +467,13 @@
         /* White border below premium headers */
         .compare-dropdown-wrapper:has(.compare-plan-trigger.premium) {
             border-bottom: 1px solid #fff;
+            border-right-color: #fff;
+        }
+        
+        /* White border between headers when second header is premium (use left border on second) */
+        .compare-dropdown-wrapper:last-child:has(.compare-plan-trigger.premium) {
+            border-left: 1px solid #fff;
+            margin-left: -1px;
         }
         
         .compare-dropdown-wrapper:last-child .compare-plan-trigger.premium {
@@ -484,6 +491,19 @@
         /* Make comparison table border connect seamlessly with plan selectors */
         #compare-section .comparison-table {
             border-radius: 0;
+            border-top: none;
+        }
+
+        /* Add black border-top to first row cells under non-premium headers */
+        /* First value column (plan 1) - add border if plan1 is NOT premium */
+        /* This targets the second child (first value cell after the name cell) */
+        #compare-section .comparison-table:not(.plan1-premium) .comparison-row:first-child > :nth-child(2) {
+            border-top: 1px solid #000;
+        }
+        
+        /* Second value column (plan 2) - add border if plan2 is NOT premium */
+        /* This targets the third child (second value cell) when it exists */
+        #compare-section .comparison-table:not(.plan2-premium) .comparison-row:first-child > :nth-child(3) {
             border-top: 1px solid #000;
         }
 
@@ -635,6 +655,11 @@
             justify-content: center;
             min-height: 45px;
         }
+        
+        /* First value cell (adjacent to black name column) gets white left border */
+        .comparison-benefit-value:first-of-type {
+            border-left: 1px solid #fff;
+        }
 
         .comparison-benefit-value:last-child {
             border-right: none;
@@ -646,6 +671,7 @@
             border-right: none;
             background: white !important;
             color: var(--text-main) !important;
+            border-bottom: 1px solid #000;
         }
 
         /* Only non-merged included cells get magenta to highlight differences */
@@ -654,6 +680,10 @@
             background: var(--primary-color);
             border-right: 1px solid #fff;
             border-bottom: 1px solid #fff;
+            border-top: 1px solid #fff;
+            border-left: 1px solid #fff;
+            margin-top: -1px;
+            margin-left: -1px;
         }
         
         /* Last included cell in row should not have right white border */
@@ -776,6 +806,14 @@
 
             #compare-section .comparison-table {
                 border-radius: 8px;
+                border-top: none;
+            }
+            
+            /* Add black border-top to first row cells under non-premium headers (mobile) */
+            #compare-section .comparison-table:not(.plan1-premium) .comparison-row:first-child > :nth-child(2) {
+                border-top: 1px solid #000;
+            }
+            #compare-section .comparison-table:not(.plan2-premium) .comparison-row:first-child > :nth-child(3) {
                 border-top: 1px solid #000;
             }
         }
@@ -1033,7 +1071,7 @@
 
         .row-header {
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; padding-bottom: 15px; border-bottom: none;
+            margin-bottom: 8px; padding-bottom: 0; border-bottom: none;
             gap: 15px;
         }
         .row-title-section { display: flex; align-items: center; gap: 10px; flex: 1; }
@@ -1586,6 +1624,9 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
         }
         .row-actions-left {
             display: flex;
@@ -2534,6 +2575,15 @@
             .print-benefits-comparison .compare-dropdown-wrapper:last-child {
                 border-right: none;
             }
+            /* White border-right when first header is premium */
+            .print-benefits-comparison .compare-dropdown-wrapper:has(.compare-plan-name-header.premium) {
+                border-right-color: #fff;
+            }
+            /* White border between headers when second header is premium */
+            .print-benefits-comparison .compare-dropdown-wrapper:last-child:has(.compare-plan-name-header.premium) {
+                border-left: 1px solid #fff;
+                margin-left: -1px;
+            }
             .print-benefits-comparison .compare-dropdown-wrapper.spacer {
                 background: #000 !important;
                 display: flex;
@@ -2546,6 +2596,10 @@
                 font-size: 1.6rem;
                 font-weight: 800;
                 letter-spacing: 3px;
+            }
+            /* White border for premium plan wrappers in print */
+            .print-benefits-comparison .compare-dropdown-wrapper:has(.compare-plan-name-header.premium) {
+                border-bottom: 1px solid #fff;
             }
             .print-benefits-comparison .compare-plan-name-header {
                 width: 100%;
@@ -2570,9 +2624,13 @@
             .print-benefits-comparison .compare-dropdown-wrapper:has(.compare-plan-name-header.premium) {
                 border-bottom: 1px solid #fff;
             }
+            /* Black border below non-premium (white) headers in print */
+            .print-benefits-comparison .compare-dropdown-wrapper:has(.compare-plan-name-header:not(.premium)) {
+                border-bottom: 1px solid #000;
+            }
             .print-benefits-comparison .comparison-table {
                 border: 1px solid #000;
-                border-top: 1px solid #000;
+                border-top: none !important;
                 border-radius: 0;
                 margin-top: 0;
             }
@@ -2608,6 +2666,10 @@
                 justify-content: center;
                 min-height: 38px;
                 font-size: 0.75rem;
+            }
+            /* First value cell (adjacent to black name column) gets white left border */
+            .print-benefits-comparison .comparison-benefit-value:first-of-type {
+                border-left: 1px solid #fff;
             }
             .print-benefits-comparison .comparison-benefit-value:last-child {
                 border-right: none;
@@ -5093,6 +5155,12 @@
                 
                 <!-- Competitor Tab Content -->
                 <div id="prot-competitor-content" class="prot-tab-content" style="display: none;">
+                    <!-- Competitor Info Link -->
+                    <div style="padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid #eee; text-align: center;">
+                        <a href="https://www.t-mobile.com/cell-phone-plans?INTNAV=tNav%3APlans%3AMagenta#wrapper-plans-marketing" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem;">
+                            How we compare to others
+                        </a>
+                    </div>
                     <div style="display:flex; gap:10px; align-items:flex-end;">
                         <div style="flex:1;">
                             <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Carrier Name</label>
@@ -5544,6 +5612,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5566,6 +5635,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5588,6 +5658,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5610,6 +5681,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5632,6 +5704,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5654,6 +5727,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5676,6 +5750,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 3 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5698,6 +5773,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5720,6 +5796,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5742,6 +5819,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5764,6 +5842,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5786,6 +5865,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5808,6 +5888,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5830,6 +5911,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 2 },
                     "Canada & Mexico": { value: "15GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 2 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5852,6 +5934,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Included", weight: 3 },
                     "Traveling Abroad": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 4 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5874,6 +5957,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Included", weight: 1 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS in 215+ countries & unlimited texting", weight: 4 },
                     "Canada & Mexico": { value: "30GB high-speed data", valueSubtext: "Then unlimited data of up to 256KBPS, plus unlimited talk & text", weight: 3 },
                     "In-flight Wi-Fi Connection": { value: "Premium experience", weight: 3 },
@@ -5897,6 +5981,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", valueSubtext: "Available as add-on", weight: 2 },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -5919,6 +6004,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1 },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -5941,6 +6027,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1 },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "5GB high-speed data", valueSubtext: "Then unlimited data of up to 128KBPS, plus unlimited talk & text", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -5963,6 +6050,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                    "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -5985,6 +6073,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6007,6 +6096,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6029,6 +6119,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6051,6 +6142,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6073,6 +6165,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Up to 480p Standard", weight: 2 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Up to 128Kbps", valueSubtext: "With unlimited talk, text, and data in Canada & Mexico", weight: 1 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6095,6 +6188,7 @@
                     "Apple TV": { subtext: "Discounted to $3/month", value: "Not included", weight: 0 },
                     "Netflix": { subtext: "Standard with ads", value: "Not included", weight: 0 },
                     "Video Streaming": { value: "Not included", weight: 0 },
+                    "Threat Protect": { value: "Not Included", weight: 1, hidden: true },
                     "Traveling Abroad": { value: "Data not included", valueSubtext: "Unlimited texting in 215+ countries", weight: 1 },
                     "Canada & Mexico": { value: "Unlimited talk & text", valueSubtext: "Data not included", weight: 0 },
                     "In-flight Wi-Fi Connection": { value: "Not included", weight: 1 },
@@ -6115,84 +6209,190 @@
                 displayName: "All-In Home Internet",
                 weight: 100,
                 benefits: {
-                    "Monthly Price": { value: "$75/mo", valueSubtext: "$60/mo with eligible voice line", weight: 3 },
-                    "Speed": { value: "Up to 245 Mbps", valueSubtext: "Typical download speeds", weight: 5 },
-                    "Data": { value: "Truly unlimited", valueSubtext: "No data caps", weight: 4 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$70/month", valueSubtext:"$55 w/ voice line", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", valueSubtext: "We won't raise your rate", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "$15/mo savings", valueSubtext: "With eligible voice plan", weight: 3 }
+                    "5 Year Price Guarantee": { value: "Included", weight: 2 },
+                    "Speed": { value: "Fastest", weight: 2 },
+                    "Data": { value: "Unlimited", weight:  3},
+                    
+                    "Usage": { value: "At approved address", weight: 1 },
+                    
+                    
+                    "Equipment": { value: "High-performance WiFi 7 Gateway", weight: 2 },
+                    "Wi-Fi Mesh Extender": { value: "Included", weight: 2 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Included", weight: 1 },
+
+                    "Hulu": { value: "Included", subtext:"With ads", weight: 2 },
+                    "Paramount+": { value: "Included", subtext:"Essential plan", weight: 2 },
+                    
+                    "Assurant® Personal TechPro": { value: "Included", weight: 2 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
+                    
                 }
             },
             "Amplified Home Internet": {
-                displayName: "Amplified Home Internet",
+                displayName: "Amplified Home Internett",
                 weight: 90,
                 benefits: {
-                    "Monthly Price": { value: "$65/mo", valueSubtext: "$50/mo with eligible voice line", weight: 3 },
-                    "Speed": { value: "Up to 220 Mbps", valueSubtext: "Typical download speeds", weight: 4 },
-                    "Data": { value: "Truly unlimited", valueSubtext: "No data caps", weight: 4 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$60/month", valueSubtext:"$45 w/ voice line", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", valueSubtext: "We won't raise your rate", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "$15/mo savings", valueSubtext: "With eligible voice plan", weight: 3 }
+                    "5 Year Price Guarantee": { value: "Included", weight: 2 },
+                    "Speed": { value: "Fastest", weight: 2 },
+                    "Data": { value: "Unlimited", weight:  3},
+                    
+                    "Usage": { value: "At approved address", weight: 1 },
+                    
+                    
+                    "Equipment": { value: "High-performance WiFi 7 Gateway", weight: 2 },
+                    "Wi-Fi Mesh Extender": { value: "Not Included", weight: 1 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Not Included", weight: 0 },
+
+                    "Hulu": { value: "Not Included", subtext:"With ads", weight: 1 },
+                    "Paramount+": { value: "Not Included", subtext:"Essential plan", weight: 1 },
+                    
+                    "Assurant® Personal TechPro": { value: "Not Included", weight: 1 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
                 }
             },
             "Rely Home Internet": {
-                displayName: "Rely Home Internet",
+                displayName: "Rely Home Internett",
                 weight: 80,
                 benefits: {
-                    "Monthly Price": { value: "$55/mo", valueSubtext: "$40/mo with eligible voice line", weight: 3 },
-                    "Speed": { value: "Up to 100 Mbps", valueSubtext: "Typical download speeds", weight: 3 },
-                    "Data": { value: "Truly unlimited", valueSubtext: "No data caps", weight: 4 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$50/month", valueSubtext:"$35 w/ voice line", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", valueSubtext: "We won't raise your rate", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "$15/mo savings", valueSubtext: "With eligible voice plan", weight: 3 }
-                }
+                    "5 Year Price Guarantee": { value: "Included", weight: 2 },
+                    "Speed": { value: "Fast", weight: 1 },
+                    "Data": { value: "Unlimited", weight:  3},
+                    
+                    "Usage": { value: "At approved address", weight: 1 },
+                    
+                    
+                    "Equipment": { value: "High-performance Gateway", weight: 1 },
+                    "Wi-Fi Mesh Extender": { value: "Not Included", weight: 1 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Not Included", weight: 0 },
+
+                    "Hulu": { value: "Not Included", subtext:"With ads", weight: 1 },
+                    "Paramount+": { value: "Not Included", subtext:"Essential plan", weight: 1 },
+                    
+                    "Assurant® Personal TechPro": { value: "Not Included", weight: 1 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
+                }  
             },
             "Home Internet Backup": {
                 displayName: "Home Internet Backup",
-                weight: 50,
+                weight: 70,
                 benefits: {
-                    "Monthly Price": { value: "$25/mo", weight: 3 },
-                    "Speed": { value: "Up to 100 Mbps", valueSubtext: "Typical download speeds", weight: 3 },
-                    "Data": { value: "Truly unlimited", valueSubtext: "No data caps", weight: 4 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$20/month", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "Not eligible", weight: 0 }
+                    "5 Year Price Guarantee": { value: "Not Included", weight: 1 },
+                    "Speed": { value: "Fast", weight: 1 },
+                    "Data": { value: "130GB High-speed data", valueSubtext:"Then unlimited at 600KBPS", weight:  1},
+                    
+                    "Usage": { value: "At approved address", weight: 1 },
+                    
+                    
+                    "Equipment": { value: "High-performance Gateway", weight: 1 },
+                    "Wi-Fi Mesh Extender": { value: "Not Included", weight: 1 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Not Included", weight: 0 },
+
+                    "Hulu": { value: "Not Included", subtext:"With ads", weight: 1 },
+                    "Paramount+": { value: "Not Included", subtext:"Essential plan", weight: 1 },
+                    
+                    "Assurant® Personal TechPro": { value: "Not Included", weight: 1 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
+                    
                 }
             },
             "AWAY Internet 200GB": {
                 displayName: "AWAY Internet 200GB",
-                weight: 60,
+                weight: 110,
                 benefits: {
-                    "Monthly Price": { value: "$115/mo", weight: 3 },
-                    "Speed": { value: "5G/4G LTE speeds", valueSubtext: "Mobile network speeds", weight: 3 },
-                    "Data": { value: "200GB high-speed", valueSubtext: "Then unlimited at reduced speeds", weight: 2 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$110/month", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "Not eligible", weight: 0 }
+                    "5 Year Price Guarantee": { value: "Included", weight: 2 },
+                    "Speed": { value: "Fast", weight: 1 },
+                    "Data": { value: "200GB High-speed data", valueSubtext:"Then unlimited at 600KBPS", weight:  2},
+                    
+                    "Usage": { value: "Anywhere", weight: 2 },
+                    
+                    
+                    "Equipment": { value: "High-performance Portable Gateway", weight: 3 },
+                    "Wi-Fi Mesh Extender": { value: "Not Included", weight: 1 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Not Included", weight: 0 },
+
+                    "Hulu": { value: "Not Included", subtext:"With ads", weight: 1 },
+                    "Paramount+": { value: "Not Included", subtext:"Essential plan", weight: 1 },
+                    
+                    "Assurant® Personal TechPro": { value: "Not Included", weight: 1 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
+                    
                 }
             },
             "AWAY Internet Unlimited": {
                 displayName: "AWAY Internet Unlimited",
-                weight: 70,
+                weight: 120,
                 benefits: {
-                    "Monthly Price": { value: "$165/mo", weight: 3 },
-                    "Speed": { value: "5G/4G LTE speeds", valueSubtext: "Mobile network speeds", weight: 3 },
-                    "Data": { value: "Truly unlimited", valueSubtext: "No data caps", weight: 4 },
-                    "Equipment": { value: "5G gateway included", weight: 2 },
+                    "Monthly Price": { subtext:"w/ AutoPay, plus taxes and fees", value: "$160/month", weight: 1 },
                     "Contract": { value: "No annual contract", weight: 2 },
-                    "Price Lock": { value: "Price lock guarantee", weight: 3 },
-                    "Autopay Discount": { value: "Eligible", weight: 1 },
-                    "Voice Line Discount": { value: "Not eligible", weight: 0 }
+                    "5 Year Price Guarantee": { value: "Included", weight: 2 },
+                    "Speed": { value: "Fast", weight: 1 },
+                    "Data": { value: "Unlimited", weight:  3},
+                    
+                    "Usage": { value: "Anywhere", weight: 2 },
+                    
+                    
+                    "Equipment": { value: "High-performance Portable Gateway", weight: 3 },
+                    "Wi-Fi Mesh Extender": { value: "Not Included", weight: 1 },
+
+                    "Standard Security": { value: "Included", weight: 1 },
+                    "Advanced Cyber Security": { value: "Not Included", weight: 0 },
+
+                    "Hulu": { value: "Not Included", subtext:"With ads", weight: 1 },
+                    "Paramount+": { value: "Not Included", subtext:"Essential plan", weight: 1 },
+                    
+                    "Assurant® Personal TechPro": { value: "Not Included", weight: 1 },
+                    "Worry-free 15 day test drive": { value: "Included", weight: 1 },
+                    "Simple 15-minute setup": { value: "Included", weight: 1 },
+
+                    
+                    "T-Mobile Tuesday": { value: "Included", weight: 1 },
+                    
+                    
                 }
             },
             "Business Unlimited Internet": {
@@ -7269,7 +7469,7 @@
             
             // Show/hide tabs based on what the other slot has
             // Compare like with like: internet vs internet, phone vs phone
-            document.querySelectorAll('.plan-tab').forEach(tab => {
+            document.querySelectorAll('.plan-tab[data-plan-type]').forEach(tab => {
                 const tabType = tab.getAttribute('data-plan-type');
                 if (otherSlotType === 'internet') {
                     // Other slot has internet - show ONLY Internet tab
@@ -7718,7 +7918,12 @@
             const plan = getComparisonDataForPlan(planKey);
             if (!plan) return;
             
-            let html = '<div class="comparison-table">';
+            // Check if plan is premium for styling purposes
+            const weight = getPlanWeight(planKey);
+            const isPremium = weight > 0;
+            const tableClass = isPremium ? 'comparison-table plan1-premium' : 'comparison-table';
+            
+            let html = `<div class="${tableClass}">`;
             
             Object.entries(plan.benefits).forEach(([benefitKey, benefitData]) => {
                 // Skip hidden benefits when showing a single plan
@@ -7758,13 +7963,35 @@
             
             if (!plan1 || !plan2) return;
             
+            // Check if each plan header is premium (magenta) for styling purposes
+            // This must match the logic in updateComparison() for trigger styling
+            const planWeight1 = getPlanWeight(plan1Key);
+            const planWeight2 = getPlanWeight(plan2Key);
+            let isPlan1Premium = false;
+            let isPlan2Premium = false;
+            
+            if (planWeight1 > planWeight2) {
+                isPlan1Premium = true;
+            } else if (planWeight2 > planWeight1) {
+                isPlan2Premium = true;
+            } else if (planWeight1 > 0) {
+                // Equal weights and both > 0, both get premium
+                isPlan1Premium = true;
+                isPlan2Premium = true;
+            }
+            
+            // Build table class based on premium status
+            let tableClasses = ['comparison-table'];
+            if (isPlan1Premium) tableClasses.push('plan1-premium');
+            if (isPlan2Premium) tableClasses.push('plan2-premium');
+            
             // Collect all unique benefits from both plans
             const allBenefits = new Set([
                 ...Object.keys(plan1.benefits),
                 ...Object.keys(plan2.benefits)
             ]);
             
-            let html = '<div class="comparison-table">';
+            let html = `<div class="${tableClasses.join(' ')}">`;
             
             allBenefits.forEach(benefitKey => {
                 const benefit1 = plan1.benefits[benefitKey];
@@ -9075,6 +9302,11 @@
             ]);
             
             // Build the comparison table HTML
+            // Build table class based on premium status
+            let tableClasses = ['comparison-table'];
+            if (isPlan1Premium) tableClasses.push('plan1-premium');
+            if (isPlan2Premium) tableClasses.push('plan2-premium');
+            
             let comparisonHtml = `
                 <div class="print-benefits-comparison">
                     <div class="compare-dropdowns">
@@ -9086,7 +9318,7 @@
                             <div class="compare-plan-name-header ${isPlan2Premium ? 'premium' : ''}">${plan2Key}</div>
                         </div>
                     </div>
-                    <div class="comparison-table">
+                    <div class="${tableClasses.join(' ')}">
             `;
             
             allBenefits.forEach(benefitKey => {
