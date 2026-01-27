@@ -201,6 +201,291 @@
             opacity: 0.7;
             text-decoration: underline;
         }
+        
+        /* Quote title and compare section in row header */
+        .quote-title-input {
+            border: none !important;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            padding: 0 2px;
+            margin: 0;
+            border-radius: 0;
+            min-width: 1.4em;
+            width: auto;
+            height: 1.4em;
+            line-height: 1.4;
+            cursor: text;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            box-shadow: none !important;
+            outline: none !important;
+            font-family: inherit;
+            overflow: visible;
+        }
+        .quote-title-input:hover,
+        .quote-title-input:focus,
+        .quote-title-input:active {
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .row-actions-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .compare-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+        
+        /* Disabled button state for Quotes button */
+        .btn-compare-quotes:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        /* Quote Comparison Section Styles - matches compare-section pattern */
+        #quote-compare-section {
+            display: none;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        #quote-compare-section.active {
+            display: block;
+        }
+        
+        /* Hide elements when in quote compare mode */
+        body.quote-compare-mode .toggle-container,
+        body.quote-compare-mode #add-row-btn,
+        body.quote-compare-mode #load-quote-btn,
+        body.quote-compare-mode .hamburger-btn,
+        body.quote-compare-mode .carousel-nav,
+        body.quote-compare-mode .carousel-nav-arrow,
+        body.quote-compare-mode #rows-container,
+        body.quote-compare-mode #compare-section,
+        body.quote-compare-mode #export-pdf {
+            display: none !important;
+        }
+        
+        .quote-compare-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px 0;
+        }
+        .quote-compare-grid {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .quote-compare-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+        .quote-card-content {
+            flex: 1;
+        }
+        .quote-card-footer {
+            margin-top: auto;
+        }
+        .quote-compare-grid.two-quotes .quote-compare-card {
+            max-width: calc(50% - 10px);
+        }
+        .quote-compare-grid.three-quotes .quote-compare-card {
+            max-width: calc(33.333% - 14px);
+        }
+        .quote-card-header {
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 0;
+        }
+        .quote-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 5px;
+        }
+        .quote-card-plan {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .quote-card-price {
+            text-align: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+        .quote-card-price-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1.1;
+        }
+        .quote-card-price-tax {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+        }
+        .quote-card-price-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .quote-card-section {
+            margin-bottom: 15px;
+        }
+        .quote-card-section-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .quote-card-section-content {
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+        .quote-card-device {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .quote-card-device:last-child {
+            border-bottom: none;
+        }
+        .quote-card-device-name {
+            font-weight: 500;
+        }
+        .quote-card-device-price {
+            color: var(--text-secondary);
+        }
+        .quote-card-savings-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .quote-card-savings {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid var(--border-color);
+        }
+        .quote-card-savings-amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .quote-card-savings-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .quote-card-cd-subtext {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        
+        /* Quote Selection Modal Styles */
+        .quote-select-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .quote-select-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quote-select-item:hover {
+            border-color: var(--primary-color);
+            background: rgba(226, 0, 116, 0.03);
+        }
+        .quote-select-item.selected {
+            border-color: var(--primary-color);
+            background: rgba(226, 0, 116, 0.08);
+        }
+        .quote-select-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .quote-select-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .quote-select-item.selected .quote-select-checkbox {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .quote-select-checkbox svg {
+            display: none;
+            width: 16px;
+            height: 16px;
+            color: white;
+        }
+        .quote-select-item.selected .quote-select-checkbox svg {
+            display: block;
+        }
+        .quote-select-info {
+            flex: 1;
+        }
+        .quote-select-name {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        .quote-select-details {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .quote-select-count {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 900px) {
+            .quote-compare-grid.two-quotes .quote-compare-card,
+            .quote-compare-grid.three-quotes .quote-compare-card {
+                max-width: 100%;
+            }
+        }
 
         .compare-buttons {
             display: flex;
@@ -2523,9 +2808,10 @@
                 overflow: visible;
                 height: auto;
             }
-            header, h1, .toggle-container, .btn-remove, .device-actions, #add-row-btn, #export-pdf, .timeline-toggle-wrapper, button, .btn, .step-number, .collapse-icon, .stepper-btn, .modal-overlay, .settings-sidebar, .settings-overlay, .hamburger-btn, #compare-section, .compare-link-wrapper { display: none !important; }
+            header, h1, .toggle-container, .btn-remove, .device-actions, #add-row-btn, #export-pdf, .timeline-toggle-wrapper, button, .btn, .step-number, .collapse-icon, .stepper-btn, .modal-overlay, .settings-sidebar, .settings-overlay, .hamburger-btn, #compare-section, .compare-link-wrapper, .quote-title-input, .compare-label { display: none !important; }
             #print-info-container { display: none !important; }
             .options-hint-text { display: none !important; }
+            .savings-toggle-text { text-decoration: none !important; }
             .app-container { 
                 display: block !important;
                 overflow: visible;
@@ -4531,6 +4817,19 @@
             </div>
         </div>
         
+        <!-- QUOTE COMPARISON SECTION -->
+        <div id="quote-compare-section">
+            <div class="quote-compare-buttons">
+                <button class="btn btn-secondary btn-action compare-back-btn" onclick="closeQuoteCompareSection()">
+                    <span class="compare-back-arrow">←</span>
+                    <span>Back</span>
+                </button>
+            </div>
+            <div class="quote-compare-grid" id="quote-compare-grid">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+        
         <!-- Page Footer Credit (visible on screen) -->
         <div class="page-footer-credit">Quote Builder V2.45 | Made by Luke Shrader</div>
         
@@ -4715,6 +5014,22 @@
                         <option value="list">List</option>
                         <option value="stacked">Swipe Between</option>
                     </select>
+                </div>
+            </div>
+            
+            <!-- Compare Page Prices -->
+            <div class="settings-section draggable-section" data-section-id="compare-prices">
+                <div class="settings-section-title">
+                    <span class="drag-handle">⋮⋮</span>
+                    Compare Page Prices
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Show itemized prices on the quote comparison page</p>
+                <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem;">Display itemized prices</span>
+                    <label class="switch-sm">
+                        <input type="checkbox" id="show-compare-prices" onchange="toggleComparePrices(this.checked)" checked>
+                        <span class="slider-sm"></span>
+                    </label>
                 </div>
             </div>
             
@@ -5446,6 +5761,23 @@
                 <div id="load-result" class="scan-result" style="display: none;">
                     <span id="load-result-text"></span>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- QUOTE SELECTION MODAL -->
+    <div id="quote-select-modal" class="modal-overlay" onclick="if(event.target === this) closeQuoteSelectModal()">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Compare Quotes</h3>
+                <button class="modal-header-close" onclick="closeQuoteSelectModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="quote-select-count" id="quote-select-count">0 of 3 selected</div>
+                <div class="quote-select-list" id="quote-select-list">
+                    <!-- Populated dynamically -->
+                </div>
+                <button class="btn btn-primary" id="quote-compare-confirm-btn" onclick="confirmQuoteComparison()" disabled style="width: 100%;">Compare Selected Quotes</button>
             </div>
         </div>
     </div>
@@ -6840,6 +7172,7 @@
         };
         let roundingMode = 'none'; // 'none', 'up-5', 'down-5', 'up-10', 'down-10'
         let showPerLinePricing = false; // Show price per line breakdown
+        let showComparePrices = true; // Show monthly prices on compare quote page
 
         document.addEventListener('DOMContentLoaded', () => {
             // Load settings from URL hash first
@@ -7198,6 +7531,7 @@
                 qds: quoteDisplayStyle,
                 adj: globalAdjustments,
                 splp: showPerLinePricing,
+                scp: showComparePrices,
                 // Rep info
                 rn: document.getElementById('contact-rep-name')?.value || '',
                 rp: document.getElementById('contact-rep-phone')?.value || '',
@@ -7290,6 +7624,11 @@
                     showPerLinePricing = settings.splp;
                     const checkbox = document.getElementById('show-per-line');
                     if (checkbox) checkbox.checked = showPerLinePricing;
+                }
+                if (settings.scp !== undefined) {
+                    showComparePrices = settings.scp;
+                    const checkbox = document.getElementById('show-compare-prices');
+                    if (checkbox) checkbox.checked = showComparePrices;
                 }
                 // Load rep info
                 if (settings.rn) {
@@ -8285,6 +8624,15 @@
             showPerLinePricing = enabled;
             recalculateAllRows();
             saveSettingsToURL();
+        }
+        
+        function toggleComparePrices(enabled) {
+            showComparePrices = enabled;
+            saveSettingsToURL();
+            // Refresh compare view if visible
+            if (currentMode === 'compare') {
+                refreshCompareView();
+            }
         }
         
         function updateRoundingMode() {
@@ -9996,6 +10344,7 @@
                 showStandardProtection: false,
                 showProtectionLabel: true,
                 showYearlySavings: false,
+                quoteTitle: `Quote ${rowCount}`,
                 connectedDevices: [], 
                 homeInternet: [],
                 accessories: [],
@@ -10207,7 +10556,10 @@
                     ` : ''}
                     <div class="row-actions" id="${rowId}-row-actions">
                         <div class="row-actions-left">
-                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">Compare</button>
+                            <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${rowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
+                            <span class="compare-label">Compare:</span>
+                            <button class="btn btn-secondary btn-action btn-compare-quotes" id="${rowId}-compare-quotes-btn" onclick="goToCompareQuotes()" disabled>Quotes</button>
+                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">Plans</button>
                         </div>
                         <div class="row-actions-right">
                             <button class="btn btn-secondary btn-action" onclick="duplicateRow('${rowId}')">Duplicate</button>
@@ -10404,6 +10756,12 @@
             // Add fade-in animation
             rowDiv.classList.add('fade-in');
             
+            // Initialize quote title width
+            autoResizeQuoteTitle(rowId);
+            
+            // Update compare quotes button state
+            updateCompareQuotesButtonState();
+            
             // Update carousel if in stacked mode
             if (quoteDisplayStyle === 'stacked') {
                 const rows = document.querySelectorAll('.calculator-row');
@@ -10436,6 +10794,532 @@
                     delete removeConfirmTimers[rowId];
                 }, 3000);
             }
+        }
+        
+        function updateQuoteTitle(rowId, value) {
+            if (STATE[rowId]) {
+                STATE[rowId].quoteTitle = value;
+            }
+            // Auto-resize the input
+            autoResizeQuoteTitle(rowId);
+        }
+        
+        function autoResizeQuoteTitle(rowId) {
+            const input = document.getElementById(`${rowId}-quote-title`);
+            if (!input) return;
+            
+            // Create a temporary span to measure text width
+            const span = document.createElement('span');
+            span.style.visibility = 'hidden';
+            span.style.position = 'absolute';
+            span.style.whiteSpace = 'pre';
+            span.style.font = getComputedStyle(input).font;
+            span.style.fontWeight = '700';
+            span.style.fontSize = '1rem';
+            span.style.fontFamily = getComputedStyle(input).fontFamily;
+            span.style.letterSpacing = getComputedStyle(input).letterSpacing;
+            span.textContent = input.value || input.placeholder;
+            document.body.appendChild(span);
+            
+            // Set width with extra space for cursor and padding
+            const width = span.offsetWidth + 30;
+            input.style.width = width + 'px';
+            
+            document.body.removeChild(span);
+        }
+        
+        // Track selected quotes for comparison
+        let selectedQuotesForComparison = [];
+        
+        function updateCompareQuotesButtonState() {
+            const rows = document.querySelectorAll('.calculator-row');
+            const hasEnoughQuotes = rows.length >= 2;
+            
+            // Update all "Quotes" buttons
+            document.querySelectorAll('.btn-compare-quotes').forEach(btn => {
+                btn.disabled = !hasEnoughQuotes;
+            });
+        }
+        
+        function goToCompareQuotes() {
+            // Reset selection
+            selectedQuotesForComparison = [];
+            
+            // Populate the quote selection list
+            const listContainer = document.getElementById('quote-select-list');
+            listContainer.innerHTML = '';
+            
+            const rows = document.querySelectorAll('.calculator-row');
+            rows.forEach(row => {
+                const rowId = row.id;
+                const state = STATE[rowId];
+                if (!state) return;
+                
+                // Get quote title
+                const titleInput = document.getElementById(`${rowId}-quote-title`);
+                const quoteTitle = titleInput ? titleInput.value : (state.quoteTitle || rowId);
+                
+                // Get plan name
+                const isManualMode = row.getAttribute('data-mode') === 'existing';
+                let planName = 'No Plan Selected';
+                if (!isManualMode) {
+                    const planEl = document.getElementById(`${rowId}-plan`);
+                    if (planEl && planEl.value) {
+                        planName = planEl.value;
+                    }
+                } else {
+                    planName = 'Manual Entry';
+                }
+                
+                // Get line count from the lines input (not line-count)
+                const linesEl = document.getElementById(`${rowId}-lines`);
+                const lineCount = linesEl ? parseInt(linesEl.value) || 0 : 0;
+                
+                // Get device count
+                const deviceCount = state.devices?.length || 0;
+                
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'quote-select-item';
+                itemDiv.setAttribute('data-row-id', rowId);
+                itemDiv.innerHTML = `
+                    <div class="quote-select-checkbox">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div class="quote-select-info">
+                        <div class="quote-select-name">${quoteTitle}</div>
+                        <div class="quote-select-details">${planName} • ${lineCount} line${lineCount !== 1 ? 's' : ''} • ${deviceCount} device${deviceCount !== 1 ? 's' : ''}</div>
+                    </div>
+                `;
+                itemDiv.onclick = () => toggleQuoteSelection(itemDiv, rowId);
+                listContainer.appendChild(itemDiv);
+            });
+            
+            updateQuoteSelectionCount();
+            document.getElementById('quote-select-modal').classList.add('open');
+        }
+        
+        function toggleQuoteSelection(element, rowId) {
+            const isSelected = element.classList.contains('selected');
+            
+            if (isSelected) {
+                // Deselect
+                element.classList.remove('selected');
+                selectedQuotesForComparison = selectedQuotesForComparison.filter(id => id !== rowId);
+            } else {
+                // Check if we already have 3 selected
+                if (selectedQuotesForComparison.length >= 3) {
+                    return; // Can't select more
+                }
+                element.classList.add('selected');
+                selectedQuotesForComparison.push(rowId);
+            }
+            
+            updateQuoteSelectionCount();
+        }
+        
+        function updateQuoteSelectionCount() {
+            const count = selectedQuotesForComparison.length;
+            document.getElementById('quote-select-count').textContent = `${count} of 3 selected`;
+            
+            // Enable/disable confirm button
+            const confirmBtn = document.getElementById('quote-compare-confirm-btn');
+            confirmBtn.disabled = count < 2;
+            
+            // Disable unselected items if we have 3 selected
+            document.querySelectorAll('.quote-select-item').forEach(item => {
+                const rowId = item.getAttribute('data-row-id');
+                if (count >= 3 && !selectedQuotesForComparison.includes(rowId)) {
+                    item.classList.add('disabled');
+                } else {
+                    item.classList.remove('disabled');
+                }
+            });
+        }
+        
+        function closeQuoteSelectModal() {
+            document.getElementById('quote-select-modal').classList.remove('open');
+        }
+        
+        function confirmQuoteComparison() {
+            closeQuoteSelectModal();
+            showQuoteCompareSection();
+        }
+        
+        function showQuoteCompareSection() {
+            const grid = document.getElementById('quote-compare-grid');
+            grid.innerHTML = '';
+            
+            // Set grid class based on count
+            grid.className = 'quote-compare-grid';
+            if (selectedQuotesForComparison.length === 2) {
+                grid.classList.add('two-quotes');
+            } else if (selectedQuotesForComparison.length === 3) {
+                grid.classList.add('three-quotes');
+            }
+            
+            selectedQuotesForComparison.forEach(rowId => {
+                const card = createQuoteCompareCard(rowId);
+                grid.appendChild(card);
+            });
+            
+            // Add body class and show section (matches compare-mode pattern)
+            document.body.classList.add('quote-compare-mode');
+            document.getElementById('quote-compare-section').classList.add('active');
+        }
+        
+        function refreshCompareView() {
+            // Only refresh if compare section is visible
+            if (document.getElementById('quote-compare-section').classList.contains('active')) {
+                showQuoteCompareSection();
+            }
+        }
+        
+        function createQuoteCompareCard(rowId) {
+            const row = document.getElementById(rowId);
+            const state = STATE[rowId];
+            if (!state) return document.createElement('div');
+            
+            // Get quote title
+            const titleInput = document.getElementById(`${rowId}-quote-title`);
+            const quoteTitle = titleInput ? titleInput.value : (state.quoteTitle || rowId);
+            
+            // Get plan name
+            const isManualMode = row.getAttribute('data-mode') === 'existing';
+            let planName = 'No Plan Selected';
+            if (!isManualMode) {
+                const planEl = document.getElementById(`${rowId}-plan`);
+                if (planEl && planEl.value) {
+                    planName = planEl.value;
+                }
+            } else {
+                planName = 'Manual Entry';
+            }
+            
+            // Get line count from the lines input (not line-count)
+            const linesEl = document.getElementById(`${rowId}-lines`);
+            const lineCount = linesEl ? parseInt(linesEl.value) || 0 : 0;
+            
+            // Get monthly total and subtitle from the header
+            const totalEl = document.getElementById(`${rowId}-header-total-amount`);
+            const monthlyTotal = totalEl ? totalEl.textContent : '$0.00';
+            
+            // Get the subtitle from header-total-sub - separate "+Tax" from the rest
+            const totalSubEl = document.getElementById(`${rowId}-header-total-sub`);
+            let priceSubtitle = totalSubEl ? totalSubEl.textContent : 'per month';
+            // Extract just "+ Tax" for inline display, keep rest for below
+            let inlineTax = '';
+            let subtitleText = priceSubtitle;
+            if (priceSubtitle.includes('+ Tax')) {
+                inlineTax = '+ Tax';
+                subtitleText = priceSubtitle.replace('+ Tax', '').replace('  ', ' ').trim();
+            } else if (priceSubtitle.includes('+Tax')) {
+                inlineTax = '+ Tax';
+                subtitleText = priceSubtitle.replace('+Tax', '').replace('  ', ' ').trim();
+            }
+            
+            // Get devices
+            const devices = state.devices || [];
+            
+            // Get accessories
+            const accessories = state.accessories || [];
+            
+            // Get connected devices
+            const connectedDevices = state.connectedDevices || [];
+            
+            // Get home internet
+            const homeInternet = state.homeInternet || [];
+            
+            // Calculate total rebates - rebates use value * count, not amount
+            const rebates = state.rebates || [];
+            const totalRebates = rebates.reduce((sum, r) => sum + ((parseFloat(r.value) || 0) * (parseInt(r.count) || 1)), 0);
+            
+            // Get monthly savings from the discount-total element (already calculated by main page)
+            let totalDiscountMonthly = 0;
+            const discountTotalEl = document.getElementById(`${rowId}-discount-total`);
+            if (discountTotalEl) {
+                // Parse from "Total Monthly Savings: $XX.XX" or "Total Yearly Savings: $XX.XX"
+                const text = discountTotalEl.textContent || '';
+                const match = text.match(/\$([0-9,.]+)/);
+                if (match) {
+                    let val = parseFloat(match[1].replace(',', '')) || 0;
+                    // If yearly, divide by 12
+                    if (text.toLowerCase().includes('yearly')) {
+                        val = val / 12;
+                    }
+                    totalDiscountMonthly = val;
+                }
+            }
+            
+            const card = document.createElement('div');
+            card.className = 'quote-compare-card';
+            
+            // Build device list HTML and track total FMV for Account Credits
+            let devicesHtml = '';
+            let totalFMV = 0;
+            if (devices.length > 0) {
+                devices.forEach(dev => {
+                    // Use label for device name (that's where the user input goes)
+                    const deviceName = dev.label || 'Device';
+                    // Calculate monthly cost using same formula as main page: (cost - down - (promo - fmv)) / 24
+                    const retailPrice = parseFloat(dev.cost) || 0;
+                    const down = parseFloat(dev.down) || 0;
+                    const promo = parseFloat(dev.promo) || 0;
+                    const fmv = parseFloat(dev.fmv) || 0;
+                    const monthlyCost = Math.max(0, (retailPrice - down - (promo - fmv)) / 24);
+                    
+                    // Track total FMV for Account Credits section
+                    totalFMV += fmv;
+                    
+                    // Show N/A for BYOD (zero retail price), otherwise show monthly cost
+                    const costDisplay = retailPrice === 0 ? 'N/A' : `$${monthlyCost.toFixed(2)}/mo`;
+                    
+                    // Show down payment if present
+                    const downDisplay = down > 0 ? `<div class="quote-card-cd-subtext">Down: $${down.toFixed(2)}</div>` : '';
+                    
+                    // Show trade-in device name only (no amount)
+                    let tradeInDisplay = '';
+                    if (fmv > 0) {
+                        const tradeinName = dev.tradeinName ? dev.tradeinName.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '';
+                        if (tradeinName) {
+                            tradeInDisplay = `<div class="quote-card-cd-subtext">Trade-In: ${tradeinName}</div>`;
+                        }
+                    }
+                    
+                    devicesHtml += `
+                        <div class="quote-card-device">
+                            <div class="quote-card-device-info">
+                                <span class="quote-card-device-name">${deviceName}</span>
+                                ${downDisplay}
+                                ${tradeInDisplay}
+                            </div>
+                            ${showComparePrices ? `<span class="quote-card-device-price">${costDisplay}</span>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                devicesHtml = '<div style="color: var(--text-secondary); font-size: 0.9rem;">No devices added</div>';
+            }
+            
+            // Build accessories HTML
+            let accessoriesHtml = '';
+            if (accessories.length > 0) {
+                accessories.forEach(acc => {
+                    const accName = acc.name || 'Accessory';
+                    const accPrice = parseFloat(acc.price) || 0;
+                    const accQty = parseInt(acc.quantity) || 1;
+                    const isFinanced = acc.paymentMethod === 'finance';
+                    
+                    // For financed accessories, show monthly (/mo), otherwise show one-time price
+                    let priceDisplay = '';
+                    if (isFinanced) {
+                        const monthlyPrice = accPrice / 24;
+                        priceDisplay = `$${monthlyPrice.toFixed(2)}/mo`;
+                    } else {
+                        priceDisplay = `$${accPrice.toFixed(2)}`;
+                    }
+                    
+                    // Show quantity if more than 1
+                    const qtyDisplay = accQty > 1 ? ` (x${accQty})` : '';
+                    
+                    accessoriesHtml += `
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name">${accName}${qtyDisplay}</span>
+                            ${showComparePrices ? `<span class="quote-card-device-price">${priceDisplay}</span>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                accessoriesHtml = '<div style="color: var(--text-secondary); font-size: 0.9rem;">None</div>';
+            }
+            
+            // Build connected devices HTML - show plan name, device name as subtext, include device financing
+            let cdHtml = '';
+            if (connectedDevices.length > 0) {
+                // Default device names that shouldn't be displayed
+                const defaultDevNames = ['Watch', 'Tablet', 'Data Device', 'Tracker', 'Drive', 'Watches', 'Tablets', 'Data', 'SyncUp Trackers', 'SyncUp Drive'];
+                
+                connectedDevices.forEach(cd => {
+                    // Plan name is the main label
+                    const cdPlanName = cd.planKey || 'Connected Device Plan';
+                    // Device name is subtext only if:
+                    // 1. User actually entered one (not empty)
+                    // 2. It's not a default name
+                    // 3. There's a device cost (matching main page behavior)
+                    const devCost = cd.devCost || 0;
+                    const rawDevName = cd.devName && cd.devName.trim() !== '' ? cd.devName.trim() : '';
+                    const isDefaultName = defaultDevNames.includes(rawDevName);
+                    const cdDeviceName = (rawDevName && !isDefaultName && devCost > 0) ? rawDevName : '';
+                    
+                    // Calculate total monthly: plan cost + device financing
+                    const cdPlanCost = cd.planData?.price || 0;
+                    const term = cd.term || 24;
+                    const devDown = cd.devDown || 0;
+                    const devPromo = cd.devPromo || 0;
+                    const devMonthly = Math.max(0, (devCost - devDown - devPromo) / term);
+                    const cdTotalMonthly = cdPlanCost + devMonthly;
+                    
+                    cdHtml += `
+                        <div class="quote-card-device">
+                            <div class="quote-card-device-info">
+                                <span class="quote-card-device-name">${cdPlanName}</span>
+                                ${cdDeviceName ? `<div class="quote-card-cd-subtext">${cdDeviceName}</div>` : ''}
+                            </div>
+                            ${showComparePrices ? `<span class="quote-card-device-price">$${cdTotalMonthly.toFixed(2)}/mo</span>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                cdHtml = '<div style="color: var(--text-secondary); font-size: 0.9rem;">None</div>';
+            }
+            
+            // Build home internet HTML - calculate discounted price like main page
+            let hiHtml = '';
+            if (homeInternet.length > 0) {
+                // Check conditions for discounts
+                const hasVoiceline = lineCount >= 1;
+                const hasAutopay = state.discounts?.some(d => d.type === 'Autopay Discount') || false;
+                const is55Plan = planName && planName.includes('55');
+                const existingHasPlanCost = isManualMode && (state.manualPrice > 0 || parseFloat(document.getElementById(`${rowId}-manual-price`)?.value) > 0);
+                const maxHiBundleDiscount = 2;
+                let hiBundleDiscountUsed = 0;
+                // Track autopay usage (voice lines use first slots)
+                let autopayUsed = hasAutopay ? Math.min(lineCount, 8) : 0;
+                const maxAutopay = 8;
+                
+                homeInternet.forEach((hi, index) => {
+                    const hiName = hi.label || hi.planKey || 'Internet Plan';
+                    const plan = hi.planData;
+                    let price = plan?.price || 0;
+                    
+                    // Check eligibility flags
+                    const voicelineEligible = plan?.voicelineEligible !== false;
+                    const autopayEligible = plan?.autopayEligible !== false;
+                    
+                    // Apply voiceline bundling discount (max 2 HI)
+                    if ((hasVoiceline || existingHasPlanCost) && voicelineEligible && hiBundleDiscountUsed < maxHiBundleDiscount && plan?.priceWithVoiceline) {
+                        price = plan.priceWithVoiceline;
+                        hiBundleDiscountUsed++;
+                    }
+                    
+                    // Apply 55+ savings for first HI
+                    if (!isManualMode && is55Plan && index === 0 && voicelineEligible) {
+                        price -= 5;
+                    }
+                    
+                    // Apply autopay discount ($5 each)
+                    if (hasAutopay && autopayEligible && autopayUsed < maxAutopay) {
+                        price -= 5;
+                        autopayUsed++;
+                    }
+                    
+                    hiHtml += `
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name">${hiName}</span>
+                            ${showComparePrices ? `<span class="quote-card-device-price">$${price.toFixed(2)}/mo</span>` : ''}
+                        </div>
+                    `;
+                });
+            } else {
+                hiHtml = '<div style="color: var(--text-secondary); font-size: 0.9rem;">None</div>';
+            }
+            
+            // Check if user has yearly savings toggled
+            const showYearlySavings = state.showYearlySavings || false;
+            const savingsAmount = showYearlySavings ? totalDiscountMonthly * 12 : totalDiscountMonthly;
+            const savingsLabel = showYearlySavings ? 'Yearly Savings' : 'Monthly Savings';
+            const savingsDisplay = showYearlySavings ? `$${savingsAmount.toFixed(2)}` : `$${savingsAmount.toFixed(2)}/mo`;
+            
+            // Calculate Due Today from the displayed element (already calculated by main page)
+            const dueTodayEl = document.getElementById(`${rowId}-due-today-total`);
+            const dueTodayText = dueTodayEl ? dueTodayEl.textContent : '$0.00';
+            const dueTodayMatch = dueTodayText.match(/\$([0-9,.]+)/);
+            const dueToday = dueTodayMatch ? parseFloat(dueTodayMatch[1].replace(',', '')) || 0 : 0;
+            
+            // Calculate Saved Today from items
+            const savedTodayItems = state.savedTodayItems || [];
+            const savedToday = savedTodayItems.reduce((sum, item) => sum + ((item.amount || 0) * (item.quantity || 1)), 0);
+            
+            card.innerHTML = `
+                <div class="quote-card-header">
+                    <div class="quote-card-title">${quoteTitle}</div>
+                </div>
+                <div class="quote-card-price">
+                    <div class="quote-card-price-amount">${monthlyTotal} <span class="quote-card-price-tax">${inlineTax}</span></div>
+                    ${subtitleText ? `<div class="quote-card-price-label">${subtitleText}</div>` : ''}
+                </div>
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Voice Lines</div>
+                    <div class="quote-card-section-content">
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name" style="font-weight: 600;">${planName}</span>
+                            <span class="quote-card-device-price">${lineCount} line${lineCount !== 1 ? 's' : ''}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Devices (${devices.length})</div>
+                    <div class="quote-card-section-content">${devicesHtml}</div>
+                </div>
+                ${accessories.length > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Accessories (${accessories.length})</div>
+                    <div class="quote-card-section-content">${accessoriesHtml}</div>
+                </div>
+                ` : ''}
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Connected Devices (${connectedDevices.length})</div>
+                    <div class="quote-card-section-content">${cdHtml}</div>
+                </div>
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Home Internet (${homeInternet.length})</div>
+                    <div class="quote-card-section-content">${hiHtml}</div>
+                </div>
+                <div class="quote-card-footer">
+                    ${totalFMV > 0 ? `
+                    <div class="quote-card-savings-row">
+                        <div class="quote-card-savings" style="flex: 1;">
+                            <div class="quote-card-savings-amount">$${totalFMV.toFixed(2)}</div>
+                            <div class="quote-card-savings-label">Account Credits</div>
+                        </div>
+                    </div>
+                    ` : ''}
+                    ${(dueToday > 0 || savedToday > 0) ? `
+                    <div class="quote-card-savings-row">
+                        ${dueToday > 0 ? `
+                        <div class="quote-card-savings"${savedToday <= 0 ? ' style="flex: 1;"' : ''}>
+                            <div class="quote-card-savings-amount">$${dueToday.toFixed(2)}</div>
+                            <div class="quote-card-savings-label">Due Today</div>
+                        </div>
+                        ` : ''}
+                        ${savedToday > 0 ? `
+                        <div class="quote-card-savings"${dueToday <= 0 ? ' style="flex: 1;"' : ''}>
+                            <div class="quote-card-savings-amount">$${savedToday.toFixed(2)}</div>
+                            <div class="quote-card-savings-label">Saved Today</div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+                    <div class="quote-card-savings-row">
+                        <div class="quote-card-savings">
+                            <div class="quote-card-savings-amount">${savingsDisplay}</div>
+                            <div class="quote-card-savings-label">${savingsLabel}</div>
+                        </div>
+                        <div class="quote-card-savings">
+                            <div class="quote-card-savings-amount">$${totalRebates.toFixed(2)}</div>
+                            <div class="quote-card-savings-label">Total Rebates</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function closeQuoteCompareSection() {
+            document.body.classList.remove('quote-compare-mode');
+            document.getElementById('quote-compare-section').classList.remove('active');
         }
         
         function goToCompareWithPlan(rowId) {
@@ -10631,10 +11515,13 @@
                     }
                     // Update default benefits slider visibility
                     toggleDefaultBenefitsSwitch();
+                    // Update compare quotes button state
+                    updateCompareQuotesButtonState();
                 }, 300);
             } else {
                 updateExportButtonVisibility();
                 toggleDefaultBenefitsSwitch();
+                updateCompareQuotesButtonState();
             }
         }
 
