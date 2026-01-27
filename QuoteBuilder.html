@@ -2568,6 +2568,15 @@
         .timeline-toggle-wrapper { display: flex; align-items: center; gap: 10px; }
         .timeline-toggle-wrapper.hidden { display: none !important; }
         .timeline-toggle-label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        
+        /* Timeline Protection Slider - Expanding Horizontal Style */
+        .timeline-prot-slider { position: relative; display: inline-flex; background: #f0f0f0; border-radius: 20px; padding: 3px; overflow: hidden; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .timeline-prot-slider-option { padding: 5px 12px; font-size: 0.75rem; font-weight: 600; border-radius: 16px; cursor: pointer; transition: all 0.2s ease; color: var(--text-secondary); white-space: nowrap; user-select: none; opacity: 0; max-width: 0; padding-left: 0; padding-right: 0; overflow: hidden; pointer-events: none; }
+        .timeline-prot-slider-option.active { background: #ffeef5; color: var(--primary-color); opacity: 1; max-width: 100px; padding: 5px 12px; pointer-events: auto; }
+        .timeline-prot-slider.open .timeline-prot-slider-option { opacity: 1; max-width: 100px; padding: 5px 12px; pointer-events: auto; }
+        .timeline-prot-slider.open .timeline-prot-slider-option:hover:not(.active) { background: rgba(0,0,0,0.08); }
+        .timeline-prot-slider .timeline-prot-slider-option + .timeline-prot-slider-option { margin-left: 0; }
+        .timeline-prot-slider.open .timeline-prot-slider-option + .timeline-prot-slider-option { margin-left: 2px; }
         .switch-sm { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
         .switch-sm input { opacity: 0; width: 0; height: 0; }
         .slider-sm { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #e0e0e0; transition: .4s; border-radius: 24px; }
@@ -10700,11 +10709,10 @@
                             <div class="timeline-controls">
                                 <div class="timeline-title" style="color:var(--primary-color); font-weight:800; font-size:0.9rem; text-transform:uppercase;">Bill Credit Timeline</div>
                                 <div class="timeline-toggle-wrapper" id="${rowId}-timeline-toggle-wrap">
-                                    <span class="timeline-toggle-label">Protection</span>
-                                    <label class="switch-sm">
-                                        <input type="checkbox" id="${rowId}-timeline-toggle" checked onchange="calculateRow('${rowId}')">
-                                        <span class="slider-sm"></span>
-                                    </label>
+                                    <div class="timeline-prot-slider" id="${rowId}-timeline-prot-slider">
+                                        <!-- Options will be dynamically populated -->
+                                    </div>
+                                    <input type="hidden" id="${rowId}-timeline-toggle" value="protected">
                                 </div>
                             </div>
                             <div id="${rowId}-timeline-visual" class="timeline-container"></div>
@@ -10861,22 +10869,35 @@
                 
                 // Get plan name
                 const isManualMode = row.getAttribute('data-mode') === 'existing';
-                let planName = 'No Plan Selected';
+                let planName = '';
                 if (!isManualMode) {
                     const planEl = document.getElementById(`${rowId}-plan`);
                     if (planEl && planEl.value) {
                         planName = planEl.value;
+                    } else {
+                        planName = 'No Plan Selected';
                     }
-                } else {
-                    planName = 'Manual Entry';
                 }
+                // For manual/existing mode, planName stays empty
                 
                 // Get line count from the lines input (not line-count)
                 const linesEl = document.getElementById(`${rowId}-lines`);
                 const lineCount = linesEl ? parseInt(linesEl.value) || 0 : 0;
                 
+                // Get Add-a-Lines count
+                const voiceLines = state.voiceLines || [];
+                const aalCount = voiceLines.reduce((sum, group) => sum + (group.quantity || 0), 0);
+                
                 // Get device count
                 const deviceCount = state.devices?.length || 0;
+                
+                // Build details string - skip planName if empty
+                let detailsParts = [];
+                if (planName) detailsParts.push(planName);
+                detailsParts.push(`${lineCount} line${lineCount !== 1 ? 's' : ''}`);
+                if (aalCount > 0) detailsParts.push(`${aalCount} AAL`);
+                detailsParts.push(`${deviceCount} device${deviceCount !== 1 ? 's' : ''}`);
+                const detailsString = detailsParts.join(' • ');
                 
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'quote-select-item';
@@ -10889,7 +10910,7 @@
                     </div>
                     <div class="quote-select-info">
                         <div class="quote-select-name">${quoteTitle}</div>
-                        <div class="quote-select-details">${planName} • ${lineCount} line${lineCount !== 1 ? 's' : ''} • ${deviceCount} device${deviceCount !== 1 ? 's' : ''}</div>
+                        <div class="quote-select-details">${detailsString}</div>
                     </div>
                 `;
                 itemDiv.onclick = () => toggleQuoteSelection(itemDiv, rowId);
@@ -10987,15 +11008,16 @@
             
             // Get plan name
             const isManualMode = row.getAttribute('data-mode') === 'existing';
-            let planName = 'No Plan Selected';
+            let planName = '';
             if (!isManualMode) {
                 const planEl = document.getElementById(`${rowId}-plan`);
                 if (planEl && planEl.value) {
                     planName = planEl.value;
+                } else {
+                    planName = 'No Plan Selected';
                 }
-            } else {
-                planName = 'Manual Entry';
             }
+            // For manual/existing mode, planName stays empty (no "Manual Entry")
             
             // Get line count from the lines input (not line-count)
             const linesEl = document.getElementById(`${rowId}-lines`);
@@ -11225,6 +11247,59 @@
                 hiHtml = '<div style="color: var(--text-secondary); font-size: 0.9rem;">None</div>';
             }
             
+            // Build Add-a-Lines (voiceLines) HTML - for Existing mode
+            const voiceLines = state.voiceLines || [];
+            let voiceLinesHtml = '';
+            let totalAddALines = 0;
+            if (voiceLines.length > 0) {
+                voiceLines.forEach(group => {
+                    const lineCost = group.cost || 0;
+                    const qty = group.quantity || 1;
+                    totalAddALines += qty;
+                    
+                    // Check for BOGO
+                    const hasBogo = group.bogoType !== 'none' && qty >= 2;
+                    const bogoPrice = group.bogoType === 'free' ? 0 : 10;
+                    
+                    // Generate individual line entries
+                    for (let i = 0; i < qty; i++) {
+                        let linePrice;
+                        if (hasBogo && i === qty - 1) {
+                            // Last line in a BOGO group gets the BOGO price
+                            linePrice = bogoPrice;
+                        } else {
+                            linePrice = lineCost;
+                        }
+                        
+                        voiceLinesHtml += `
+                            <div class="quote-card-device">
+                                <span class="quote-card-device-name">+1 Voice line</span>
+                                ${showComparePrices ? `<span class="quote-card-device-price">$${linePrice.toFixed(2)}/mo</span>` : ''}
+                            </div>
+                        `;
+                    }
+                });
+            }
+            
+            // Build Addons HTML
+            const addons = state.addons || [];
+            let addonsHtml = '';
+            if (addons.length > 0) {
+                addons.forEach(addon => {
+                    const addonName = addon.name || 'Add-on';
+                    const addonPrice = parseFloat(addon.price) || 0;
+                    const addonAmount = parseInt(addon.amount) || 1;
+                    const totalPrice = addonPrice * addonAmount;
+                    
+                    addonsHtml += `
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name">${addonName}${addonAmount > 1 ? ` (x${addonAmount})` : ''}</span>
+                            ${showComparePrices ? `<span class="quote-card-device-price">$${totalPrice.toFixed(2)}/mo</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
+            
             // Check if user has yearly savings toggled
             const showYearlySavings = state.showYearlySavings || false;
             const savingsAmount = showYearlySavings ? totalDiscountMonthly * 12 : totalDiscountMonthly;
@@ -11252,12 +11327,31 @@
                 <div class="quote-card-section">
                     <div class="quote-card-section-title">Voice Lines</div>
                     <div class="quote-card-section-content">
+                        ${planName ? `
                         <div class="quote-card-device">
                             <span class="quote-card-device-name" style="font-weight: 600;">${planName}</span>
                             <span class="quote-card-device-price">${lineCount} line${lineCount !== 1 ? 's' : ''}</span>
                         </div>
+                        ` : `
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name" style="font-weight: 600;">Current Lines</span>
+                            <span class="quote-card-device-price">${lineCount} line${lineCount !== 1 ? 's' : ''}</span>
+                        </div>
+                        `}
                     </div>
                 </div>
+                ${totalAddALines > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Add-A-Lines</div>
+                    <div class="quote-card-section-content">${voiceLinesHtml}</div>
+                </div>
+                ` : ''}
+                ${addons.length > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Add-ons (${addons.length})</div>
+                    <div class="quote-card-section-content">${addonsHtml}</div>
+                </div>
+                ` : ''}
                 <div class="quote-card-section">
                     <div class="quote-card-section-title">Devices (${devices.length})</div>
                     <div class="quote-card-section-content">${devicesHtml}</div>
@@ -13113,8 +13207,18 @@
                 if (stdCheckbox) stdCheckbox.checked = false;
             }
             if (!checkbox.checked) {
+                // Reset timeline protection slider to first protection option
                 const timelineToggle = document.getElementById(`${rowId}-timeline-toggle`);
-                if (timelineToggle) timelineToggle.checked = true;
+                if (timelineToggle) {
+                    // Set to protected/p360 depending on what options are available
+                    const sliderContainer = document.getElementById(`${rowId}-timeline-prot-slider`);
+                    if (sliderContainer) {
+                        const firstOption = sliderContainer.querySelector('.timeline-prot-slider-option');
+                        if (firstOption && firstOption.dataset.value !== 'none') {
+                            timelineToggle.value = firstOption.dataset.value;
+                        }
+                    }
+                }
             }
             calculateRow(rowId);
         }
@@ -16315,12 +16419,13 @@
                     if (basicBlock) basicBlock.classList.remove('hidden');
                     if (footerBasicBlock) footerBasicBlock.classList.remove('hidden');
                     if (basicAmount) basicAmount.classList.add('shrink');
-                    if(timelineToggleWrap) timelineToggleWrap.classList.remove('hidden');
                 } else {
                     if (basicBlock) basicBlock.classList.add('hidden');
                     if (footerBasicBlock) footerBasicBlock.classList.add('hidden');
-                    if(timelineToggleWrap) timelineToggleWrap.classList.add('hidden');
                 }
+                
+                // Always show timeline protection slider when devices are present
+                if(timelineToggleWrap) timelineToggleWrap.classList.remove('hidden');
             } else {
                 // No devices - show total without protection subtitle
                 if (protectBlock) protectBlock.classList.remove('hidden');
@@ -16564,7 +16669,7 @@
                 timelineSection.classList.add('active');
                 document.getElementById(`${rowId}-fmv-total`).textContent = `$${totalFMV.toFixed(2)}`;
                 const toggle = document.getElementById(`${rowId}-timeline-toggle`);
-                const useProtection = toggle ? toggle.checked : true;
+                const toggleValue = toggle ? toggle.value : 'protected';
                 
                 // Check if all devices have protection disabled for this calculation
                 let allDevicesUnprotectedForTimeline = false;
@@ -16574,35 +16679,52 @@
                     });
                 }
                 
+                // Check if any non-BYOD device has P360 protection
+                let hasP360Protection = false;
                 // Check if any non-BYOD device has standard protection
-                let hasNonBYODStandardProtectionForTimeline = false;
+                let hasStandardProtection = false;
                 const protectedDevicesForTimeline = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
                 if (protectedDevicesForTimeline.length > 0) {
-                    hasNonBYODStandardProtectionForTimeline = STATE[rowId].devices.some((dev, idx) => {
-                        if (STATE[rowId].protectionStatus[idx] === false) return false;
-                        if (dev.cost === 0) return false; // Skip BYOD devices
+                    STATE[rowId].devices.forEach((dev, idx) => {
+                        if (STATE[rowId].protectionStatus[idx] === false) return;
                         const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
-                        return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                        if (typeof tierIdOrValue === 'string') {
+                            if (tierIdOrValue.startsWith('std-')) {
+                                hasStandardProtection = true;
+                            } else if (tierIdOrValue.startsWith('p360-')) {
+                                hasP360Protection = true;
+                            }
+                        }
                     });
                 }
                 
-                // Determine effective protection based on per-row settings
-                let effectiveUseProtection;
-                let effectiveProtectedTotal;
-                if (allDevicesUnprotectedForTimeline) {
-                    effectiveUseProtection = false; // Always no protection when all devices disabled
-                    effectiveProtectedTotal = totalBasic;
-                } else if (hasNonBYODStandardProtectionForTimeline) {
-                    // Non-BYOD device has standard protection
-                    effectiveUseProtection = (!showUnprotected && STATE[rowId].devices.length > 0) ? true : useProtection;
-                    effectiveProtectedTotal = totalStandardProtected;
+                // Update the timeline protection slider
+                const showStandardProtectionSetting = STATE[rowId].showStandardProtection;
+                updateTimelineProtectionSlider(rowId, hasP360Protection, hasStandardProtection, showStandardProtectionSetting);
+                
+                // Determine effective monthly cost based on slider selection
+                let activeMonthlyCost;
+                if (allDevicesUnprotectedForTimeline || toggleValue === 'none') {
+                    // No protection
+                    activeMonthlyCost = totalBasic;
+                } else if (toggleValue === 'standard') {
+                    // Standard protection
+                    activeMonthlyCost = totalStandardProtected;
+                } else if (toggleValue === 'p360') {
+                    // P360 protection
+                    activeMonthlyCost = totalProtected;
+                } else if (toggleValue === 'protected' || toggleValue === 'true') {
+                    // Generic protected - use whatever protection is assigned
+                    if (hasStandardProtection && !hasP360Protection) {
+                        activeMonthlyCost = totalStandardProtected;
+                    } else {
+                        activeMonthlyCost = totalProtected;
+                    }
                 } else {
-                    // Default: use P360 protection
-                    effectiveUseProtection = (!showUnprotected && STATE[rowId].devices.length > 0) ? true : useProtection;
-                    effectiveProtectedTotal = totalProtected;
+                    // Default to protected total
+                    activeMonthlyCost = totalProtected;
                 }
                 
-                const activeMonthlyCost = effectiveUseProtection ? effectiveProtectedTotal : totalBasic;
                 generateTimeline(rowId, activeMonthlyCost, totalFMV);
             } else {
                 timelineSection.classList.remove('active');
@@ -16666,6 +16788,152 @@
             
             // Update carousel container height if in carousel mode
             updateCarouselContainerHeight();
+        }
+        
+        // Update the timeline protection slider based on device protection settings
+        function updateTimelineProtectionSlider(rowId, hasP360, hasStandard, showStandardProtection) {
+            const sliderContainer = document.getElementById(`${rowId}-timeline-prot-slider`);
+            const hiddenInput = document.getElementById(`${rowId}-timeline-toggle`);
+            if (!sliderContainer || !hiddenInput) return;
+            
+            // Determine which options to show:
+            // - If showStandardProtection is ON (comparing P360 vs Standard): show "P360", "Standard", "None"
+            // - If only P360 devices exist (no showStandardProtection): show "P360", "None"
+            // - If only Standard devices exist (no showStandardProtection): show "Standard", "None"
+            
+            const options = [];
+            
+            if (showStandardProtection && hasP360) {
+                // User has P360 devices and is comparing to standard - show all 3 options
+                options.push({ id: 'p360', label: 'P360' });
+                options.push({ id: 'standard', label: 'Standard' });
+                options.push({ id: 'none', label: 'None' });
+            } else if (hasP360 && hasStandard) {
+                // User has both P360 and standard devices manually assigned (not comparing)
+                options.push({ id: 'protected', label: 'Protected' });
+                options.push({ id: 'none', label: 'None' });
+            } else if (hasP360) {
+                // Only P360 devices
+                options.push({ id: 'p360', label: 'P360' });
+                options.push({ id: 'none', label: 'None' });
+            } else if (hasStandard) {
+                // Only standard devices
+                options.push({ id: 'standard', label: 'Standard' });
+                options.push({ id: 'none', label: 'None' });
+            } else {
+                // No devices with protection - hide the slider
+                return;
+            }
+            
+            // Get current value or default to first option
+            let currentValue = hiddenInput.value;
+            const validValues = options.map(o => o.id);
+            if (!validValues.includes(currentValue)) {
+                // Map old values to new valid values
+                if (currentValue === 'true' || currentValue === 'protected') {
+                    currentValue = options[0].id; // Default to first protection option
+                } else if (currentValue === 'false') {
+                    currentValue = 'none';
+                } else {
+                    currentValue = options[0].id;
+                }
+            }
+            
+            // Build the expanding slider HTML - all options inline, only active one visible when collapsed
+            const optionsHtml = options.map(opt => {
+                const activeClass = (opt.id === currentValue) ? 'active' : '';
+                return `<div class="timeline-prot-slider-option ${activeClass}" data-value="${opt.id}">${opt.label}</div>`;
+            }).join('');
+            
+            sliderContainer.innerHTML = optionsHtml;
+            
+            // Use a single click handler on the container for better reliability
+            sliderContainer.onclick = function(e) {
+                e.stopPropagation();
+                const clickedOption = e.target.closest('.timeline-prot-slider-option');
+                const isOpen = sliderContainer.classList.contains('open');
+                
+                if (isOpen && clickedOption) {
+                    // Slider is open and user clicked an option - select it
+                    setTimelineProtection(rowId, clickedOption.dataset.value);
+                } else {
+                    // Slider is closed or clicked on background - toggle it
+                    toggleTimelineSlider(rowId);
+                }
+            };
+            
+            // Update hidden input
+            hiddenInput.value = currentValue;
+        }
+        
+        // Toggle the timeline slider expanded/collapsed
+        function toggleTimelineSlider(rowId) {
+            const sliderContainer = document.getElementById(`${rowId}-timeline-prot-slider`);
+            if (!sliderContainer) return;
+            
+            const isOpen = sliderContainer.classList.contains('open');
+            
+            // Close all other open sliders first
+            document.querySelectorAll('.timeline-prot-slider.open').forEach(el => {
+                if (el !== sliderContainer) {
+                    el.classList.remove('open');
+                }
+            });
+            
+            if (!isOpen) {
+                sliderContainer.classList.add('open');
+                
+                // Add click outside listener to close
+                setTimeout(() => {
+                    document.addEventListener('click', closeTimelineSliderOnClickOutside);
+                }, 0);
+            } else {
+                sliderContainer.classList.remove('open');
+                document.removeEventListener('click', closeTimelineSliderOnClickOutside);
+            }
+        }
+        
+        // Close slider when clicking outside
+        function closeTimelineSliderOnClickOutside(event) {
+            const openSliders = document.querySelectorAll('.timeline-prot-slider.open');
+            openSliders.forEach(slider => {
+                if (!slider.contains(event.target)) {
+                    slider.classList.remove('open');
+                }
+            });
+            
+            // Remove listener if no sliders are open
+            if (document.querySelectorAll('.timeline-prot-slider.open').length === 0) {
+                document.removeEventListener('click', closeTimelineSliderOnClickOutside);
+            }
+        }
+        
+        // Handle timeline protection slider click
+        function setTimelineProtection(rowId, value) {
+            const hiddenInput = document.getElementById(`${rowId}-timeline-toggle`);
+            const sliderContainer = document.getElementById(`${rowId}-timeline-prot-slider`);
+            if (!hiddenInput || !sliderContainer) return;
+            
+            // Update hidden input
+            hiddenInput.value = value;
+            
+            // Update active state on options
+            sliderContainer.querySelectorAll('.timeline-prot-slider-option').forEach(opt => {
+                if (opt.dataset.value === value) {
+                    opt.classList.add('active');
+                } else {
+                    opt.classList.remove('active');
+                }
+            });
+            
+            // Close the slider after a brief delay to show the selection
+            setTimeout(() => {
+                sliderContainer.classList.remove('open');
+                document.removeEventListener('click', closeTimelineSliderOnClickOutside);
+            }, 150);
+            
+            // Recalculate the row
+            calculateRow(rowId);
         }
 
         function generateTimeline(rowId, monthlyBill, credits) {
