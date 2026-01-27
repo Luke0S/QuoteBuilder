@@ -249,7 +249,9 @@
         body.compare-mode .toggle-container,
         body.compare-mode #add-row-btn,
         body.compare-mode #load-quote-btn,
-        body.compare-mode .hamburger-btn {
+        body.compare-mode .hamburger-btn,
+        body.compare-mode .carousel-nav,
+        body.compare-mode .carousel-nav-arrow {
             display: none !important;
         }
 
@@ -1832,6 +1834,15 @@
             font-size: 1.1rem;
             color: var(--primary-color);
         }
+        .savings-toggle-text {
+            cursor: pointer;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+            text-underline-offset: 3px;
+        }
+        .savings-toggle-text:hover {
+            text-decoration-style: solid;
+        }
 
         /* PROTECTION / DISCOUNT MODAL LIST STYLES */
         .prot-list { display: flex; flex-direction: column; gap: 10px; }
@@ -2373,10 +2384,10 @@
         .cd-tabs-arrow .arrow-right { transform: rotate(45deg); margin-right: 2px; }
         
         .cd-plan-list { max-height: 250px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; }
-        .cd-plan-option { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px; }
+        .cd-plan-option { padding: 12px 15px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
         .cd-plan-option:hover { background-color: #ffeef5; }
-        .cd-plan-name { font-weight: 600; }
-        .cd-plan-price { font-size: 0.9rem; color: var(--text-secondary); }
+        .cd-plan-name { font-weight: 600; flex: 1; min-width: 0; word-wrap: break-word; }
+        .cd-plan-price { font-size: 0.9rem; color: var(--text-secondary); flex-shrink: 0; text-align: right; }
         .cd-plan-price .original { text-decoration: line-through; color: #999; margin-right: 8px; }
         .cd-plan-price .discounted { color: var(--primary-color); font-weight: 700; }
         .cd-plan-price .beyond-price { color: var(--success-color); font-weight: 700; }
@@ -4521,7 +4532,7 @@
         </div>
         
         <!-- Page Footer Credit (visible on screen) -->
-        <div class="page-footer-credit">Quote Builder V2.33 | Made by Luke Shrader</div>
+        <div class="page-footer-credit">Quote Builder V2.45 | Made by Luke Shrader</div>
         
         <!-- Plan Benefits Pages (print only) -->
         <div id="plan-benefits-container" class="plan-benefits-container">
@@ -4546,21 +4557,6 @@
             <button class="settings-close" onclick="closeSettingsSidebar()">×</button>
         </div>
         <div class="settings-body" id="settings-body">
-            <!-- Protection Visibility Style -->
-            <div class="settings-section draggable-section" data-section-id="protection-visibility">
-                <div class="settings-section-title">
-                    <span class="drag-handle">⋮⋮</span>
-                    Protection Visibility Style
-                </div>
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Control how protection pricing is displayed</p>
-                <div class="three-way-toggle" id="protection-visibility-toggle">
-                    <div class="three-way-slider" data-position="1"></div>
-                    <div class="three-way-option" data-value="always" onclick="setProtectionVisibility('always')">Always Visible</div>
-                    <div class="three-way-option active" data-value="hidden" onclick="setProtectionVisibility('hidden')">Hidden</div>
-                    <div class="three-way-option" data-value="only-non" onclick="setProtectionVisibility('only-non')">Only None</div>
-                </div>
-            </div>
-            
             <!-- Show Itemized Device List -->
             <div class="settings-section draggable-section" data-section-id="itemized-prices">
                 <div class="settings-section-title">
@@ -5102,6 +5098,15 @@
                         </label>
                     </div>
                     
+                    <!-- Display Standard Protection Toggle -->
+                    <div id="prot-show-standard-wrapper" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid #eee;">
+                        <span style="font-weight:600; font-size:0.95rem; color:var(--text-main);">Display Standard Protection</span>
+                        <label class="switch-sm">
+                            <input type="checkbox" id="prot-show-standard" onchange="toggleShowStandardProtection(this)">
+                            <span class="slider-sm"></span>
+                        </label>
+                    </div>
+                    
                     <!-- Display Unprotected Pricing Toggle -->
                     <div id="prot-show-unprotected-wrapper" style="display:flex; justify-content:space-between; align-items:center; padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid #eee;">
                         <span style="font-weight:600; font-size:0.95rem; color:var(--text-main);">Display Non-Protected Pricing</span>
@@ -5156,11 +5161,7 @@
                 <!-- Competitor Tab Content -->
                 <div id="prot-competitor-content" class="prot-tab-content" style="display: none;">
                     <!-- Competitor Info Link -->
-                    <div style="padding-bottom:15px; margin-bottom:15px; border-bottom:1px solid #eee; text-align: center;">
-                        <a href="https://www.t-mobile.com/cell-phone-plans?INTNAV=tNav%3APlans%3AMagenta#wrapper-plans-marketing" target="_blank" style="color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem;">
-                            How we compare to others
-                        </a>
-                    </div>
+                    
                     <div style="display:flex; gap:10px; align-items:flex-end;">
                         <div style="flex:1;">
                             <label style="font-size:0.8rem; color:var(--text-secondary); display:block; margin-bottom:4px;">Carrier Name</label>
@@ -5471,27 +5472,28 @@
             "4 For 100": { costs: [5, 5, 5, 105, 30, 30], minLines: 4, maxLines: 6, freeLineEligible: false, beyond: false, planType: 'Normal' },
             
             // 55+ Plans
-            "Experience Beyond 55 Savings": { costs: [90, 50], maxLines: 2, freeLineEligible: false, beyond: true, planType: '55' },
-            "Experience More 55 Savings": { costs: [75, 45], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55' },
-            "Essentials Choice 55 Savings": { costs: [50, 20], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55' },
+            "Experience Beyond 55 Savings": { costs: [90, 50], maxLines: 2, freeLineEligible: false, beyond: true, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
+            "Experience More 55 Savings": { costs: [75, 45], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
+            "Essentials Choice 55 Savings": { costs: [50, 20], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
             
             // Military Plans
-            "Experience Beyond Military Savings": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Military' },
-            "Experience More Military Savings": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Military' },
-            "Essentials Military Savings": { costs: [50, 40, 15, 15, 15, 15], maxLines: 6, freeLineEligible: false, beyond: false, planType: 'Military' },
+            // keywords: array of alternate search terms (e.g., 'vet' for military plans)
+            "Experience Beyond Military Savings": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Military', keywords: ['vet', 'veteran', 'army', 'navy', 'marine', 'air force', 'coast guard', 'national guard', 'reserves'] },
+            "Experience More Military Savings": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Military', keywords: ['vet', 'veteran', 'army', 'navy', 'marine', 'air force', 'coast guard', 'national guard', 'reserves'] },
+            "Essentials Military Savings": { costs: [50, 40, 15, 15, 15, 15], maxLines: 6, freeLineEligible: false, beyond: false, planType: 'Military', keywords: ['vet', 'veteran', 'army', 'navy', 'marine', 'air force', 'coast guard', 'national guard', 'reserves'] },
             
             // First Responder Plans
-            "Experience Beyond First Responder": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'FR' },
-            "Experience More First Responder": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'FR' },
-            "Essentials First Responder": { costs: [50, 40, 15, 15, 15, 15], maxLines: 6, freeLineEligible: false, beyond: false, planType: 'FR' },
+            "Experience Beyond First Responder": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'FR', keywords: ['police', 'fire', 'firefighter', 'emt', 'paramedic', 'nurse', 'doctor', 'healthcare', 'emergency', '911', 'dispatcher'] },
+            "Experience More First Responder": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'FR', keywords: ['police', 'fire', 'firefighter', 'emt', 'paramedic', 'nurse', 'doctor', 'healthcare', 'emergency', '911', 'dispatcher'] },
+            "Essentials First Responder": { costs: [50, 40, 15, 15, 15, 15], maxLines: 6, freeLineEligible: false, beyond: false, planType: 'FR', keywords: ['police', 'fire', 'firefighter', 'emt', 'paramedic', 'nurse', 'doctor', 'healthcare', 'emergency', '911', 'dispatcher'] },
             
              // Business Plans
             "Experience Beyond for Business": {costs: [105, 75, 50, 50, 50], notes:'No Autopay >5', maxLines: 12, maxAutopayLines: 5, removeAutopayAfterMax: true, ManualPricing: {6:55}, freeLineEligible: true, beyond: true, planType: 'Business' },
-            "Experience Beyond w/ FR Savings for Business": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Business' },
-            "Experience Beyond w/ Military Savings for Business": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Business' },
+            "Experience Beyond w/ FR Savings for Business": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Business', keywords: ['police', 'fire', 'firefighter', 'emt', 'paramedic', 'nurse', 'doctor', 'healthcare', 'emergency', '911', 'dispatcher'] },
+            "Experience Beyond w/ Military Savings for Business": { costs: [90, 50, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50], maxLines: 12, freeLineEligible: false, beyond: true, planType: 'Business', keywords: ['vet', 'veteran', 'army', 'navy', 'marine', 'air force', 'coast guard', 'national guard', 'reserves'] },
             "Experience More for Business": { costs: [90, 60, 35, 35, 35], notes:'No Autopay >5', maxLines: 12, maxAutopayLines: 5, removeAutopayAfterMax: true, ManualPricing: {6:45}, freeLineEligible: true, beyond: false, planType: 'Business' },
-            "Experience More w/ FR Savings for Business": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Business' },
-            "Experience More w/ Military Savings for Business": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Business' },
+            "Experience More w/ FR Savings for Business": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Business', keywords: ['police', 'fire', 'firefighter', 'emt', 'paramedic', 'nurse', 'doctor', 'healthcare', 'emergency', '911', 'dispatcher'] },
+            "Experience More w/ Military Savings for Business": { costs: [75, 35, 25, 25, 25, 25, 35, 35, 35, 35, 35, 35], maxLines: 12, freeLineEligible: false, beyond: false, planType: 'Business', keywords: ['vet', 'veteran', 'army', 'navy', 'marine', 'air force', 'coast guard', 'national guard', 'reserves'] },
             "Better Value for Business": { costs: [5, 5, 145, 35, 35, 45, 45, 45, 45, 45, 45, 45], minLines: 3, maxLines: 12, maxAutopayLines: 5, freeLineEligible: false, beyond: true, planType: 'Business', notes: 'Autopay eligible 1-5; Min 2 Port-Ins' },
             "CoreMobile for Business": { costs: [65, 35, 20, 20, 20], notes:'No Autopay >5', maxLines: 12, maxAutopayLines: 5, removeAutopayAfterMax: true, ManualPricing: {6:25}, freeLineEligible: true, beyond: false, planType: 'Business' },
             "Unlimited Select 4 For 100 for Business": { costs: [5, 5, 5, 105, 30, 30], minLines: 4, maxLines: 6, freeLineEligible: false, beyond: false, planType: 'Business' },
@@ -5619,7 +5621,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond w/ FR Savings for Business": {
@@ -5642,7 +5643,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond for Business": {
@@ -5665,7 +5665,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond": {
@@ -5688,7 +5687,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond 55 Savings": {
@@ -5711,7 +5709,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond Military Savings": {
@@ -5734,7 +5731,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience Beyond First Responder": {
@@ -5757,7 +5753,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More w/ FR Savings for Business": {
@@ -5770,7 +5765,7 @@
                     "Mobile Hotspot": { value: "100GB High-speed / line", valueSubtext: "Then unlimited at 600KBPS", weight: 3 },
                     "T-Satellite": { value: "Not included", weight: 1 },
                     "HULU": { subtext: "With ads", value: "Not included", weight: 0 },
-                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
+                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
                     "Threat Protect": { value: "Included", weight: 3 },
@@ -5780,7 +5775,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More w/ Military Savings for Business": {
@@ -5793,7 +5787,7 @@
                     "Mobile Hotspot": { value: "100GB High-speed / line", valueSubtext: "Then unlimited at 600KBPS", weight: 3 },
                     "T-Satellite": { value: "Not included", weight: 1 },
                     "HULU": { subtext: "With ads", value: "Not included", weight: 0 },
-                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
+                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
                     "Threat Protect": { value: "Included", weight: 3 },
@@ -5803,7 +5797,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More for Business": {
@@ -5816,7 +5809,7 @@
                     "Mobile Hotspot": { value: "100GB High-speed / line", valueSubtext: "Then unlimited at 600KBPS", weight: 3 },
                     "T-Satellite": { value: "Not included", weight: 1 },
                     "HULU": { subtext: "With ads", value: "Not included", weight: 0 },
-                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", weight: 1 },
+                    "Apple TV": { subtext: "Discounted to $3/month", value: "Included", valueSubtext: "With sole prop accounts", weight: 1 },
                     "Netflix": { subtext: "Standard with ads", value: "Netflix or Microsoft 365", valueSubtext: "Netflix available on accounts with 1-5 lines | Microsoft 365 standard license", weight: 2 },
                     "Video Streaming": { value: "Up to 4K UHD", weight: 3 },
                     "Threat Protect": { value: "Included", weight: 3 },
@@ -5826,7 +5819,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More": {
@@ -5849,7 +5841,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More 55 Savings": {
@@ -5872,7 +5863,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More Military Savings": {
@@ -5895,7 +5885,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Experience More First Responder": {
@@ -5918,7 +5907,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Better Value for Business": {
@@ -5941,7 +5929,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Better Value": {
@@ -5964,7 +5951,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Included", weight: 1 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
 
@@ -5988,7 +5974,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Included", weight: 2 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Unlimited Select 4 For 100 for Business": {
@@ -6011,7 +5996,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Select Savings for Business": {
@@ -6034,7 +6018,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Essentials": {
@@ -6057,7 +6040,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "4 For 100": {
@@ -6080,7 +6062,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Essentials Choice 55 Savings": {
@@ -6103,7 +6084,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Essentials Military Savings": {
@@ -6126,7 +6106,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Essentials First Responder": {
@@ -6149,7 +6128,6 @@
                     "Scam Shield": { value: "Premium experience", weight: 3 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Essentials Saver": {
@@ -6172,7 +6150,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
             "Unlimited Talk & Text Only": {
@@ -6195,7 +6172,6 @@
                     "Scam Shield": { value: "Standard experience", weight: 2 },
                     "1 Year AAA Membership": { value: "Not included", weight: 0 },
                     "5-Year Price Guarantee": { value: "Not included", weight: 1 },
-                    "T-Life & Magenta Status": { value: "Included", weight: 2 }
                 }
             },
         };
@@ -6778,6 +6754,7 @@
         let rowCount = 0;
         let currentMode = 'new'; 
         let previousModeBeforeCompare = 'new'; // Track mode to return to from compare
+        let currentCompareRowId = null; // Track which row's comparison is currently being viewed/edited
 
         let combineIdenticalDevices = true; // Combine identical devices on print
         let quoteDisplayStyle = 'list'; // 'list' or 'stacked' 
@@ -6849,7 +6826,6 @@
         // ============================================
         
         // Rules Settings
-        let protectionVisibility = 'hidden'; // 'always', 'hidden', 'only-non'
         let showItemizedPrices = {
             devices: true,
             connectedDevices: true,
@@ -7215,7 +7191,6 @@
         // Save settings to URL hash
         function saveSettingsToURL() {
             const settings = {
-                pv: protectionVisibility,
                 sip: showItemizedPrices,
                 srp: showRetailPrices,
                 rm: roundingMode,
@@ -7274,10 +7249,6 @@
             if (!settings) return;
             
             try {
-                if (settings.pv) {
-                    protectionVisibility = settings.pv;
-                    setProtectionVisibility(protectionVisibility);
-                }
                 if (settings.sip) {
                     showItemizedPrices = settings.sip;
                     // Ensure addons defaults to true if not present in saved settings
@@ -7432,6 +7403,15 @@
             
             // Reset plan types tracking
             comparePlanTypes = { 1: null, 2: null };
+            
+            // Reset the current row's compare settings
+            if (currentCompareRowId && STATE[currentCompareRowId]) {
+                STATE[currentCompareRowId].compareSettings = {
+                    plan1Key: '',
+                    plan2Key: '',
+                    hasUserModified: false
+                };
+            }
             
             // Clear the comparison table
             document.getElementById('comparison-table-container').innerHTML = '';
@@ -7668,8 +7648,12 @@
                     // Filter by plan type (unless searching)
                     if (!showAllTabs && pType !== planType) return;
                     
-                    // Filter by search
-                    if (searchVal && !planName.toLowerCase().includes(searchVal)) return;
+                    // Filter by search - check plan name and keywords
+                    if (searchVal) {
+                        const nameMatch = planName.toLowerCase().includes(searchVal);
+                        const keywordMatch = plan.keywords && plan.keywords.some(kw => kw.toLowerCase().includes(searchVal));
+                        if (!nameMatch && !keywordMatch) return;
+                    }
                     
                     hasPlans = true;
                     
@@ -7760,13 +7744,25 @@
             closePlanModal();
             
             // Update comparison display (including premium styling based on weight)
-            updateComparison();
+            // Pass true to mark this as a user modification since they manually selected a plan
+            updateComparison(true);
         }
 
-        function updateComparison() {
+        function updateComparison(isUserModification = false) {
             const plan1Key = document.getElementById('compare-plan-1').value;
             const plan2Key = document.getElementById('compare-plan-2').value;
             const container = document.getElementById('comparison-table-container');
+            
+            // Save the current comparison settings to the row's state (if we're comparing a specific row)
+            if (currentCompareRowId && STATE[currentCompareRowId]) {
+                // Only mark as user-modified if this was a user action (not just loading defaults)
+                const wasAlreadyModified = STATE[currentCompareRowId].compareSettings?.hasUserModified || false;
+                STATE[currentCompareRowId].compareSettings = {
+                    plan1Key: plan1Key,
+                    plan2Key: plan2Key,
+                    hasUserModified: wasAlreadyModified || isUserModification
+                };
+            }
             
             const trigger1 = document.getElementById('compare-plan-1-trigger');
             const trigger2 = document.getElementById('compare-plan-2-trigger');
@@ -8250,27 +8246,26 @@
             document.getElementById('settings-overlay').classList.remove('open');
         }
         
-        // --- PROTECTION VISIBILITY SETTING ---
-        function setProtectionVisibility(value) {
-            protectionVisibility = value;
+        // Helper to get standard protection tier equivalent for a P360 tier
+        function getStandardTierEquivalent(tierIdOrValue) {
+            if (!tierIdOrValue) return 0;
             
-            // Update toggle UI
-            const toggle = document.getElementById('protection-visibility-toggle');
-            const options = toggle.querySelectorAll('.three-way-option');
-            const slider = toggle.querySelector('.three-way-slider');
+            // If it's already a standard tier, look it up
+            if (typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-')) {
+                const opt = PROTECTION_OPTIONS.find(o => o.id === tierIdOrValue);
+                return opt ? opt.value : 0;
+            }
             
-            options.forEach(opt => opt.classList.remove('active'));
+            // If it's a P360 tier, find the equivalent standard tier
+            if (typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('p360-')) {
+                const tierNum = tierIdOrValue.replace('p360-', ''); // e.g., 't5'
+                const stdTierId = 'std-' + tierNum;
+                const opt = PROTECTION_OPTIONS.find(o => o.id === stdTierId);
+                return opt ? opt.value : 0;
+            }
             
-            let position = 1; // default hidden
-            if (value === 'always') position = 0;
-            else if (value === 'hidden') position = 1;
-            else if (value === 'only-non') position = 2;
-            
-            slider.setAttribute('data-position', position);
-            options[position].classList.add('active');
-            
-            recalculateAllRows();
-            saveSettingsToURL();
+            // Legacy numeric value handling - assume no standard equivalent
+            return 0;
         }
         
         // --- ITEMIZED PRICES TOGGLE ---
@@ -8963,6 +8958,15 @@
                     STATE[rowId].savingsToday = quoteData.savingsToday;
                 }
                 
+                // Load compare settings
+                if (quoteData.compareSettings) {
+                    STATE[rowId].compareSettings = {
+                        plan1Key: quoteData.compareSettings.plan1Key || '',
+                        plan2Key: quoteData.compareSettings.plan2Key || '',
+                        hasUserModified: quoteData.compareSettings.hasUserModified || false
+                    };
+                }
+                
                 // Load notes
                 const notesTextarea = document.getElementById(`${rowId}-notes`);
                 if (notesTextarea && quoteData.notes) {
@@ -9034,6 +9038,7 @@
                     dueTodayItems: STATE[rowId].dueTodayItems || [],
                     savedTodayItems: STATE[rowId].savedTodayItems || [],
                     savingsToday: STATE[rowId].savingsToday || 0,
+                    compareSettings: STATE[rowId].compareSettings || { plan1Key: '', plan2Key: '', hasUserModified: false },
                     notes: notesTextarea?.value || ''
                 };
                 
@@ -9175,53 +9180,97 @@
             // Only generate benefits pages if enabled
             if (!includeBenefits) return;
             
-            // Determine which plans to compare
-            let plan1Key = document.getElementById('compare-plan-1')?.value || '';
-            let plan2Key = document.getElementById('compare-plan-2')?.value || '';
+            // Get all row IDs in order
+            const rowIds = Object.keys(STATE);
             
-            // Check if Compare page has any selections
-            const hasCompareSelections = plan1Key || plan2Key;
+            // Generate a benefits page after each row with that row's comparison settings
+            rowIds.forEach((rowId, idx) => {
+                const row = document.getElementById(rowId);
+                if (!row) return;
+                
+                // Generate the comparison HTML for this specific row
+                const comparisonHtml = generateComparisonHtmlForRow(rowId);
+                
+                // Add page break after quote
+                row.classList.add('page-break-after');
+                
+                // Create benefits page with comparison table
+                const page = document.createElement('div');
+                page.className = 'plan-benefits-page';
+                // Only add page break if NOT the last benefits page
+                if (idx < rowIds.length - 1) {
+                    page.classList.add('page-break-after');
+                }
+                page.setAttribute('data-for-row', rowId);
+                
+                page.innerHTML = comparisonHtml;
+                
+                // Insert benefits page right after the row
+                row.parentNode.insertBefore(page, row.nextSibling);
+            });
+        }
+        
+        // Helper function to generate comparison HTML for a specific row
+        function generateComparisonHtmlForRow(rowId) {
+            const row = document.getElementById(rowId);
+            const isNewMode = row?.getAttribute('data-mode') !== 'existing';
             
-            if (!hasCompareSelections) {
-                // No Compare page selections - check if user selected a plan on New customer page
+            // Get the row's saved comparison settings
+            const savedSettings = STATE[rowId]?.compareSettings;
+            const hasUserModified = savedSettings?.hasUserModified || false;
+            
+            let plan1Key = '';
+            let plan2Key = '';
+            
+            // If user has modified the comparison for this row, use their saved settings
+            if (hasUserModified && (savedSettings.plan1Key || savedSettings.plan2Key)) {
+                plan1Key = savedSettings.plan1Key || '';
+                plan2Key = savedSettings.plan2Key || '';
+                
+                // Fill in missing plan if only one was selected
+                if (plan1Key && !plan2Key) {
+                    if (COMPARISON_INTERNET_PLANS[plan1Key] || HOME_INTERNET_PLANS[plan1Key] || BUSINESS_HOME_INTERNET_PLANS[plan1Key]) {
+                        plan2Key = getInternetComparisonPlanFor(plan1Key);
+                    } else {
+                        plan2Key = getComparisonPlanFor(plan1Key);
+                    }
+                } else if (!plan1Key && plan2Key) {
+                    if (COMPARISON_INTERNET_PLANS[plan2Key] || HOME_INTERNET_PLANS[plan2Key] || BUSINESS_HOME_INTERNET_PLANS[plan2Key]) {
+                        plan1Key = getInternetComparisonPlanFor(plan2Key);
+                    } else {
+                        plan1Key = getComparisonPlanFor(plan2Key);
+                    }
+                }
+            } else {
+                // Use defaults based on the row's selected plans
                 let selectedPlanFromQuote = '';
                 let selectedInternetPlan = '';
                 let hasVoiceLines = false;
                 
-                // Look through all rows to find a selected plan (prioritize first row)
-                for (const rowId in STATE) {
-                    const row = document.getElementById(rowId);
-                    if (!row) continue;
+                if (isNewMode) {
+                    const planEl = document.getElementById(`${rowId}-plan`);
+                    const planName = planEl ? planEl.value : '';
+                    if (planName && PLANS_DATA[planName]) {
+                        selectedPlanFromQuote = planName;
+                    }
                     
-                    const isNewMode = row.getAttribute('data-mode') !== 'existing';
-                    if (isNewMode) {
-                        const planEl = document.getElementById(`${rowId}-plan`);
-                        const planName = planEl ? planEl.value : '';
-                        if (planName && PLANS_DATA[planName]) {
-                            selectedPlanFromQuote = planName;
+                    // Check for voice lines
+                    const lineCount = parseInt(document.getElementById(`${rowId}-lines`)?.value) || 0;
+                    if (lineCount > 0) {
+                        hasVoiceLines = true;
+                    }
+                    
+                    // Check for internet plans
+                    if (STATE[rowId]?.homeInternet?.length > 0) {
+                        const firstHI = STATE[rowId].homeInternet[0];
+                        if (firstHI.planKey) {
+                            selectedInternetPlan = firstHI.planKey;
                         }
-                        
-                        // Check for voice lines
-                        const lineCount = parseInt(document.getElementById(`${rowId}-lines`)?.value) || 0;
-                        if (lineCount > 0) {
-                            hasVoiceLines = true;
-                        }
-                        
-                        // Check for internet plans
-                        if (STATE[rowId].homeInternet && STATE[rowId].homeInternet.length > 0) {
-                            // Get first internet plan
-                            const firstHI = STATE[rowId].homeInternet[0];
-                            if (firstHI.planKey) {
-                                selectedInternetPlan = firstHI.planKey;
-                            }
-                        }
-                        
-                        if (selectedPlanFromQuote) break; // Use first valid voice plan found
                     }
                 }
                 
                 if (selectedPlanFromQuote && hasVoiceLines) {
-                    // User selected a voice plan with lines - compare their plan with the recommended plan
+                    // User selected a voice plan with lines
                     const comparisonPlan = getComparisonPlanFor(selectedPlanFromQuote);
                     
                     // Put the "better" plan (higher weight) on the left
@@ -9236,10 +9285,9 @@
                         plan2Key = comparisonPlan;
                     }
                 } else if (selectedInternetPlan && !hasVoiceLines) {
-                    // Only internet plan selected (no voice lines) - use internet comparison defaults
+                    // Only internet plan selected
                     const comparisonPlan = getInternetComparisonPlanFor(selectedInternetPlan);
                     
-                    // Put the "better" plan (higher weight) on the left
                     const selectedWeight = getPlanWeight(selectedInternetPlan);
                     const comparisonWeight = getPlanWeight(comparisonPlan);
                     
@@ -9251,25 +9299,9 @@
                         plan2Key = comparisonPlan;
                     }
                 } else {
-                    // No plan selected anywhere - default to Experience More and Experience Beyond
+                    // Default to Experience Beyond vs Experience More
                     plan1Key = 'Experience Beyond';
                     plan2Key = 'Experience More';
-                }
-            } else if (!plan1Key) {
-                // Only plan 2 is set on Compare page - find a good comparison
-                // Check if it's an internet plan
-                if (COMPARISON_INTERNET_PLANS[plan2Key]) {
-                    plan1Key = getInternetComparisonPlanFor(plan2Key);
-                } else {
-                    plan1Key = getComparisonPlanFor(plan2Key);
-                }
-            } else if (!plan2Key) {
-                // Only plan 1 is set on Compare page - find a good comparison
-                // Check if it's an internet plan
-                if (COMPARISON_INTERNET_PLANS[plan1Key]) {
-                    plan2Key = getInternetComparisonPlanFor(plan1Key);
-                } else {
-                    plan2Key = getComparisonPlanFor(plan1Key);
                 }
             }
             
@@ -9277,7 +9309,9 @@
             const plan1 = getComparisonDataForPlan(plan1Key);
             const plan2 = getComparisonDataForPlan(plan2Key);
             
-            if (!plan1 || !plan2) return;
+            if (!plan1 || !plan2) {
+                return '<div class="print-benefits-comparison"><p>Unable to generate comparison</p></div>';
+            }
             
             // Determine premium styling based on plan weights
             const weight1 = getPlanWeight(plan1Key);
@@ -9290,7 +9324,6 @@
             } else if (weight2 > weight1) {
                 isPlan2Premium = true;
             } else if (weight1 > 0) {
-                // Equal weights and both > 0, both get premium
                 isPlan1Premium = true;
                 isPlan2Premium = true;
             }
@@ -9302,7 +9335,6 @@
             ]);
             
             // Build the comparison table HTML
-            // Build table class based on premium status
             let tableClasses = ['comparison-table'];
             if (isPlan1Premium) tableClasses.push('plan1-premium');
             if (isPlan2Premium) tableClasses.push('plan2-premium');
@@ -9330,7 +9362,6 @@
                 const isHidden2 = isBenefitHidden(benefit2);
                 
                 // Skip if both benefits are hidden, or if one is hidden and the other doesn't exist
-                // Only show hidden benefits when comparing against a non-hidden version
                 if (isHidden1 && isHidden2) return;
                 if (isHidden1 && !benefit2) return;
                 if (isHidden2 && !benefit1) return;
@@ -9341,9 +9372,6 @@
                 const benefitWeight1 = getBenefitWeight(benefit1);
                 const benefitWeight2 = getBenefitWeight(benefit2);
                 
-                // Determine if either benefit is "preferred" or "outweighed" based on weight
-                // If weights are equal but values differ (e.g., both "Included" with different subtext),
-                // both get white background (neither is preferred)
                 const isPreferred1 = !valuesMatch && benefitWeight1 > benefitWeight2;
                 const isPreferred2 = !valuesMatch && benefitWeight2 > benefitWeight1;
                 const isOutweighed1 = !valuesMatch && benefitWeight2 >= benefitWeight1;
@@ -9352,8 +9380,6 @@
                 const valueClass1 = getValueClass(benefit1, isPreferred1, isOutweighed1);
                 const valueClass2 = getValueClass(benefit2, isPreferred2, isOutweighed2);
                 
-                // Use the benefit data from whichever plan has it for name formatting
-                // Prefer the non-hidden benefit for formatting
                 const benefitData = (!isHidden1 && benefit1) ? benefit1 : benefit2;
                 
                 const formattedName = formatBenefitName(benefitKey, benefitData);
@@ -9414,31 +9440,7 @@
                 </div>
             `;
             
-            // Get all row IDs in order
-            const rowIds = Object.keys(STATE);
-            
-            // Generate a benefits page after each row
-            rowIds.forEach((rowId, idx) => {
-                const row = document.getElementById(rowId);
-                if (!row) return;
-                
-                // Add page break after quote
-                row.classList.add('page-break-after');
-                
-                // Create benefits page with comparison table
-                const page = document.createElement('div');
-                page.className = 'plan-benefits-page';
-                // Only add page break if NOT the last benefits page
-                if (idx < rowIds.length - 1) {
-                    page.classList.add('page-break-after');
-                }
-                page.setAttribute('data-for-row', rowId);
-                
-                page.innerHTML = comparisonHtml;
-                
-                // Insert benefits page right after the row
-                row.parentNode.insertBefore(page, row.nextSibling);
-            });
+            return comparisonHtml;
         }
 
         function updateLines(rowId, change) {
@@ -9815,8 +9817,12 @@
                 // Filter by plan type (unless searching)
                 if (!showAllTabs && pType !== planType) return;
                 
-                // Filter by search
-                if (searchVal && !planName.toLowerCase().includes(searchVal)) return;
+                // Filter by search - check plan name and keywords
+                if (searchVal) {
+                    const nameMatch = planName.toLowerCase().includes(searchVal);
+                    const keywordMatch = plan.keywords && plan.keywords.some(kw => kw.toLowerCase().includes(searchVal));
+                    if (!nameMatch && !keywordMatch) return;
+                }
                 
                 hasPlans = true;
                 
@@ -9987,7 +9993,9 @@
                 protectionStatus: {}, 
                 protectionCosts: {}, 
                 showUnprotected: false,
+                showStandardProtection: false,
                 showProtectionLabel: true,
+                showYearlySavings: false,
                 connectedDevices: [], 
                 homeInternet: [],
                 accessories: [],
@@ -10001,7 +10009,13 @@
                 title: '',
                 carrierName: '',
                 carrierPrice: 0,
-                carrierSkipped: false
+                carrierSkipped: false,
+                // Per-row comparison settings
+                compareSettings: {
+                    plan1Key: '',
+                    plan2Key: '',
+                    hasUserModified: false // True when user has manually changed comparison plans
+                }
             };
             
             const container = document.getElementById('rows-container');
@@ -10428,6 +10442,9 @@
             const row = document.getElementById(rowId);
             if (!row) return;
             
+            // Track which row's comparison we're viewing
+            currentCompareRowId = rowId;
+            
             const isManualMode = row.getAttribute('data-mode') === 'existing';
             
             // Get the plan from this row
@@ -10437,39 +10454,158 @@
                 planName = planEl ? planEl.value : '';
             }
             
+            // Check if this row has saved comparison settings that were user-modified
+            const savedSettings = STATE[rowId]?.compareSettings;
+            const hasUserModified = savedSettings?.hasUserModified || false;
+            
             // Switch to compare mode
             setMode('compare');
             
             // Wait for the compare section to be visible and initialized
             setTimeout(() => {
-                // Set the plan in the compare dropdowns
-                if (planName && PLANS_DATA[planName]) {
-                    const comparisonPlan = getComparisonPlanFor(planName);
-                    
-                    // Set Plan 1 (the comparison/better plan)
+                // If user has previously modified this row's comparison, restore their selections
+                if (hasUserModified && (savedSettings.plan1Key || savedSettings.plan2Key)) {
+                    // Restore Plan 1
                     const plan1El = document.getElementById('compare-plan-1');
                     const plan1Label = document.getElementById('compare-plan-1-label');
                     const trigger1 = document.getElementById('compare-plan-1-trigger');
                     if (plan1El && plan1Label && trigger1) {
-                        plan1El.value = comparisonPlan;
-                        plan1Label.textContent = comparisonPlan;
-                        trigger1.classList.add('has-selection');
-                        comparePlanTypes[1] = 'phone';
+                        if (savedSettings.plan1Key) {
+                            plan1El.value = savedSettings.plan1Key;
+                            plan1Label.textContent = savedSettings.plan1Key;
+                            trigger1.classList.add('has-selection');
+                            // Determine plan type
+                            if (HOME_INTERNET_PLANS[savedSettings.plan1Key] || BUSINESS_HOME_INTERNET_PLANS[savedSettings.plan1Key]) {
+                                comparePlanTypes[1] = 'internet';
+                            } else {
+                                comparePlanTypes[1] = 'phone';
+                            }
+                        } else {
+                            plan1El.value = '';
+                            plan1Label.textContent = 'Plan 1';
+                            trigger1.classList.remove('has-selection', 'premium');
+                            comparePlanTypes[1] = null;
+                        }
                     }
                     
-                    // Set Plan 2 (the customer's current/selected plan)
+                    // Restore Plan 2
                     const plan2El = document.getElementById('compare-plan-2');
                     const plan2Label = document.getElementById('compare-plan-2-label');
                     const trigger2 = document.getElementById('compare-plan-2-trigger');
                     if (plan2El && plan2Label && trigger2) {
-                        plan2El.value = planName;
-                        plan2Label.textContent = planName;
-                        trigger2.classList.add('has-selection');
-                        comparePlanTypes[2] = 'phone';
+                        if (savedSettings.plan2Key) {
+                            plan2El.value = savedSettings.plan2Key;
+                            plan2Label.textContent = savedSettings.plan2Key;
+                            trigger2.classList.add('has-selection');
+                            // Determine plan type
+                            if (HOME_INTERNET_PLANS[savedSettings.plan2Key] || BUSINESS_HOME_INTERNET_PLANS[savedSettings.plan2Key]) {
+                                comparePlanTypes[2] = 'internet';
+                            } else {
+                                comparePlanTypes[2] = 'phone';
+                            }
+                        } else {
+                            plan2El.value = '';
+                            plan2Label.textContent = 'Plan 2';
+                            trigger2.classList.remove('has-selection', 'premium');
+                            comparePlanTypes[2] = null;
+                        }
                     }
                     
                     // Trigger the comparison update
                     updateComparison();
+                } else {
+                    // Use defaults based on the row's selected plan
+                    if (planName && PLANS_DATA[planName]) {
+                        const comparisonPlan = getComparisonPlanFor(planName);
+                        
+                        // Set Plan 1 (the comparison/better plan)
+                        const plan1El = document.getElementById('compare-plan-1');
+                        const plan1Label = document.getElementById('compare-plan-1-label');
+                        const trigger1 = document.getElementById('compare-plan-1-trigger');
+                        if (plan1El && plan1Label && trigger1) {
+                            plan1El.value = comparisonPlan;
+                            plan1Label.textContent = comparisonPlan;
+                            trigger1.classList.add('has-selection');
+                            comparePlanTypes[1] = 'phone';
+                        }
+                        
+                        // Set Plan 2 (the customer's current/selected plan)
+                        const plan2El = document.getElementById('compare-plan-2');
+                        const plan2Label = document.getElementById('compare-plan-2-label');
+                        const trigger2 = document.getElementById('compare-plan-2-trigger');
+                        if (plan2El && plan2Label && trigger2) {
+                            plan2El.value = planName;
+                            plan2Label.textContent = planName;
+                            trigger2.classList.add('has-selection');
+                            comparePlanTypes[2] = 'phone';
+                        }
+                        
+                        // Trigger the comparison update
+                        updateComparison();
+                    } else {
+                        // No plan selected - check for internet plans
+                        let selectedInternetPlan = '';
+                        if (STATE[rowId]?.homeInternet?.length > 0) {
+                            const firstHI = STATE[rowId].homeInternet[0];
+                            if (firstHI.planKey) {
+                                selectedInternetPlan = firstHI.planKey;
+                            }
+                        }
+                        
+                        if (selectedInternetPlan) {
+                            const comparisonPlan = getInternetComparisonPlanFor(selectedInternetPlan);
+                            
+                            // Set Plan 1 (the comparison/better plan)
+                            const plan1El = document.getElementById('compare-plan-1');
+                            const plan1Label = document.getElementById('compare-plan-1-label');
+                            const trigger1 = document.getElementById('compare-plan-1-trigger');
+                            if (plan1El && plan1Label && trigger1) {
+                                plan1El.value = comparisonPlan;
+                                plan1Label.textContent = comparisonPlan;
+                                trigger1.classList.add('has-selection');
+                                comparePlanTypes[1] = 'internet';
+                            }
+                            
+                            // Set Plan 2 (the customer's selected plan)
+                            const plan2El = document.getElementById('compare-plan-2');
+                            const plan2Label = document.getElementById('compare-plan-2-label');
+                            const trigger2 = document.getElementById('compare-plan-2-trigger');
+                            if (plan2El && plan2Label && trigger2) {
+                                plan2El.value = selectedInternetPlan;
+                                plan2Label.textContent = selectedInternetPlan;
+                                trigger2.classList.add('has-selection');
+                                comparePlanTypes[2] = 'internet';
+                            }
+                            
+                            // Trigger the comparison update
+                            updateComparison();
+                        } else {
+                            // Default to Experience Beyond vs Experience More
+                            resetComparison();
+                            
+                            const plan1El = document.getElementById('compare-plan-1');
+                            const plan1Label = document.getElementById('compare-plan-1-label');
+                            const trigger1 = document.getElementById('compare-plan-1-trigger');
+                            if (plan1El && plan1Label && trigger1) {
+                                plan1El.value = 'Experience Beyond';
+                                plan1Label.textContent = 'Experience Beyond';
+                                trigger1.classList.add('has-selection');
+                                comparePlanTypes[1] = 'phone';
+                            }
+                            
+                            const plan2El = document.getElementById('compare-plan-2');
+                            const plan2Label = document.getElementById('compare-plan-2-label');
+                            const trigger2 = document.getElementById('compare-plan-2-trigger');
+                            if (plan2El && plan2Label && trigger2) {
+                                plan2El.value = 'Experience More';
+                                plan2Label.textContent = 'Experience More';
+                                trigger2.classList.add('has-selection');
+                                comparePlanTypes[2] = 'phone';
+                            }
+                            
+                            updateComparison();
+                        }
+                    }
                 }
             }, 50); // Small delay to let DOM update
         }
@@ -10516,6 +10652,7 @@
                 protectionStatus: { ...sourceState.protectionStatus },
                 protectionCosts: { ...sourceState.protectionCosts },
                 showUnprotected: sourceState.showUnprotected,
+                showStandardProtection: sourceState.showStandardProtection,
                 showProtectionLabel: sourceState.showProtectionLabel !== false,
                 connectedDevices: JSON.parse(JSON.stringify(sourceState.connectedDevices)),
                 homeInternet: JSON.parse(JSON.stringify(sourceState.homeInternet)),
@@ -10529,7 +10666,13 @@
                 // Copy carrier info
                 carrierName: sourceState.carrierName || '',
                 carrierPrice: sourceState.carrierPrice || 0,
-                carrierSkipped: sourceState.carrierSkipped || false
+                carrierSkipped: sourceState.carrierSkipped || false,
+                // Copy compare settings (but reset hasUserModified so duplicated row uses defaults unless modified)
+                compareSettings: {
+                    plan1Key: sourceState.compareSettings?.plan1Key || '',
+                    plan2Key: sourceState.compareSettings?.plan2Key || '',
+                    hasUserModified: sourceState.compareSettings?.hasUserModified || false
+                }
             };
             
             // Copy form values
@@ -11514,6 +11657,17 @@
                     }
                 }
                 
+                // Down payment display
+                let downHtml = '';
+                if (dev.down && dev.down > 0) {
+                    if (group.count > 1) {
+                        // For combined devices, show per-phone down payment
+                        downHtml = `<span class="device-detail-preview device-detail-plain">Down: $${dev.down.toFixed(2)}/Phone</span>`;
+                    } else {
+                        downHtml = `<span class="device-detail-preview device-detail-plain">Down: $${dev.down.toFixed(2)}</span>`;
+                    }
+                }
+                
                 // Promo display - add /Phone for combined devices
                 const promoText = group.count > 1 
                     ? `Promo: $${dev.promo.toFixed(2)} Off/Phone${tradeInText}`
@@ -11524,6 +11678,7 @@
                         <span class="device-label-text">${displayName}</span>
                         <span class="device-cost-preview">$${displayMonthly}/mo</span>
                         ${retailHtml}
+                        ${downHtml}
                         <span class="device-detail-preview">${promoText}</span>
                     </div>
                 `;
@@ -11882,6 +12037,11 @@
             const isShowUnprotected = STATE[rowId].showUnprotected;
             document.getElementById('prot-show-unprotected').checked = isShowUnprotected;
             
+            // Initialize Show Standard Protection toggle
+            const isShowStandard = STATE[rowId].showStandardProtection;
+            const stdCheckbox = document.getElementById('prot-show-standard');
+            if (stdCheckbox) stdCheckbox.checked = isShowStandard;
+            
             // Initialize Show Label toggle (default true if not set)
             const isShowLabel = STATE[rowId].showProtectionLabel !== false;
             document.getElementById('prot-show-label').checked = isShowLabel;
@@ -11891,16 +12051,6 @@
             const carrierPriceEl = document.getElementById('prot-carrier-price');
             if (carrierNameEl) carrierNameEl.value = STATE[rowId].carrierName || '';
             if (carrierPriceEl) carrierPriceEl.value = STATE[rowId].carrierPrice || '';
-            
-            // Hide toggle wrapper if protectionVisibility is 'only-non'
-            const toggleWrapper = document.getElementById('prot-show-unprotected-wrapper');
-            if (toggleWrapper) {
-                if (protectionVisibility === 'only-non') {
-                    toggleWrapper.style.display = 'none';
-                } else {
-                    toggleWrapper.style.display = 'flex';
-                }
-            }
             
             // Check if existing mode
             const row = document.getElementById(rowId);
@@ -12069,9 +12219,27 @@
         function toggleShowUnprotected(checkbox) {
             const rowId = document.getElementById('prot-row-id').value;
             STATE[rowId].showUnprotected = checkbox.checked;
+            // Mutually exclusive with showStandardProtection - only one secondary display at a time
+            if (checkbox.checked) {
+                STATE[rowId].showStandardProtection = false;
+                const stdCheckbox = document.getElementById('prot-show-standard');
+                if (stdCheckbox) stdCheckbox.checked = false;
+            }
             if (!checkbox.checked) {
                 const timelineToggle = document.getElementById(`${rowId}-timeline-toggle`);
                 if (timelineToggle) timelineToggle.checked = true;
+            }
+            calculateRow(rowId);
+        }
+        
+        function toggleShowStandardProtection(checkbox) {
+            const rowId = document.getElementById('prot-row-id').value;
+            STATE[rowId].showStandardProtection = checkbox.checked;
+            // Mutually exclusive with showUnprotected - only one secondary display at a time
+            if (checkbox.checked) {
+                STATE[rowId].showUnprotected = false;
+                const unprotCheckbox = document.getElementById('prot-show-unprotected');
+                if (unprotCheckbox) unprotCheckbox.checked = false;
             }
             calculateRow(rowId);
         }
@@ -12156,12 +12324,56 @@
                     unprotectedToggleWrapper.style.pointerEvents = 'auto';
                 }
             }
+            
+            // Also update standard protection toggle state
+            updateStandardProtectionToggleState(rowId);
+        }
+        
+        function updateStandardProtectionToggleState(rowId) {
+            // Grey out "Display Standard Protection" toggle if:
+            // 1. All devices have protection disabled, OR
+            // 2. All protected devices (excluding BYOD devices with cost === 0) use standard protection
+            //    (showing a secondary "Standard Protection" price would be the same)
+            const allDevicesUnprotected = STATE[rowId].devices.length > 0 && 
+                STATE[rowId].devices.every((_, idx) => STATE[rowId].protectionStatus[idx] === false);
+            
+            // Check if main display is already showing standard protection
+            // This happens when any non-BYOD device has standard protection assigned
+            let hasNonBYODStandardProtection = false;
+            const protectedDevices = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
+            if (protectedDevices.length > 0) {
+                hasNonBYODStandardProtection = STATE[rowId].devices.some((dev, idx) => {
+                    if (STATE[rowId].protectionStatus[idx] === false) return false;
+                    if (dev.cost === 0) return false; // Skip BYOD devices
+                    const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
+                    return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                });
+            }
+            
+            const standardToggleWrapper = document.getElementById('prot-show-standard-wrapper');
+            const standardToggle = document.getElementById('prot-show-standard');
+            if (standardToggleWrapper) {
+                if (allDevicesUnprotected || hasNonBYODStandardProtection) {
+                    // Auto-disable the toggle
+                    if (standardToggle && standardToggle.checked) {
+                        standardToggle.checked = false;
+                        STATE[rowId].showStandardProtection = false;
+                        calculateRow(rowId);
+                    }
+                    standardToggleWrapper.style.opacity = '0.4';
+                    standardToggleWrapper.style.pointerEvents = 'none';
+                } else {
+                    standardToggleWrapper.style.opacity = '1';
+                    standardToggleWrapper.style.pointerEvents = 'auto';
+                }
+            }
         }
         
         function updateProtectionCost(rowId, devIndex, val) {
             // Store the tier ID directly (val is now a tier ID like 'std-t5')
             STATE[rowId].protectionCosts[devIndex] = val;
             calculateRow(rowId);
+            updateStandardProtectionToggleState(rowId);
         }
 
         // ============================================
@@ -12359,8 +12571,11 @@
             Object.keys(planSource).forEach(category => {
                 const plans = planSource[category] || {};
                 Object.keys(plans).forEach(planKey => {
-                    if (planKey.toLowerCase().includes(searchLower)) {
-                        const plan = plans[planKey];
+                    const plan = plans[planKey];
+                    // Check plan name and keywords
+                    const nameMatch = planKey.toLowerCase().includes(searchLower);
+                    const keywordMatch = plan.keywords && plan.keywords.some(kw => kw.toLowerCase().includes(searchLower));
+                    if (nameMatch || keywordMatch) {
                         
                         // Skip plans with beyondSavings if not on a beyond plan
                         if (plan.beyondSavings && !isBeyondPlan) {
@@ -14367,7 +14582,21 @@
             }
 
             list.innerHTML = html;
-            totalEl.textContent = `Total Monthly Savings: $${totalSavings.toFixed(2)}`;
+            
+            // Display total with toggle between monthly and yearly
+            const showYearly = STATE[rowId].showYearlySavings;
+            if (showYearly) {
+                const yearlySavings = totalSavings * 12;
+                totalEl.innerHTML = `<span class="savings-toggle-text" onclick="toggleSavingsPeriod('${rowId}')" style="cursor:pointer;">Total Yearly Savings: $${yearlySavings.toFixed(2)}</span>`;
+            } else {
+                totalEl.innerHTML = `<span class="savings-toggle-text" onclick="toggleSavingsPeriod('${rowId}')" style="cursor:pointer;">Total Monthly Savings: $${totalSavings.toFixed(2)}</span>`;
+            }
+        }
+        
+        function toggleSavingsPeriod(rowId) {
+            STATE[rowId].showYearlySavings = !STATE[rowId].showYearlySavings;
+            // Re-render to update display - we need to call calculateRow to get savingsData
+            calculateRow(rowId);
         }
         
         function updateSummaryWidths(rowId) {
@@ -14823,11 +15052,15 @@
             });
             
             let protectionSum = 0;
+            let standardProtectionSum = 0;
             STATE[rowId].devices.forEach((_, idx) => {
                 if (STATE[rowId].protectionStatus[idx] !== false) {
                     const tierIdOrValue = STATE[rowId].protectionCosts[idx] !== undefined ? STATE[rowId].protectionCosts[idx] : 'p360-t5';
                     const cost = getProtectionValue(tierIdOrValue);
                     protectionSum += cost;
+                    // Also calculate standard protection equivalent
+                    const stdCost = getStandardTierEquivalent(tierIdOrValue);
+                    standardProtectionSum += stdCost;
                 }
             });
 
@@ -14896,10 +15129,12 @@
             const globalAdj = shouldApplyAdjustments ? calculateGlobalAdjustments(subtotalBasic, lineCount, deviceCount) : 0;
             const totalBasicRaw = subtotalBasic + globalAdj;
             const totalProtectedRaw = totalBasicRaw + protectionSum;
+            const totalStandardProtectedRaw = totalBasicRaw + standardProtectionSum;
             
             // Apply rounding if enabled
             const totalBasic = applyRounding(totalBasicRaw);
             const totalProtected = applyRounding(totalProtectedRaw);
+            const totalStandardProtected = applyRounding(totalStandardProtectedRaw);
 
             // Update Due Today section - always show
             const dueTodayGroup = document.getElementById(`${rowId}-due-today-group`);
@@ -15025,7 +15260,7 @@
             if (footerCarrierPriceEl && carrierPrice > 0) footerCarrierPriceEl.innerHTML = `$${carrierPrice.toFixed(0)}${getCarrierPerLineText(carrierPrice)}`;
             
             // Calculate and display yearly savings vs carrier
-            // Use the price that will be displayed based on protection visibility
+            // Use the price that will be displayed based on protection settings
             const yearlySavingsEl = document.getElementById(`${rowId}-yearly-savings`);
             if (yearlySavingsEl) {
                 const carrierPrice = STATE[rowId].carrierPrice || 0;
@@ -15036,10 +15271,23 @@
                         return STATE[rowId].protectionStatus[idx] === false;
                     });
                 }
-                // Use the displayed price based on protection visibility and device protection status
+                // Check if any non-BYOD device has standard protection
+                let hasNonBYODStandardProtectionForSavings = false;
+                const protectedDevicesForSavings = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
+                if (protectedDevicesForSavings.length > 0) {
+                    hasNonBYODStandardProtectionForSavings = STATE[rowId].devices.some((dev, idx) => {
+                        if (STATE[rowId].protectionStatus[idx] === false) return false;
+                        if (dev.cost === 0) return false; // Skip BYOD devices
+                        const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
+                        return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                    });
+                }
+                // Use the displayed price based on per-row settings
                 let ourPrice = totalProtected;
-                if ((protectionVisibility === 'only-non' || allDevicesUnprotectedForSavings) && STATE[rowId].devices.length > 0) {
+                if (allDevicesUnprotectedForSavings && STATE[rowId].devices.length > 0) {
                     ourPrice = totalBasic;
+                } else if (hasNonBYODStandardProtectionForSavings) {
+                    ourPrice = totalStandardProtected;
                 }
                 if (carrierPrice > 0 && ourPrice > 0 && carrierPrice > ourPrice) {
                     const monthlySavings = carrierPrice - ourPrice;
@@ -15051,7 +15299,7 @@
                 }
             }
 
-            // Visibility Logic - respects global protectionVisibility setting
+            // Visibility Logic - per-row settings
             const basicLabel = document.getElementById(`${rowId}-label-basic`);
             const basicBlock = document.getElementById(`${rowId}-block-basic`);
             const basicAmount = document.getElementById(`${rowId}-total-basic`);
@@ -15076,34 +15324,64 @@
             }
 
             if (STATE[rowId].devices.length > 0) {
-                // Determine what label text to show based on whether all devices are unprotected
-                const protectionLabelText = allDevicesUnprotected ? 'w/o Protection' : 'w/ Protection';
+                // Get per-row settings
+                const showStandardProtection = STATE[rowId].showStandardProtection;
                 
-                // When ALL devices have protection disabled, show the non-protected price in the main display
-                if (allDevicesUnprotected) {
-                    // Override the protected display to show non-protected price (since they're the same anyway)
-                    if (inlineTotalProtected) inlineTotalProtected.innerHTML = `$${totalBasic.toFixed(2)}${taxText}${getPerLineText(totalBasic)}`;
-                    if (footerTotalProtected) footerTotalProtected.innerHTML = `$${totalBasic.toFixed(2)}${getPerLineText(totalBasic)}`;
+                // Check if any non-BYOD device has standard protection manually assigned
+                // BYOD devices (cost === 0) with standard protection should NOT trigger the "Stnd Protection" label
+                // Only devices with retail price that have standard protection should trigger it
+                let hasNonBYODStandardProtection = false;
+                const protectedDevices = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
+                if (protectedDevices.length > 0) {
+                    hasNonBYODStandardProtection = STATE[rowId].devices.some((dev, idx) => {
+                        if (STATE[rowId].protectionStatus[idx] === false) return false; // Skip unprotected
+                        if (dev.cost === 0) return false; // Skip BYOD devices
+                        const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
+                        return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                    });
                 }
                 
-                // Apply global protection visibility setting
-                if (protectionVisibility === 'only-non') {
-                    // Only show non-protected price - swap what's displayed
-                    if (protectBlock) protectBlock.classList.remove('hidden');
-                    if (inlineTotalProtected) inlineTotalProtected.innerHTML = `$${totalBasic.toFixed(2)}${taxText}${getPerLineText(totalBasic)}`;
-                    if (footerTotalProtected) footerTotalProtected.innerHTML = `$${totalBasic.toFixed(2)}${getPerLineText(totalBasic)}`;
-                    if (protectionLabel) protectionLabel.style.display = 'none';
-                    if (footerProtectionLabel) footerProtectionLabel.style.display = 'none';
-                    if (basicBlock) basicBlock.classList.add('hidden');
-                    if (footerBasicBlock) footerBasicBlock.classList.add('hidden');
-                    if(timelineToggleWrap) timelineToggleWrap.classList.add('hidden');
-                } else if (protectionVisibility === 'always') {
-                    // Always show both
-                    if (protectBlock) protectBlock.classList.remove('hidden');
-                    if (footerProtectBlock) footerProtectBlock.classList.remove('hidden');
-                    if (basicBlock) basicBlock.classList.remove('hidden');
-                    if (footerBasicBlock) footerBasicBlock.classList.remove('hidden');
-                    // Set protection label text and visibility based on showProtectionLabel
+                // Determine what label text to show based on protection status
+                let protectionLabelText;
+                if (allDevicesUnprotected) {
+                    protectionLabelText = 'w/o Protection';
+                } else if (hasNonBYODStandardProtection) {
+                    protectionLabelText = 'w/ Stnd Protection';
+                } else {
+                    protectionLabelText = 'w/ Protection';
+                }
+                
+                // Main display shows appropriate protection price
+                let displayProtectedTotal = totalProtected;
+                
+                // When ALL devices have protection disabled, show the non-protected price
+                if (allDevicesUnprotected) {
+                    displayProtectedTotal = totalBasic;
+                } else if (hasNonBYODStandardProtection) {
+                    // When a non-BYOD device has standard protection, show standard price
+                    displayProtectedTotal = totalStandardProtected;
+                }
+                
+                // Update main protected price display
+                if (inlineTotalProtected) inlineTotalProtected.innerHTML = `$${displayProtectedTotal.toFixed(2)}${taxText}${getPerLineText(displayProtectedTotal)}`;
+                if (footerTotalProtected) footerTotalProtected.innerHTML = `$${displayProtectedTotal.toFixed(2)}${getPerLineText(displayProtectedTotal)}`;
+                
+                // Show main protected block
+                if (protectBlock) protectBlock.classList.remove('hidden');
+                if (footerProtectBlock) footerProtectBlock.classList.remove('hidden');
+                
+                // Set protection label text and visibility
+                // When showStandardProtection toggle is on, main label shows P360
+                if (showStandardProtection && !allDevicesUnprotected) {
+                    if (protectionLabel) {
+                        protectionLabel.textContent = 'w/ P360 Protection';
+                        protectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
+                    }
+                    if (footerProtectionLabel) {
+                        footerProtectionLabel.textContent = 'w/ P360 Protection';
+                        footerProtectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
+                    }
+                } else {
                     if (protectionLabel) {
                         protectionLabel.textContent = protectionLabelText;
                         protectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
@@ -15112,7 +15390,25 @@
                         footerProtectionLabel.textContent = protectionLabelText;
                         footerProtectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
                     }
-                    // Show/hide basic labels based on showProtectionLabel setting
+                }
+                
+                // Set basic block label - used for secondary display
+                // When showStandardProtection is on, basic block shows standard protection
+                // When showUnprotected is on, basic block shows non-protected price
+                if (showStandardProtection && !allDevicesUnprotected) {
+                    if (basicLabel) {
+                        basicLabel.textContent = "w/ Stnd Protection";
+                        basicLabel.style.display = showProtectionLabel ? '' : 'none';
+                    }
+                    if (footerBasicLabel) {
+                        footerBasicLabel.textContent = "w/ Stnd Protection";
+                        footerBasicLabel.style.display = showProtectionLabel ? '' : 'none';
+                    }
+                    // Update basic amount to show standard protection total
+                    if (basicAmount) basicAmount.innerHTML = `$${totalStandardProtected.toFixed(2)}${taxText}${getPerLineText(totalStandardProtected)}`;
+                    const footerBasicAmount = document.getElementById(`${rowId}-footer-total-basic`);
+                    if (footerBasicAmount) footerBasicAmount.innerHTML = `$${totalStandardProtected.toFixed(2)}${getPerLineText(totalStandardProtected)}`;
+                } else {
                     if (basicLabel) {
                         basicLabel.textContent = "w/o Protection";
                         basicLabel.style.display = showProtectionLabel ? '' : 'none';
@@ -15121,39 +15417,22 @@
                         footerBasicLabel.textContent = "w/o Protection";
                         footerBasicLabel.style.display = showProtectionLabel ? '' : 'none';
                     }
+                    // Update basic amount to show non-protected total
+                    if (basicAmount) basicAmount.innerHTML = `$${totalBasic.toFixed(2)}${taxText}${getPerLineText(totalBasic)}`;
+                    const footerBasicAmount = document.getElementById(`${rowId}-footer-total-basic`);
+                    if (footerBasicAmount) footerBasicAmount.innerHTML = `$${totalBasic.toFixed(2)}${getPerLineText(totalBasic)}`;
+                }
+                
+                // Show/hide secondary pricing based on showUnprotected OR showStandardProtection toggle
+                if (showUnprotected || showStandardProtection) {
+                    if (basicBlock) basicBlock.classList.remove('hidden');
+                    if (footerBasicBlock) footerBasicBlock.classList.remove('hidden');
                     if (basicAmount) basicAmount.classList.add('shrink');
                     if(timelineToggleWrap) timelineToggleWrap.classList.remove('hidden');
                 } else {
-                    // Hidden mode - use per-row showUnprotected setting
-                    if (protectBlock) protectBlock.classList.remove('hidden');
-                    if (footerProtectBlock) footerProtectBlock.classList.remove('hidden');
-                    // Set protection label text and visibility
-                    if (protectionLabel) {
-                        protectionLabel.textContent = protectionLabelText;
-                        protectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
-                    }
-                    if (footerProtectionLabel) {
-                        footerProtectionLabel.textContent = protectionLabelText;
-                        footerProtectionLabel.style.display = showProtectionLabel ? 'block' : 'none';
-                    }
-                    if (basicLabel) {
-                        basicLabel.textContent = "w/o Protection";
-                        basicLabel.style.display = showProtectionLabel ? '' : 'none';
-                    }
-                    if (footerBasicLabel) {
-                        footerBasicLabel.textContent = "w/o Protection";
-                        footerBasicLabel.style.display = showProtectionLabel ? '' : 'none';
-                    }
-                    if (showUnprotected) {
-                        if (basicBlock) basicBlock.classList.remove('hidden');
-                        if (footerBasicBlock) footerBasicBlock.classList.remove('hidden');
-                        if (basicAmount) basicAmount.classList.add('shrink');
-                        if(timelineToggleWrap) timelineToggleWrap.classList.remove('hidden');
-                    } else {
-                        if (basicBlock) basicBlock.classList.add('hidden');
-                        if (footerBasicBlock) footerBasicBlock.classList.add('hidden');
-                        if(timelineToggleWrap) timelineToggleWrap.classList.add('hidden');
-                    }
+                    if (basicBlock) basicBlock.classList.add('hidden');
+                    if (footerBasicBlock) footerBasicBlock.classList.add('hidden');
+                    if(timelineToggleWrap) timelineToggleWrap.classList.add('hidden');
                 }
             } else {
                 // No devices - show total without protection subtitle
@@ -15248,7 +15527,8 @@
                     }
                 }
                 
-                // Determine which total to show based on protection visibility
+                // Determine which total to show based on per-row settings
+                const showStandardProtectionForHeader = STATE[rowId].showStandardProtection;
                 let displayTotal = totalProtected;
                 let subText = 'w/ Protection + Tax';
                 let showSecondary = false;
@@ -15265,6 +15545,18 @@
                     });
                 }
                 
+                // Check if any non-BYOD device has standard protection manually assigned
+                let hasNonBYODStandardProtectionForHeader = false;
+                const protectedDevicesForHeader = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
+                if (protectedDevicesForHeader.length > 0) {
+                    hasNonBYODStandardProtectionForHeader = STATE[rowId].devices.some((dev, idx) => {
+                        if (STATE[rowId].protectionStatus[idx] === false) return false;
+                        if (dev.cost === 0) return false; // Skip BYOD devices
+                        const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
+                        return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                    });
+                }
+                
                 if (STATE[rowId].devices.length === 0) {
                     displayTotal = totalBasic;
                     subText = taxesIncluded ? '' : '+ Tax';
@@ -15276,15 +15568,28 @@
                     } else {
                         subText = taxesIncluded ? '' : '+ Tax';
                     }
-                } else if (protectionVisibility === 'only-non') {
-                    displayTotal = totalBasic;
+                } else if (hasNonBYODStandardProtectionForHeader) {
+                    // Non-BYOD device has standard protection - show standard as main
+                    displayTotal = totalStandardProtected;
                     if (showProtectionLabelForHeader) {
-                        subText = taxesIncluded ? 'w/o Protection' : 'w/o Protection + Tax';
+                        subText = taxesIncluded ? 'w/ Stnd Protection' : 'w/ Stnd Protection + Tax';
                     } else {
                         subText = taxesIncluded ? '' : '+ Tax';
                     }
-                } else if (protectionVisibility === 'always' || showUnprotected) {
-                    // Show both prices when "always" is selected OR when per-row showUnprotected is enabled
+                } else if (showStandardProtectionForHeader) {
+                    // Show P360 as main, Standard as secondary
+                    displayTotal = totalProtected;
+                    if (showProtectionLabelForHeader) {
+                        subText = taxesIncluded ? 'w/ P360 Protection' : 'w/ P360 Protection + Tax';
+                        secondarySubText = taxesIncluded ? 'w/ Stnd Protection' : 'w/ Stnd Protection + Tax';
+                    } else {
+                        subText = taxesIncluded ? '' : '+ Tax';
+                        secondarySubText = taxesIncluded ? '' : '+ Tax';
+                    }
+                    secondaryTotal = totalStandardProtected;
+                    showSecondary = true;
+                } else if (showUnprotected) {
+                    // Show both prices when per-row showUnprotected is enabled
                     if (showProtectionLabelForHeader) {
                         subText = taxesIncluded ? 'w/ Protection' : 'w/ Protection + Tax';
                         secondarySubText = taxesIncluded ? 'w/o Protection' : 'w/o Protection + Tax';
@@ -15294,6 +15599,7 @@
                     }
                     showSecondary = true;
                 } else {
+                    // Default: show P360 protection price
                     if (showProtectionLabelForHeader) {
                         subText = taxesIncluded ? 'w/ Protection' : 'w/ Protection + Tax';
                     } else {
@@ -15381,17 +15687,35 @@
                     });
                 }
                 
-                // Determine effective protection based on global setting and device protection status
-                let effectiveUseProtection;
-                if (protectionVisibility === 'only-non' || allDevicesUnprotectedForTimeline) {
-                    effectiveUseProtection = false; // Always no protection
-                } else if (protectionVisibility === 'always') {
-                    effectiveUseProtection = useProtection;
-                } else {
-                    effectiveUseProtection = (!showUnprotected && STATE[rowId].devices.length > 0) ? true : useProtection;
+                // Check if any non-BYOD device has standard protection
+                let hasNonBYODStandardProtectionForTimeline = false;
+                const protectedDevicesForTimeline = STATE[rowId].devices.filter((_, idx) => STATE[rowId].protectionStatus[idx] !== false);
+                if (protectedDevicesForTimeline.length > 0) {
+                    hasNonBYODStandardProtectionForTimeline = STATE[rowId].devices.some((dev, idx) => {
+                        if (STATE[rowId].protectionStatus[idx] === false) return false;
+                        if (dev.cost === 0) return false; // Skip BYOD devices
+                        const tierIdOrValue = STATE[rowId].protectionCosts[idx] || 'p360-t5';
+                        return typeof tierIdOrValue === 'string' && tierIdOrValue.startsWith('std-');
+                    });
                 }
                 
-                const activeMonthlyCost = effectiveUseProtection ? totalProtected : totalBasic;
+                // Determine effective protection based on per-row settings
+                let effectiveUseProtection;
+                let effectiveProtectedTotal;
+                if (allDevicesUnprotectedForTimeline) {
+                    effectiveUseProtection = false; // Always no protection when all devices disabled
+                    effectiveProtectedTotal = totalBasic;
+                } else if (hasNonBYODStandardProtectionForTimeline) {
+                    // Non-BYOD device has standard protection
+                    effectiveUseProtection = (!showUnprotected && STATE[rowId].devices.length > 0) ? true : useProtection;
+                    effectiveProtectedTotal = totalStandardProtected;
+                } else {
+                    // Default: use P360 protection
+                    effectiveUseProtection = (!showUnprotected && STATE[rowId].devices.length > 0) ? true : useProtection;
+                    effectiveProtectedTotal = totalProtected;
+                }
+                
+                const activeMonthlyCost = effectiveUseProtection ? effectiveProtectedTotal : totalBasic;
                 generateTimeline(rowId, activeMonthlyCost, totalFMV);
             } else {
                 timelineSection.classList.remove('active');
