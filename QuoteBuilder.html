@@ -339,8 +339,8 @@
             line-height: 1.1;
         }
         .quote-card-price-tax {
-            font-size: 0.85rem;
-            font-weight: 400;
+            font-size: 0.75rem;
+            font-weight: 500;
             color: var(--text-secondary);
         }
         .quote-card-price-label {
@@ -9206,10 +9206,28 @@
             globalAdjustments = data.globalAdjustments || [];
             rowCount = 0;
             
-            // Set mode
+            // Set mode - update UI directly without calling setMode to avoid resetCalculator
             const savedMode = data.mode || 'new';
             const isExistingMode = savedMode === 'existing';
-            setMode(savedMode);
+            
+            // Update mode and toggle UI directly
+            currentMode = savedMode;
+            const slider = document.getElementById('toggle-slider');
+            const labels = document.querySelectorAll('.toggle-labels span');
+            labels.forEach(label => label.classList.remove('active'));
+            const compareLinkWrapper = document.getElementById('compare-link-wrapper');
+            
+            if (savedMode === 'new') {
+                slider.className = 'toggle-slider position-0';
+                labels[0].classList.add('active');
+            } else {
+                slider.className = 'toggle-slider position-1';
+                labels[1].classList.add('active');
+            }
+            document.getElementById('rows-container').style.display = 'block';
+            document.getElementById('compare-section').classList.remove('active');
+            document.body.classList.remove('compare-mode');
+            if (compareLinkWrapper) compareLinkWrapper.classList.remove('hidden');
             
             // Load contact info
             if (data.repName) document.getElementById('contact-rep-name').value = data.repName;
@@ -11325,20 +11343,17 @@
                     ${subtitleText ? `<div class="quote-card-price-label">${subtitleText}</div>` : ''}
                 </div>
                 <div class="quote-card-section">
-                    <div class="quote-card-section-title">Voice Lines</div>
+                    ${planName ? `
+                    <div class="quote-card-section-title">Plan</div>
                     <div class="quote-card-section-content">
-                        ${planName ? `
                         <div class="quote-card-device">
-                            <span class="quote-card-device-name" style="font-weight: 600;">${planName}</span>
+                            <span class="quote-card-device-name">${planName}</span>
                             <span class="quote-card-device-price">${lineCount} line${lineCount !== 1 ? 's' : ''}</span>
                         </div>
-                        ` : `
-                        <div class="quote-card-device">
-                            <span class="quote-card-device-name" style="font-weight: 600;">Current Lines</span>
-                            <span class="quote-card-device-price">${lineCount} line${lineCount !== 1 ? 's' : ''}</span>
-                        </div>
-                        `}
                     </div>
+                    ` : `
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Current Amount of Lines <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">${lineCount} line${lineCount !== 1 ? 's' : ''}</span></div>
+                    `}
                 </div>
                 ${totalAddALines > 0 ? `
                 <div class="quote-card-section">
@@ -11370,41 +11385,33 @@
                     <div class="quote-card-section-title">Home Internet (${homeInternet.length})</div>
                     <div class="quote-card-section-content">${hiHtml}</div>
                 </div>
-                <div class="quote-card-footer">
-                    ${totalFMV > 0 ? `
-                    <div class="quote-card-savings-row">
-                        <div class="quote-card-savings" style="flex: 1;">
-                            <div class="quote-card-savings-amount">$${totalFMV.toFixed(2)}</div>
-                            <div class="quote-card-savings-label">Account Credits</div>
+                <div style="border-top: 1px solid var(--border-color); margin: 15px 0;"></div>
+                ${dueToday > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Due Today <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${dueToday.toFixed(2)}</span></div>
+                </div>
+                ` : ''}
+                ${totalFMV > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Account Credits <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${totalFMV.toFixed(2)}</span></div>
+                </div>
+                ` : ''}
+                ${savedToday > 0 ? `
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title">Saved Today</div>
+                    <div class="quote-card-section-content">
+                        <div class="quote-card-device">
+                            <span class="quote-card-device-name" style="font-weight: 600;">Instant Savings</span>
+                            <span class="quote-card-device-price">$${savedToday.toFixed(2)}</span>
                         </div>
                     </div>
-                    ` : ''}
-                    ${(dueToday > 0 || savedToday > 0) ? `
-                    <div class="quote-card-savings-row">
-                        ${dueToday > 0 ? `
-                        <div class="quote-card-savings"${savedToday <= 0 ? ' style="flex: 1;"' : ''}>
-                            <div class="quote-card-savings-amount">$${dueToday.toFixed(2)}</div>
-                            <div class="quote-card-savings-label">Due Today</div>
-                        </div>
-                        ` : ''}
-                        ${savedToday > 0 ? `
-                        <div class="quote-card-savings"${dueToday <= 0 ? ' style="flex: 1;"' : ''}>
-                            <div class="quote-card-savings-amount">$${savedToday.toFixed(2)}</div>
-                            <div class="quote-card-savings-label">Saved Today</div>
-                        </div>
-                        ` : ''}
-                    </div>
-                    ` : ''}
-                    <div class="quote-card-savings-row">
-                        <div class="quote-card-savings">
-                            <div class="quote-card-savings-amount">${savingsDisplay}</div>
-                            <div class="quote-card-savings-label">${savingsLabel}</div>
-                        </div>
-                        <div class="quote-card-savings">
-                            <div class="quote-card-savings-amount">$${totalRebates.toFixed(2)}</div>
-                            <div class="quote-card-savings-label">Total Rebates</div>
-                        </div>
-                    </div>
+                </div>
+                ` : ''}
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">${savingsLabel} <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">${savingsDisplay}</span></div>
+                </div>
+                <div class="quote-card-section">
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Total Rebates <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${totalRebates.toFixed(2)}</span></div>
                 </div>
             `;
             
@@ -17465,9 +17472,6 @@
         }
         
         function loadQuoteFromData(data) {
-            // Reset calculator first
-            resetCalculator();
-            
             // Check version - v2 has detailed names, v1 has compact indices
             const isV2 = data.v === 2;
             
@@ -17482,12 +17486,33 @@
             const discountTypes = ['Autopay Discount', 'Free Line', 'Work Perks', 'Insider Discount', 'Manual'];
             const categories = ['Watches', 'Tablets', 'Data'];
             
-            // Set mode - v2 uses 'existing'/'new', v1 uses 1/0
+            // Set mode FIRST - v2 uses 'existing'/'new', v1 uses 1/0
             const isExisting = isV2 ? (data.mode === 'existing') : (data.m === 1 || data.m === 'e');
             const loadedMode = isExisting ? 'existing' : 'new';
-            setMode(loadedMode);
             
-            // Reset again to apply mode
+            // Temporarily set currentMode to the target mode to prevent resetCalculator from being called twice
+            const previousMode = currentMode;
+            currentMode = loadedMode;
+            
+            // Update toggle UI without triggering reset
+            const slider = document.getElementById('toggle-slider');
+            const labels = document.querySelectorAll('.toggle-labels span');
+            labels.forEach(label => label.classList.remove('active'));
+            const compareLinkWrapper = document.getElementById('compare-link-wrapper');
+            
+            if (loadedMode === 'new') {
+                slider.className = 'toggle-slider position-0';
+                labels[0].classList.add('active');
+            } else {
+                slider.className = 'toggle-slider position-1';
+                labels[1].classList.add('active');
+            }
+            document.getElementById('rows-container').style.display = 'block';
+            document.getElementById('compare-section').classList.remove('active');
+            document.body.classList.remove('compare-mode');
+            if (compareLinkWrapper) compareLinkWrapper.classList.remove('hidden');
+            
+            // Now reset and create a single row in the correct mode
             document.getElementById('rows-container').innerHTML = '';
             STATE = {};
             rowCount = 0;
