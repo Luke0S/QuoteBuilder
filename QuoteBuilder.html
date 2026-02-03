@@ -303,6 +303,7 @@
         }
         .quote-card-footer {
             margin-top: auto;
+            padding-top: 15px;
         }
         .quote-compare-grid.two-quotes .quote-compare-card {
             max-width: calc(50% - 10px);
@@ -5801,7 +5802,7 @@
                 <button class="modal-header-close" onclick="closeQuoteSelectModal()">×</button>
             </div>
             <div class="modal-body">
-                <div class="quote-select-count" id="quote-select-count">0 of 3 selected</div>
+                <div class="quote-select-count" id="quote-select-count">0 of 2 selected</div>
                 <div class="quote-select-list" id="quote-select-list">
                     <!-- Populated dynamically -->
                 </div>
@@ -7214,7 +7215,6 @@
             labels[0].classList.add('active');
             
             resetCalculator();
-            document.getElementById('add-row-btn').addEventListener('click', createNewRow);
             
             document.addEventListener('click', (e) => {
                 if(!e.target.closest('.search-select-wrapper')) {
@@ -10382,6 +10382,10 @@
         function createNewRow() {
             rowCount++;
             const rowId = `row-${rowCount}`;
+            
+            // Calculate quote number based on current number of rows (not the running rowCount)
+            const currentRowCount = document.querySelectorAll('.calculator-row').length + 1;
+            
             STATE[rowId] = { 
                 devices: [], 
                 protectionStatus: {}, 
@@ -10390,7 +10394,7 @@
                 showStandardProtection: false,
                 showProtectionLabel: true,
                 showYearlySavings: false,
-                quoteTitle: `Quote ${rowCount}`,
+                quoteTitle: `Quote ${currentRowCount}`,
                 connectedDevices: [], 
                 homeInternet: [],
                 accessories: [],
@@ -10421,12 +10425,12 @@
             rowDiv.className = 'calculator-row';
             rowDiv.id = rowId;
             rowDiv.setAttribute('data-mode', currentMode);
-            rowDiv.setAttribute('data-row-index', rowCount);
+            rowDiv.setAttribute('data-row-index', currentRowCount);
 
             let title = "";
             if (isManualMode) {
-                if (rowCount === 1) title = "Current Plan";
-                else title = `Comparison Option #${rowCount - 1}`;
+                if (currentRowCount === 1) title = "Current Plan";
+                else title = `Comparison Option #${currentRowCount - 1}`;
             } else {
                 title = "";
             }
@@ -10602,10 +10606,10 @@
                     ` : ''}
                     <div class="row-actions" id="${rowId}-row-actions">
                         <div class="row-actions-left">
-                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">View plan benefits</button>
-                            <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${rowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
+                            <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${currentRowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
                         </div>
                         <div class="row-actions-right">
+                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">View plan benefits</button>
                             <button class="btn btn-secondary btn-action" onclick="duplicateRow('${rowId}')">Duplicate</button>
                             <button class="btn btn-secondary btn-action btn-remove-action" onclick="confirmRemoveRow(this, '${rowId}')">Remove</button>
                         </div>
@@ -10970,8 +10974,8 @@
                 element.classList.remove('selected');
                 selectedQuotesForComparison = selectedQuotesForComparison.filter(id => id !== rowId);
             } else {
-                // Check if we already have 3 selected
-                if (selectedQuotesForComparison.length >= 3) {
+                // Check if we already have 2 selected
+                if (selectedQuotesForComparison.length >= 2) {
                     return; // Can't select more
                 }
                 element.classList.add('selected');
@@ -10983,16 +10987,16 @@
         
         function updateQuoteSelectionCount() {
             const count = selectedQuotesForComparison.length;
-            document.getElementById('quote-select-count').textContent = `${count} of 3 selected`;
+            document.getElementById('quote-select-count').textContent = `${count} of 2 selected`;
             
             // Enable/disable confirm button
             const confirmBtn = document.getElementById('quote-compare-confirm-btn');
             confirmBtn.disabled = count < 2;
             
-            // Disable unselected items if we have 3 selected
+            // Disable unselected items if we have 2 selected
             document.querySelectorAll('.quote-select-item').forEach(item => {
                 const rowId = item.getAttribute('data-row-id');
-                if (count >= 3 && !selectedQuotesForComparison.includes(rowId)) {
+                if (count >= 2 && !selectedQuotesForComparison.includes(rowId)) {
                     item.classList.add('disabled');
                 } else {
                     item.classList.remove('disabled');
@@ -11017,8 +11021,6 @@
             grid.className = 'quote-compare-grid';
             if (selectedQuotesForComparison.length === 2) {
                 grid.classList.add('two-quotes');
-            } else if (selectedQuotesForComparison.length === 3) {
-                grid.classList.add('three-quotes');
             }
             
             selectedQuotesForComparison.forEach(rowId => {
@@ -11150,12 +11152,16 @@
                         }
                     }
                     
+                    // Show promo if applicable
+                    const promoDisplay = promo > 0 ? `<div class="quote-card-cd-subtext">Promo: $${promo.toFixed(2)} Off</div>` : '';
+                    
                     devicesHtml += `
                         <div class="quote-card-device">
                             <div class="quote-card-device-info">
                                 <span class="quote-card-device-name">${deviceName}</span>
                                 ${downDisplay}
                                 ${tradeInDisplay}
+                                ${promoDisplay}
                             </div>
                             ${showComparePrices ? `<span class="quote-card-device-price">${costDisplay}</span>` : ''}
                         </div>
@@ -11408,19 +11414,15 @@
                     <div class="quote-card-section-title">Home Internet (${homeInternet.length})</div>
                     <div class="quote-card-section-content">${hiHtml}</div>
                 </div>
-                <div style="border-top: 1px solid var(--border-color); margin: 15px 0;"></div>
-                ${dueToday > 0 ? `
-                <div class="quote-card-section">
+                <div class="quote-card-footer">
+                <div style="border-top: 1px solid var(--border-color); margin-bottom: 15px;"></div>
+                <div class="quote-card-section" ${dueToday > 0 ? '' : 'style="display: none;"'}>
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Due Today <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${dueToday.toFixed(2)}</span></div>
                 </div>
-                ` : ''}
-                ${totalFMV > 0 ? `
-                <div class="quote-card-section">
+                <div class="quote-card-section" ${totalFMV > 0 ? '' : 'style="display: none;"'}>
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Account Credits <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${totalFMV.toFixed(2)}</span></div>
                 </div>
-                ` : ''}
-                ${savedToday > 0 ? `
-                <div class="quote-card-section">
+                <div class="quote-card-section" ${savedToday > 0 ? '' : 'style="display: none;"'}>
                     <div class="quote-card-section-title">Saved Today</div>
                     <div class="quote-card-section-content">
                         <div class="quote-card-device">
@@ -11429,12 +11431,12 @@
                         </div>
                     </div>
                 </div>
-                ` : ''}
                 <div class="quote-card-section">
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">${savingsLabel} <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">${savingsDisplay}</span></div>
                 </div>
                 <div class="quote-card-section">
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Total Rebates <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${totalRebates.toFixed(2)}</span></div>
+                </div>
                 </div>
             `;
             
