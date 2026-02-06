@@ -234,6 +234,7 @@
         }
         .row-actions-left {
             display: flex;
+            justify-content: center;
             align-items: center;
             gap: 10px;
         }
@@ -1908,19 +1909,23 @@
             animation: fadeOutRow 0.3s ease forwards;
         }
         
-        /* Row Actions - left and right alignment */
+        /* Row Actions - centered title with buttons below */
         .row-actions {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
             width: 100%;
             padding-bottom: 12px;
             margin-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
+            gap: 8px;
         }
         .row-actions-left {
             display: flex;
-            gap: 8px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
         }
         .row-actions-center {
             display: flex;
@@ -1929,7 +1934,40 @@
         }
         .row-actions-right {
             display: flex;
+            justify-content: center;
             gap: 8px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+            margin-top: 0;
+        }
+        .row-actions-right.expanded {
+            max-height: 100px;
+            opacity: 1;
+            margin-top: 4px;
+        }
+        .row-actions-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 2px 8px;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+        .row-actions-toggle:hover {
+            color: var(--primary-color);
+        }
+        .row-actions-toggle .chevron {
+            transition: transform 0.3s ease;
+            font-size: 0.6rem;
+        }
+        .row-actions-toggle.expanded .chevron {
+            transform: rotate(180deg);
         }
         .btn-action {
             padding: 8px 16px;
@@ -4860,7 +4898,7 @@
         </div>
         
         <!-- Page Footer Credit (visible on screen) -->
-        <div class="page-footer-credit">Quote Builder V2.45 | Made by Luke Shrader</div>
+        <div class="page-footer-credit">Quote Builder V2.46 | Made by Luke Shrader</div>
         
         <!-- Plan Benefits Pages (print only) -->
         <div id="plan-benefits-container" class="plan-benefits-container">
@@ -5210,7 +5248,7 @@
                             <div style="display: flex; gap: 10px;">
                                 <div class="input-group" style="flex: 1;">
                                     <label class="step-label" style="font-size: 0.9rem;">Retail ($)</label>
-                                    <input type="number" id="cd-dev-cost" min="0" max="9999.99" step="0.01" placeholder="0.00">
+                                    <input type="number" id="cd-dev-cost" min="0" max="9999.99" step="0.01" placeholder="0.00" oninput="updateCDSaveButtonText()">
                                 </div>
                                 
                                 <div class="input-group" style="flex: 1;">
@@ -5375,13 +5413,15 @@
                                 <div class="input-group" style="margin-bottom: 8px;">
                                     <input type="text" id="addon-name-input" placeholder="e.g., Hotspot" style="font-size: 0.9rem;">
                                 </div>
-                                <div style="display: flex; gap: 10px; align-items: center;">
-                                    <div style="display: flex; gap: 8px; flex: 1;">
-                                        <input type="number" id="addon-price-input" min="0" step="0.01" placeholder="Price ($)" style="flex: 1; font-size: 0.9rem;">
-                                        <input type="number" id="addon-amount-input" min="1" max="12" placeholder="Qty" value="1" style="width: 70px; font-size: 0.9rem;">
+                                <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
+                                    <input type="number" id="addon-price-input" min="0" step="0.01" placeholder="Price ($)" style="flex: 1; font-size: 0.9rem;">
+                                    <div class="stepper-wrapper" style="width: 120px;">
+                                        <button type="button" class="stepper-btn" onclick="updateAddonQty(-1)">−</button>
+                                        <input type="number" id="addon-amount-input" class="stepper-input" min="1" max="12" value="1" style="font-size: 0.9rem;">
+                                        <button type="button" class="stepper-btn" onclick="updateAddonQty(1)">+</button>
                                     </div>
-                                    <button class="btn btn-primary" onclick="saveAddon()" style="padding: 10px 16px;">Add</button>
                                 </div>
+                                <button class="btn btn-primary" onclick="saveAddon()" style="width: 100%; padding: 10px 16px;">Add</button>
                             </div>
                         </div>
                     </div>
@@ -5550,6 +5590,32 @@
             </div>
         </div>
     </div>
+    
+    <!-- MANUAL DISCOUNT MODAL (Existing Mode) -->
+    <div id="manual-discount-modal" class="modal-overlay" onclick="if(event.target === this) closeManualDiscountModal()">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3>Add Discount</h3>
+                <button class="modal-header-close" onclick="closeManualDiscountModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="manual-disc-row-id">
+                
+                <div class="input-group">
+                    <label class="step-label" style="font-size: 0.9rem;">Discount Name</label>
+                    <input type="text" id="manual-disc-name" placeholder="e.g. Employee Discount">
+                </div>
+                
+                <div class="input-group">
+                    <label class="step-label" style="font-size: 0.9rem;">Amount ($)</label>
+                    <input type="number" id="manual-disc-amount" min="0" step="0.01" placeholder="0.00">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="saveManualDiscountItem()" style="width: 100%;">Add Discount</button>
+            </div>
+        </div>
+    </div>
 
     <!-- REBATE MODAL (Add Rebate) -->
     <div id="rebate-modal" class="modal-overlay" onclick="if(event.target === this) closeRebateModal()">
@@ -5687,12 +5753,16 @@
                         <div class="input-group" style="margin-bottom: 8px;">
                             <input type="text" id="saved-today-desc" placeholder="e.g. Activation Fee Waived" style="font-size: 0.9rem;">
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                             <input type="number" id="saved-today-amount-input" min="0" step="0.01" placeholder="0.00" style="flex: 1; font-size: 0.9rem;">
                             <span style="font-size: 0.8rem; color: var(--text-secondary);">×</span>
-                            <input type="number" id="saved-today-qty" min="1" max="99" value="1" style="width: 50px; font-size: 0.9rem; text-align: center;">
-                            <button class="btn btn-primary" onclick="addSavedTodayItem()" style="padding: 10px 16px;">Add</button>
+                            <div class="stepper-wrapper" style="width: auto;">
+                                <button type="button" class="stepper-btn" onclick="updateSavedTodayQty(-1)">−</button>
+                                <input type="number" id="saved-today-qty" class="stepper-input" min="1" max="99" value="1" style="width: 40px;" readonly>
+                                <button type="button" class="stepper-btn" onclick="updateSavedTodayQty(1)">+</button>
+                            </div>
                         </div>
+                        <button class="btn btn-primary" onclick="addSavedTodayItem()" style="width: 100%;">Add</button>
                     </div>
                 </div>
                 
@@ -5708,12 +5778,16 @@
                         <div class="input-group" style="margin-bottom: 8px;">
                             <input type="text" id="due-today-desc" placeholder="e.g. DCC" style="font-size: 0.9rem;">
                         </div>
-                        <div style="display: flex; gap: 10px; align-items: center;">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                             <input type="number" id="due-today-amount" min="0" step="0.01" placeholder="0.00" style="flex: 1; font-size: 0.9rem;">
                             <span style="font-size: 0.8rem; color: var(--text-secondary);">×</span>
-                            <input type="number" id="due-today-qty" min="1" max="99" value="1" style="width: 50px; font-size: 0.9rem; text-align: center;">
-                            <button class="btn btn-primary" onclick="addDueTodayItem()" style="padding: 10px 16px;">Add</button>
+                            <div class="stepper-wrapper" style="width: auto;">
+                                <button type="button" class="stepper-btn" onclick="updateDueTodayQty(-1)">−</button>
+                                <input type="number" id="due-today-qty" class="stepper-input" min="1" max="99" value="1" style="width: 40px;" readonly>
+                                <button type="button" class="stepper-btn" onclick="updateDueTodayQty(1)">+</button>
+                            </div>
                         </div>
+                        <button class="btn btn-primary" onclick="addDueTodayItem()" style="width: 100%;">Add</button>
                     </div>
                 </div>
             </div>
@@ -7203,6 +7277,78 @@
         let showPerLinePricing = false; // Show price per line breakdown
         let showComparePrices = true; // Show monthly prices on compare quote page
 
+        // --- SECRET MENU FUNCTIONALITY ---
+        let secretMenuTimer = null;
+        const SECRET_HOLD_DURATION = 5000; // 5 seconds
+        const SECRET_PASSWORD = 'Meatball4263';
+        
+        function initSecretMenu() {
+            const logoWrapper = document.querySelector('.tmo-logo-wrapper');
+            if (!logoWrapper) {
+                console.log('Logo wrapper not found');
+                return;
+            }
+            
+            // Make wrapper capture events
+            logoWrapper.style.cursor = 'pointer';
+            logoWrapper.style.userSelect = 'none';
+            logoWrapper.style.webkitUserSelect = 'none';
+            logoWrapper.style.touchAction = 'none';
+            
+            // Use pointer events for unified handling
+            logoWrapper.addEventListener('pointerdown', startSecretTimer);
+            logoWrapper.addEventListener('pointerup', cancelSecretTimer);
+            logoWrapper.addEventListener('pointerleave', cancelSecretTimer);
+            logoWrapper.addEventListener('pointercancel', cancelSecretTimer);
+            
+            // Prevent context menu on long press
+            logoWrapper.addEventListener('contextmenu', (e) => e.preventDefault());
+        }
+        
+        function startSecretTimer(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            cancelSecretTimer();
+            secretMenuTimer = setTimeout(() => {
+                openSecretPasswordModal();
+            }, SECRET_HOLD_DURATION);
+        }
+        
+        function cancelSecretTimer() {
+            if (secretMenuTimer) {
+                clearTimeout(secretMenuTimer);
+                secretMenuTimer = null;
+            }
+        }
+        
+        function openSecretPasswordModal() {
+            document.getElementById('secret-password-input').value = '';
+            document.getElementById('secret-password-error').style.display = 'none';
+            document.getElementById('secret-password-modal').classList.add('active');
+        }
+        
+        function closeSecretPasswordModal() {
+            document.getElementById('secret-password-modal').classList.remove('active');
+        }
+        
+        function checkSecretPassword() {
+            const input = document.getElementById('secret-password-input').value;
+            if (input === SECRET_PASSWORD) {
+                closeSecretPasswordModal();
+                openSecretMenu();
+            } else {
+                document.getElementById('secret-password-error').style.display = 'block';
+            }
+        }
+        
+        function openSecretMenu() {
+            document.getElementById('secret-menu-modal').classList.add('active');
+        }
+        
+        function closeSecretMenu() {
+            document.getElementById('secret-menu-modal').classList.remove('active');
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Load settings from URL hash first
             loadSettingsFromURL();
@@ -7215,6 +7361,9 @@
             labels[0].classList.add('active');
             
             resetCalculator();
+            
+            // Initialize secret menu long-press detection
+            initSecretMenu();
             
             document.addEventListener('click', (e) => {
                 if(!e.target.closest('.search-select-wrapper')) {
@@ -9260,7 +9409,7 @@
                 const rowId = `row-${rowCount}`;
                 
                 // Set title
-                const titleInput = document.getElementById(`${rowId}-title`);
+                const titleInput = document.getElementById(`${rowId}-quote-title`);
                 if (titleInput && quoteData.title) titleInput.value = quoteData.title;
                 
                 // Set carrier info
@@ -9304,6 +9453,13 @@
                     STATE[rowId].devices = quoteData.devices;
                     STATE[rowId].protectionStatus = quoteData.protectionStatus || {};
                     STATE[rowId].protectionCosts = quoteData.protectionCosts || {};
+                    renderDeviceList(rowId);
+                }
+                
+                // Load accessories
+                if (quoteData.accessories) {
+                    STATE[rowId].accessories = quoteData.accessories;
+                    // Accessories are rendered in renderDeviceList, so re-render
                     renderDeviceList(rowId);
                 }
                 
@@ -9398,7 +9554,7 @@
             Object.keys(STATE).forEach(rowId => {
                 const row = document.getElementById(rowId);
                 const isManualMode = row?.getAttribute('data-mode') === 'existing';
-                const titleInput = document.getElementById(`${rowId}-title`);
+                const titleInput = document.getElementById(`${rowId}-quote-title`);
                 const notesTextarea = document.getElementById(`${rowId}-notes`);
                 
                 const rowData = {
@@ -9410,6 +9566,7 @@
                     plan: document.getElementById(`${rowId}-plan`)?.value || '',
                     manualPrice: isManualMode ? parseFloat(document.getElementById(`${rowId}-manual-price`)?.value) || 0 : 0,
                     devices: STATE[rowId].devices,
+                    accessories: STATE[rowId].accessories || [],
                     protectionStatus: STATE[rowId].protectionStatus,
                     protectionCosts: STATE[rowId].protectionCosts,
                     connectedDevices: STATE[rowId].connectedDevices.map(cd => ({
@@ -10607,8 +10764,11 @@
                     <div class="row-actions" id="${rowId}-row-actions">
                         <div class="row-actions-left">
                             <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${currentRowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
+                            <button class="row-actions-toggle" onclick="toggleRowActions(this, '${rowId}')" aria-label="Toggle options">
+                                <span class="chevron">▼</span>
+                            </button>
                         </div>
-                        <div class="row-actions-right">
+                        <div class="row-actions-right" id="${rowId}-actions-dropdown">
                             <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">View plan benefits</button>
                             <button class="btn btn-secondary btn-action" onclick="duplicateRow('${rowId}')">Duplicate</button>
                             <button class="btn btn-secondary btn-action btn-remove-action" onclick="confirmRemoveRow(this, '${rowId}')">Remove</button>
@@ -10873,6 +11033,21 @@
             input.style.width = width + 'px';
             
             document.body.removeChild(span);
+        }
+        
+        function toggleRowActions(button, rowId) {
+            const dropdown = document.getElementById(`${rowId}-actions-dropdown`);
+            if (!dropdown) return;
+            
+            const isExpanded = dropdown.classList.contains('expanded');
+            
+            if (isExpanded) {
+                dropdown.classList.remove('expanded');
+                button.classList.remove('expanded');
+            } else {
+                dropdown.classList.add('expanded');
+                button.classList.add('expanded');
+            }
         }
         
         // Track selected quotes for comparison
@@ -11423,13 +11598,7 @@
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Account Credits <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${totalFMV.toFixed(2)}</span></div>
                 </div>
                 <div class="quote-card-section" ${savedToday > 0 ? '' : 'style="display: none;"'}>
-                    <div class="quote-card-section-title">Saved Today</div>
-                    <div class="quote-card-section-content">
-                        <div class="quote-card-device">
-                            <span class="quote-card-device-name" style="font-weight: 600;">Instant Savings</span>
-                            <span class="quote-card-device-price">$${savedToday.toFixed(2)}</span>
-                        </div>
-                    </div>
+                    <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">Saved Today <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">$${savedToday.toFixed(2)}</span></div>
                 </div>
                 <div class="quote-card-section">
                     <div class="quote-card-section-title" style="display: flex; justify-content: space-between; align-items: center;">${savingsLabel} <span class="quote-card-device-price" style="text-transform: none; font-size: 0.95rem; font-weight: 400;">${savingsDisplay}</span></div>
@@ -13827,6 +13996,26 @@
             document.getElementById('cd-detail-panel').dataset.isBusiness = isBusiness;
             // Add detail-active class to modal body to hide plan list and show form properly
             document.querySelector('#cd-modal .modal-body').classList.add('detail-active');
+            
+            // Set button text based on whether we're editing or adding new
+            const editIndex = parseInt(document.getElementById('cd-edit-index').value);
+            if (editIndex < 0) {
+                // Adding new - check if retail price has value
+                updateCDSaveButtonText();
+            }
+        }
+        
+        function updateCDSaveButtonText() {
+            const editIndex = parseInt(document.getElementById('cd-edit-index').value);
+            if (editIndex >= 0) return; // Don't change text in edit mode
+            
+            const retailPrice = parseFloat(document.getElementById('cd-dev-cost').value) || 0;
+            const saveBtn = document.getElementById('cd-save-btn');
+            if (retailPrice > 0) {
+                saveBtn.textContent = 'Add device and service';
+            } else {
+                saveBtn.textContent = 'Skip and Add Service';
+            }
         }
         
         function deselectCDPlan() {
@@ -14851,13 +15040,17 @@
             const btn = document.getElementById(`${rowId}-discount-btn`);
             if (btn && btn.classList.contains('btn-disabled')) return;
             
-            document.getElementById('disc-row-id').value = rowId;
             const row = document.getElementById(rowId);
             const isManualMode = (row.getAttribute('data-mode') === 'existing');
             
             if (isManualMode) {
-                addDiscountItem(rowId);
+                // Open the manual discount modal for existing mode
+                document.getElementById('manual-disc-row-id').value = rowId;
+                document.getElementById('manual-disc-name').value = '';
+                document.getElementById('manual-disc-amount').value = '';
+                document.getElementById('manual-discount-modal').classList.add('open');
             } else {
+                document.getElementById('disc-row-id').value = rowId;
                 renderDiscountModalList(rowId);
                 document.getElementById('discount-modal').classList.add('open');
             }
@@ -14865,6 +15058,26 @@
         
         function closeDiscountModal() {
              document.getElementById('discount-modal').classList.remove('open');
+        }
+        
+        function closeManualDiscountModal() {
+            document.getElementById('manual-discount-modal').classList.remove('open');
+        }
+        
+        function saveManualDiscountItem() {
+            const rowId = document.getElementById('manual-disc-row-id').value;
+            const name = document.getElementById('manual-disc-name').value.trim();
+            const amount = parseFloat(document.getElementById('manual-disc-amount').value) || 0;
+            
+            if (!name) {
+                alert('Please enter a discount name');
+                return;
+            }
+            
+            STATE[rowId].discounts.push({type:'Manual', name: name, amount: amount});
+            renderDiscountList(rowId);
+            calculateRow(rowId);
+            closeManualDiscountModal();
         }
 
         function addDiscountItem(rowId) { 
@@ -15011,27 +15224,10 @@
              
              if (isManual) {
                  STATE[rowId].discounts.forEach((item, index) => {
-                     const div = document.createElement('div'); div.className = 'manual-discount-wrapper';
-                     const escapedName = (item.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                     const div = document.createElement('div'); 
+                     div.className = 'item-pill';
                      const displayName = item.name || 'Discount';
-                     const displayAmount = item.amount > 0 ? `$${item.amount.toFixed(2)}` : '';
-                     // Format amount with parentheses for display in input
-                     const formattedAmountDisplay = item.amount > 0 ? `($${item.amount.toFixed(2)})` : '';
-                     div.innerHTML = `
-                         <div class="manual-discount-screen">
-                             <input type="text" class="discount-name" placeholder="Discount Name" value="${escapedName}" 
-                                    oninput="updateManualDiscount('${rowId}', ${index}, 'name', this.value)"
-                                    onfocus="this.placeholder=''" 
-                                    onblur="if(!this.value) this.placeholder='Discount Name'">
-                             <input type="text" class="bts-price discount-amount-input" placeholder="Amount" value="${formattedAmountDisplay}" 
-                                    onfocus="this.value = '${item.amount > 0 ? item.amount : ''}'; this.type='number'; this.placeholder=''" 
-                                    onblur="formatDiscountAmount(this, '${rowId}', ${index})">
-                             <button class="btn-remove" onclick="removeDiscountItem('${rowId}', ${index})">×</button>
-                         </div>
-                         <div class="manual-discount-print">
-                             <span class="item-text">${displayName}${displayAmount ? ': -' + displayAmount : ''}</span>
-                         </div>
-                     `;
+                     div.innerHTML = `<span class="item-text">${displayName}</span><span class="remove-x" onclick="removeDiscountItem('${rowId}', ${index})">×</span>`;
                      container.appendChild(div);
                  });
              } else {
@@ -15295,6 +15491,27 @@
             }
         }
         
+        function updateDueTodayQty(delta) {
+            const input = document.getElementById('due-today-qty');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(99, val + delta));
+            input.value = val;
+        }
+        
+        function updateSavedTodayQty(delta) {
+            const input = document.getElementById('saved-today-qty');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(99, val + delta));
+            input.value = val;
+        }
+        
+        function updateAddonQty(delta) {
+            const input = document.getElementById('addon-amount-input');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(12, val + delta));
+            input.value = val;
+        }
+        
         function addDueTodayItem() {
             const rowId = document.getElementById('due-today-row-id').value;
             const description = document.getElementById('due-today-desc').value.trim();
@@ -15463,7 +15680,9 @@
             
             if (STATE[rowId].rebates.length === 0) { 
                 container.classList.remove('visible'); 
-                container.style.display = 'none'; 
+                container.style.display = 'none';
+                list.innerHTML = ''; // Clear stale list
+                grandTotalEl.textContent = ''; // Clear stale total
                 return; 
             }
             
@@ -15524,6 +15743,8 @@
             if (totalSavings <= 0) {
                 container.classList.remove('visible');
                 container.style.display = 'none';
+                totalEl.innerHTML = ''; // Clear stale data
+                list.innerHTML = ''; // Clear stale list
                 return;
             }
             
@@ -17794,5 +18015,35 @@
             toggleDefaultBenefitsSwitch();
         }
     </script>
+    
+    <!-- SECRET PASSWORD MODAL -->
+    <div id="secret-password-modal" class="modal-overlay" onclick="if(event.target === this) closeSecretPasswordModal()">
+        <div class="modal-content" style="max-width: 350px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>🔐 Access Required</h3>
+                <button class="modal-header-close" onclick="closeSecretPasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px;">
+                <p style="margin-bottom: 15px; color: var(--text-secondary); font-size: 0.9rem;">Enter password to continue:</p>
+                <input type="password" id="secret-password-input" placeholder="Password" style="width: 100%; padding: 12px; font-size: 1rem; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 10px;" onkeydown="if(event.key === 'Enter') checkSecretPassword()">
+                <p id="secret-password-error" style="display: none; color: var(--danger-color); font-size: 0.85rem; margin-bottom: 10px;">Incorrect password. Try again.</p>
+                <button class="btn btn-primary" onclick="checkSecretPassword()" style="width: 100%;">Submit</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- SECRET MENU MODAL -->
+    <div id="secret-menu-modal" class="modal-overlay" onclick="if(event.target === this) closeSecretMenu()">
+        <div class="modal-content" style="max-width: 500px;" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>🔧 Secret Menu</h3>
+                <button class="modal-header-close" onclick="closeSecretMenu()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 20px; min-height: 200px;">
+                <!-- Secret menu content will go here -->
+                <p style="color: var(--text-secondary); text-align: center; font-style: italic;">Secret menu is currently empty.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
