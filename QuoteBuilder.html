@@ -7294,28 +7294,42 @@
             logoWrapper.style.userSelect = 'none';
             logoWrapper.style.webkitUserSelect = 'none';
             logoWrapper.style.touchAction = 'none';
+            logoWrapper.style.webkitTouchCallout = 'none';
             
             // Prevent dragging on the logo and its children
             logoWrapper.setAttribute('draggable', 'false');
             const logoImg = logoWrapper.querySelector('img');
             if (logoImg) {
                 logoImg.setAttribute('draggable', 'false');
+                logoImg.style.pointerEvents = 'none';
+            }
+            const logoText = logoWrapper.querySelector('span');
+            if (logoText) {
+                logoText.style.pointerEvents = 'none';
             }
             logoWrapper.addEventListener('dragstart', (e) => e.preventDefault());
             
-            // Use pointer events for unified handling
-            logoWrapper.addEventListener('pointerdown', startSecretTimer);
-            logoWrapper.addEventListener('pointerup', cancelSecretTimer);
-            logoWrapper.addEventListener('pointerleave', cancelSecretTimer);
-            logoWrapper.addEventListener('pointercancel', cancelSecretTimer);
+            // Use mousedown/mouseup for better compatibility
+            logoWrapper.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                startSecretTimer(e);
+            });
+            logoWrapper.addEventListener('mouseup', cancelSecretTimer);
+            logoWrapper.addEventListener('mouseleave', cancelSecretTimer);
+            
+            // Touch events for mobile
+            logoWrapper.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startSecretTimer(e);
+            }, { passive: false });
+            logoWrapper.addEventListener('touchend', cancelSecretTimer);
+            logoWrapper.addEventListener('touchcancel', cancelSecretTimer);
             
             // Prevent context menu on long press
             logoWrapper.addEventListener('contextmenu', (e) => e.preventDefault());
         }
         
         function startSecretTimer(e) {
-            e.preventDefault();
-            e.stopPropagation();
             cancelSecretTimer();
             secretMenuTimer = setTimeout(() => {
                 openSecretPasswordModal();
@@ -7332,11 +7346,11 @@
         function openSecretPasswordModal() {
             document.getElementById('secret-password-input').value = '';
             document.getElementById('secret-password-error').style.display = 'none';
-            document.getElementById('secret-password-modal').classList.add('active');
+            document.getElementById('secret-password-modal').classList.add('open');
         }
         
         function closeSecretPasswordModal() {
-            document.getElementById('secret-password-modal').classList.remove('active');
+            document.getElementById('secret-password-modal').classList.remove('open');
         }
         
         function checkSecretPassword() {
@@ -7350,11 +7364,11 @@
         }
         
         function openSecretMenu() {
-            document.getElementById('secret-menu-modal').classList.add('active');
+            document.getElementById('secret-menu-modal').classList.add('open');
         }
         
         function closeSecretMenu() {
-            document.getElementById('secret-menu-modal').classList.remove('active');
+            document.getElementById('secret-menu-modal').classList.remove('open');
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -18028,7 +18042,7 @@
     <div id="secret-password-modal" class="modal-overlay" onclick="if(event.target === this) closeSecretPasswordModal()">
         <div class="modal-content" style="max-width: 350px;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>🔐 Access Required</h3>
+                <h3>Access Required</h3>
                 <button class="modal-header-close" onclick="closeSecretPasswordModal()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 20px;">
@@ -18044,12 +18058,12 @@
     <div id="secret-menu-modal" class="modal-overlay" onclick="if(event.target === this) closeSecretMenu()">
         <div class="modal-content" style="max-width: 500px;" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3>🔧 Secret Menu</h3>
+                <h3>Developer options</h3>
                 <button class="modal-header-close" onclick="closeSecretMenu()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 20px; min-height: 200px;">
                 <!-- Secret menu content will go here -->
-                <p style="color: var(--text-secondary); text-align: center; font-style: italic;">Secret menu is currently empty.</p>
+                <p style="color: var(--text-secondary); text-align: center; font-style: italic;">Developer options is currently empty.</p>
             </div>
         </div>
     </div>
