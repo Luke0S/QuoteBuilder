@@ -7295,6 +7295,14 @@
             logoWrapper.style.webkitUserSelect = 'none';
             logoWrapper.style.touchAction = 'none';
             
+            // Prevent dragging on the logo and its children
+            logoWrapper.setAttribute('draggable', 'false');
+            const logoImg = logoWrapper.querySelector('img');
+            if (logoImg) {
+                logoImg.setAttribute('draggable', 'false');
+            }
+            logoWrapper.addEventListener('dragstart', (e) => e.preventDefault());
+            
             // Use pointer events for unified handling
             logoWrapper.addEventListener('pointerdown', startSecretTimer);
             logoWrapper.addEventListener('pointerup', cancelSecretTimer);
