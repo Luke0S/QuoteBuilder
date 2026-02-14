@@ -264,7 +264,7 @@
 
         .row-actions-left {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start;
             align-items: center;
             gap: 10px;
         }
@@ -1465,6 +1465,216 @@
             animation: slideUp 0.5s ease-out;
             overflow: visible;
             transition: height 0.3s ease;
+            z-index: 1;
+        }
+
+        /* Swipe-to-delete wrapper */
+        .swipe-delete-wrapper {
+            position: relative;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .swipe-delete-wrapper .calculator-row {
+            margin-bottom: 0;
+            position: relative;
+            z-index: 2;
+            transition: transform 0.3s ease;
+            touch-action: pan-y;
+            animation: none !important;
+            will-change: transform;
+        }
+
+        .swipe-delete-wrapper .calculator-row.swiping {
+            transition: none !important;
+            will-change: transform;
+        }
+
+        .swipe-action-bg {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            background: transparent;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .swipe-action-bg.swipe-delete-bg {
+            right: 0;
+            justify-content: flex-end;
+            padding-right: 24px;
+        }
+
+        .swipe-action-bg.swipe-duplicate-bg {
+            left: 0;
+            justify-content: flex-start;
+            padding-left: 24px;
+        }
+
+        .swipe-action-bg.visible {
+            opacity: 1;
+        }
+
+        .swipe-action-bubble {
+            width: 48px;
+            height: 100%;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            transition: width 0.05s linear, border-radius 0.05s linear;
+        }
+
+        .swipe-delete-bg .swipe-action-bubble {
+            background: #d32f2f;
+            box-shadow: 0 2px 12px rgba(211, 47, 47, 0.4);
+        }
+
+        .swipe-duplicate-bg .swipe-action-bubble {
+            background: #2e7d32;
+            box-shadow: 0 2px 12px rgba(46, 125, 50, 0.4);
+        }
+
+        .swipe-action-bubble svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            flex-shrink: 0;
+        }
+
+        /* Swipe-delete confirmation modal */
+        .swipe-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+        }
+
+        .swipe-confirm-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .swipe-confirm-box {
+            background: var(--card-bg, #fff);
+            border-radius: 14px;
+            padding: 28px 32px 22px;
+            max-width: 340px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            transform: scale(0.9);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .swipe-confirm-overlay.active .swipe-confirm-box {
+            transform: scale(1);
+        }
+
+        .swipe-confirm-box p {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color, #333);
+            margin: 0 0 20px 0;
+        }
+
+        .swipe-confirm-btns {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .swipe-confirm-btns button {
+            padding: 10px 28px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.1s ease;
+        }
+
+        .swipe-confirm-btns button:active {
+            transform: scale(0.96);
+        }
+
+        .swipe-confirm-yes {
+            background: #d32f2f;
+            color: white;
+        }
+
+        .swipe-confirm-yes:hover {
+            background: #b71c1c;
+        }
+
+        .swipe-confirm-no {
+            background: var(--border-color, #e0e0e0);
+            color: var(--text-color, #333);
+        }
+
+        .swipe-confirm-no:hover {
+            background: #ccc;
+        }
+
+        .swipe-confirm-remember {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-muted, #888);
+            cursor: pointer;
+        }
+
+        .swipe-confirm-remember input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .swipe-delete-wrapper.swiped-out .calculator-row {
+            transform: translateX(-120%) !important;
+            transition: transform 0.3s ease-out;
+        }
+
+        .swipe-delete-wrapper.swiped-right .calculator-row {
+            transform: translateX(120%) !important;
+            transition: transform 0.3s ease-out;
+        }
+
+        .swipe-delete-wrapper.swiped-out,
+        .swipe-delete-wrapper.swiped-right {
+            transition: height 0.3s ease 0.1s, margin 0.3s ease 0.1s, opacity 0.3s ease;
+            opacity: 0;
+        }
+
+        /* In carousel mode, neutralize the wrapper so it doesn't break absolute positioning */
+        #rows-container.carousel-mode .swipe-delete-wrapper {
+            position: static;
+            overflow: visible;
+            margin-bottom: 0;
+        }
+
+        #rows-container.carousel-mode .swipe-action-bg {
+            display: none;
         }
 
         .calculator-row.active-dropdown {
@@ -2668,8 +2878,9 @@
         /* Row Actions - centered title with buttons below */
         .row-actions {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: center;
+            justify-content: space-between;
             width: 100%;
             padding-bottom: 12px;
             margin-bottom: 12px;
@@ -2679,10 +2890,10 @@
 
         .row-actions-left {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
             gap: 2px;
+            flex: 1;
+            min-width: 0;
         }
 
         .row-actions-center {
@@ -5241,6 +5452,16 @@
                 text-align: center;
                 margin-top: 1px;
                 font-weight: 600;
+            }
+
+            /* Swipe actions: hidden in print */
+            .swipe-action-bg {
+                display: none !important;
+            }
+
+            .swipe-delete-wrapper {
+                overflow: visible !important;
+                margin-bottom: 15px;
             }
 
             .calculator-row {
@@ -7965,6 +8186,21 @@
             </div>
         </div>
 
+        <!-- SWIPE DELETE CONFIRMATION MODAL -->
+        <div id="swipe-confirm-modal" class="swipe-confirm-overlay"
+            onclick="if(event.target===this) cancelSwipeDelete()">
+            <div class="swipe-confirm-box">
+                <p>Are you sure you want to delete this?</p>
+                <div class="swipe-confirm-btns">
+                    <button class="swipe-confirm-yes" onclick="confirmSwipeDelete(true)">Yes</button>
+                    <button class="swipe-confirm-no" onclick="confirmSwipeDelete(false)">No</button>
+                </div>
+                <label class="swipe-confirm-remember">
+                    <input type="checkbox" id="swipe-dont-ask-again"> Don't ask again
+                </label>
+            </div>
+        </div>
+
         <!-- DEVICE MODAL -->
         <div id="device-modal" class="modal-overlay" onclick="if(event.target === this) closeModal()">
             <div class="modal-content">
@@ -8379,7 +8615,6 @@
                         </div>
                     </div>
 
-                    <!-- Protection Tab Content -->
                     <!-- Quick Links Tab Content -->
                     <div id="prot-quicklinks-content" class="prot-tab-content" style="display: none;">
                         <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
@@ -8407,6 +8642,7 @@
                         </div>
                     </div>
 
+                    <!-- Protection Tab Content -->
                     <div id="prot-protection-content" class="prot-tab-content" style="display: block;">
 
                         <!-- Show Label Toggle -->
@@ -13786,15 +14022,8 @@
                     <div class="row-actions" id="${rowId}-row-actions">
                         <div class="row-actions-left">
                             <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${currentRowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
-                            <button class="row-actions-toggle" onclick="toggleRowActions(this, '${rowId}')" aria-label="Toggle options">
-                                <span class="chevron">▼</span>
-                            </button>
                         </div>
-                        <div class="row-actions-right" id="${rowId}-actions-dropdown">
-                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">View plan benefits</button>
-                            <button class="btn btn-secondary btn-action" onclick="duplicateRow('${rowId}')">Duplicate</button>
-                            <button class="btn btn-secondary btn-action btn-remove-action" onclick="confirmRemoveRow(this, '${rowId}')">Remove</button>
-                        </div>
+                        <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">Plan Benefits</button>
                     </div>
                 </div>
                 <div class="row-contact-info" id="${rowId}-contact-info">
@@ -13953,7 +14182,13 @@
                 </div>
             `;
 
-            container.appendChild(rowDiv);
+            // Wrap row in swipe-delete wrapper
+            const swipeWrapper = document.createElement('div');
+            swipeWrapper.className = 'swipe-delete-wrapper';
+            swipeWrapper.innerHTML = `<div class="swipe-action-bg swipe-delete-bg"><div class="swipe-action-bubble"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div></div><div class="swipe-action-bg swipe-duplicate-bg"><div class="swipe-action-bubble"><svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg></div></div>`;
+            swipeWrapper.appendChild(rowDiv);
+            container.appendChild(swipeWrapper);
+            initSwipeToDelete(rowDiv, rowId);
 
             // Find the correct container for extra sections
             let extrasContainer;
@@ -14000,187 +14235,6 @@
                     updateCarouselView();
                 });
             }
-        }
-
-        // ============================================
-        // RANDOM QUOTE GENERATOR
-        // Creates a row populated with realistic random data
-        // ============================================
-        function generateRandomQuote() {
-            // --- Helper: pick random element from array ---
-            function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-            function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-            function randFloat(min, max) { return Math.round((Math.random() * (max - min) + min) * 100) / 100; }
-            function chance(pct) { return Math.random() * 100 < pct; }
-
-            // --- 1) Create a new row ---
-            createNewRow();
-            const allRows = document.querySelectorAll('.calculator-row');
-            const rowEl = allRows[allRows.length - 1];
-            const rowId = rowEl.id;
-
-            // --- 2) Pick a random consumer plan ---
-            const excludedPlans = ['Unlimited Talk & Text Only', 'Essentials Saver', 'Select Savings for Business'];
-            const consumerPlanKeys = Object.keys(PLANS_DATA).filter(k => {
-                const p = PLANS_DATA[k];
-                return p.planType === 'Normal' && (!p.minLines || p.minLines <= 1) && !excludedPlans.includes(k);
-            });
-            const planName = pick(consumerPlanKeys);
-            const planData = PLANS_DATA[planName];
-
-            // Set the plan (same pattern as selectPlanFromModal)
-            const planEl = document.getElementById(`${rowId}-plan`);
-            const planTriggerEl = document.getElementById(`${rowId}-plan-trigger`);
-            if (planEl) planEl.value = planName;
-            if (planTriggerEl) planTriggerEl.value = planName;
-
-            // --- 3) Set number of lines ---
-            const minLines = planData.minLines || 1;
-            const maxLines = Math.min(planData.maxLines || 6, 6);
-            const lineCount = randInt(minLines, maxLines);
-            const linesEl = document.getElementById(`${rowId}-lines`);
-            if (linesEl) {
-                linesEl.value = lineCount;
-            }
-
-            // Complete plan initialization (same calls as selectPlanFromModal)
-            validateLines(linesEl, rowId);
-            handleStandardPlan(rowId);
-            toggleDefaultBenefitsSwitch();
-
-            // --- 4) Add random phone devices ---
-            const numDevices = randInt(1, Math.min(lineCount, 4));
-            for (let i = 0; i < numDevices; i++) {
-                const retailPrice = pick([800, 1300]);
-                const promoAmount = 800;
-                const downPayment = 0;
-                const hasTrade = chance(60);
-                const fmv = hasTrade ? pick([120, 200]) : 0;
-
-                const deviceObj = {
-                    label: `Device ${i + 1}`,
-                    cost: retailPrice,
-                    down: downPayment,
-                    promo: promoAmount,
-                    fmv: fmv,
-                    tradeinName: ''
-                };
-
-                STATE[rowId].devices.push(deviceObj);
-                const devIdx = STATE[rowId].devices.length - 1;
-                STATE[rowId].protectionStatus[devIdx] = true;
-                STATE[rowId].protectionCosts[devIdx] = getDefaultProtectionCost(false);
-            }
-
-            // --- 4b) Randomize protection: all on, all off, or random per device ---
-            const protectionMode = pick(['all', 'none', 'random']);
-            for (let i = 0; i < STATE[rowId].devices.length; i++) {
-                if (protectionMode === 'none') {
-                    STATE[rowId].protectionStatus[i] = false;
-                } else if (protectionMode === 'random') {
-                    STATE[rowId].protectionStatus[i] = chance(50);
-                }
-                // 'all' keeps the default true
-            }
-
-            // --- 5) Maybe add a connected device (30% chance) ---
-            if (chance(30)) {
-                const cdCategories = Object.keys(CONNECTED_DEVICE_PLANS);
-                const cdCat = pick(cdCategories);
-                const cdPlanKeys = Object.keys(CONNECTED_DEVICE_PLANS[cdCat]);
-                const cdPlanKey = pick(cdPlanKeys);
-                const cdPlan = CONNECTED_DEVICE_PLANS[cdCat][cdPlanKey];
-
-                let cdDevName = cdCat;
-                if (cdCat === 'Watches') cdDevName = 'Apple Watch Series 10';
-                else if (cdCat === 'Tablets') cdDevName = 'iPad Air';
-                else if (cdCat === 'Data') cdDevName = 'Data Device';
-                else if (cdCat === 'SyncUp Trackers') cdDevName = 'SyncUP Tracker';
-                else if (cdCat === 'SyncUp Drive') cdDevName = 'SyncUP DRIVE';
-
-                STATE[rowId].connectedDevices.push({
-                    category: cdCat,
-                    planKey: cdPlanKey,
-                    planData: cdPlan,
-                    devName: cdDevName,
-                    devCost: 0,
-                    devDown: 0,
-                    devPromo: 0,
-                    term: 24,
-                    quantity: 1,
-                    isBusinessPlan: false
-                });
-            }
-
-            // --- 6) Maybe add home internet (20% chance) ---
-            if (chance(20)) {
-                const hiPlanKeys = Object.keys(HOME_INTERNET_PLANS);
-                const hiPlanKey = pick(hiPlanKeys);
-                const hiPlan = HOME_INTERNET_PLANS[hiPlanKey];
-                STATE[rowId].homeInternet.push({
-                    planKey: hiPlanKey,
-                    planData: hiPlan,
-                    label: hiPlanKey,
-                    isBusinessPlan: false
-                });
-            }
-
-            // --- 7) Add discounts ---
-            const isPremium = PREMIUM_PLANS.includes(planName);
-            const isFreeLineEligible = planData.freeLineEligible;
-            const autopayEligible = planData.autopayEligible !== false;
-
-            // Always add Autopay if eligible
-            if (autopayEligible) {
-                STATE[rowId].discounts.push({ type: 'Autopay Discount' });
-            }
-
-            // Always add Free Line if >=3 lines and eligible
-            if (lineCount >= 3 && isFreeLineEligible) {
-                STATE[rowId].discounts.push({ type: 'Free Line' });
-            }
-
-            // Work Perks if premium and <=2 lines (30% chance)
-            if (isPremium && lineCount <= 2 && chance(30)) {
-                STATE[rowId].discounts.push({ type: 'Work Perks' });
-            }
-
-
-            // --- 8) Maybe add an accessory (30% chance) ---
-            if (chance(30)) {
-                const accNames = ['Phone Case', 'Screen Protector', 'Fast Charger', 'Wireless Charger', 'MagSafe Wallet', 'AirPods Pro', 'Galaxy Buds'];
-                const accPrices = [29.99, 39.99, 49.99, 24.99, 59.99, 199.99, 149.99];
-                const accIdx = randInt(0, accNames.length - 1);
-                STATE[rowId].accessories.push({
-                    name: accNames[accIdx],
-                    price: accPrices[accIdx],
-                    quantity: 1,
-                    paymentMethod: chance(70) ? 'today' : 'finance'
-                });
-            }
-
-            // --- 9) Add Sam's Club rebate ---
-            const isHighTierPlan = planName.includes('Experience Beyond') || planName.includes('Experience More') || planName.includes('Better Value');
-            const rebatePerLine = isHighTierPlan ? 150 : 75;
-            const rebateTotal = rebatePerLine * lineCount;
-            STATE[rowId].rebates.push({
-                name: `Sams Club Member Benefit ($${rebatePerLine}/line)`,
-                value: rebateTotal,
-                count: 1
-            });
-
-
-
-            // --- 11) Render everything ---
-            renderDeviceList(rowId);
-            renderCDList(rowId);
-            renderHIList(rowId);
-            renderDiscountList(rowId);
-            renderRebateList(rowId);
-            renderAccessoriesList(rowId);
-            renderDueTodayItemsList(rowId);
-            validateDiscounts(rowId);
-            calculateRow(rowId);
         }
 
         // Confirmation timer for remove button
@@ -14989,14 +15043,243 @@
             }, 50); // Small delay to let DOM update
         }
 
+        // Swipe-to-delete gesture handler
+        function initSwipeToDelete(rowEl, rowId) {
+            let startX = 0, startY = 0, currentX = 0;
+            let isDown = false, isSwiping = false, isScrolling = false;
+            let lastMoveX = 0, lastMoveTime = 0;
+            let velocity = 0;
+            const threshold = 0.35;
+            const velocityThreshold = 800;
+            const deadzone = 10;
+
+            const wrapper = rowEl.closest('.swipe-delete-wrapper');
+            if (!wrapper) return;
+            const deleteBg = wrapper.querySelector('.swipe-delete-bg');
+            const deleteBubble = deleteBg.querySelector('.swipe-action-bubble');
+            const dupBg = wrapper.querySelector('.swipe-duplicate-bg');
+            const dupBubble = dupBg.querySelector('.swipe-action-bubble');
+
+            function pointerDown(clientX, clientY) {
+                isDown = true;
+                startX = clientX;
+                startY = clientY;
+                currentX = 0;
+                velocity = 0;
+                lastMoveX = clientX;
+                lastMoveTime = Date.now();
+                isSwiping = false;
+                isScrolling = false;
+                rowEl.classList.add('swiping');
+            }
+
+            // --- MOUSE handlers ---
+            function onMouseDown(e) {
+                if (e.button !== 0) return;
+                if (e.target.closest('input, select, textarea, button, a, .switch-sm, label, .remove-x, .cd-pill-actions')) return;
+                e.preventDefault();
+                pointerDown(e.clientX, e.clientY);
+                rowEl.style.userSelect = 'none';
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+            function onMouseMove(e) { if (isDown) handleMove(e.clientX, e.clientY, e); }
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                handleEnd();
+            }
+
+            // --- TOUCH handlers ---
+            function onTouchStart(e) {
+                if (e.target.closest('input, select, textarea, button, a, .switch-sm, label, .remove-x, .cd-pill-actions')) return;
+                pointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            }
+            function onTouchMove(e) { if (isDown) handleMove(e.touches[0].clientX, e.touches[0].clientY, e); }
+            function onTouchEnd() { handleEnd(); }
+
+            // --- Shared logic ---
+            function handleMove(clientX, clientY, e) {
+                if (isScrolling) return;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+
+                if (!isSwiping && Math.abs(dx) < deadzone && Math.abs(dy) < deadzone) return;
+                if (!isSwiping) {
+                    if (Math.abs(dy) > Math.abs(dx)) {
+                        isScrolling = true;
+                        isDown = false;
+                        rowEl.classList.remove('swiping');
+                        rowEl.style.userSelect = '';
+                        return;
+                    }
+                    isSwiping = true;
+                }
+
+                // Track velocity
+                const now = Date.now();
+                const dt = now - lastMoveTime;
+                if (dt > 0) velocity = (clientX - lastMoveX) / dt * 1000;
+                lastMoveX = clientX;
+                lastMoveTime = now;
+
+                // Allow both directions
+                currentX = dx;
+                rowEl.style.setProperty('transform', `translate3d(${currentX}px, 0, 0)`, 'important');
+
+                const absDrag = Math.abs(currentX);
+                const show = absDrag > 20;
+
+                if (currentX < 0) {
+                    // Swiping left → delete
+                    deleteBg.classList.toggle('visible', show);
+                    dupBg.classList.remove('visible');
+                    if (show) updateBubbleSize(deleteBubble, absDrag);
+                } else {
+                    // Swiping right → duplicate
+                    dupBg.classList.toggle('visible', show);
+                    deleteBg.classList.remove('visible');
+                    if (show) updateBubbleSize(dupBubble, absDrag);
+                }
+
+                if (e && e.cancelable) e.preventDefault();
+            }
+
+            function updateBubbleSize(bub, absDrag) {
+                const maxW = Math.min(absDrag * 0.7, 200);
+                const bubbleW = Math.max(48, maxW);
+                bub.style.width = bubbleW + 'px';
+                bub.style.borderRadius = (bubbleW > 80) ? '12px' : (bubbleW / 2) + 'px';
+            }
+
+            function resetBubble(bub) {
+                bub.style.width = '';
+                bub.style.borderRadius = '';
+            }
+
+            function handleEnd() {
+                if (!isDown && !isSwiping) return;
+                isDown = false;
+                rowEl.classList.remove('swiping');
+                rowEl.style.userSelect = '';
+
+                if (!isSwiping) return;
+
+                const rowWidth = rowEl.offsetWidth;
+                const swipeRatio = Math.abs(currentX) / rowWidth;
+
+                if (currentX < 0) {
+                    // Left swipe → delete
+                    const fastFlick = velocity < -velocityThreshold;
+                    if (swipeRatio >= threshold || fastFlick) {
+                        confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId);
+                    } else {
+                        snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
+                    }
+                } else {
+                    // Right swipe → duplicate
+                    const fastFlick = velocity > velocityThreshold;
+                    if (swipeRatio >= threshold || fastFlick) {
+                        executeSwipeDuplicate(wrapper, rowEl, rowId);
+                        dupBg.classList.remove('visible');
+                        resetBubble(dupBubble);
+                    } else {
+                        snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
+                    }
+                }
+                isSwiping = false;
+            }
+
+            // Attach listeners
+            rowEl.addEventListener('mousedown', onMouseDown);
+            rowEl.addEventListener('touchstart', onTouchStart, { passive: true });
+            rowEl.addEventListener('touchmove', onTouchMove, { passive: false });
+            rowEl.addEventListener('touchend', onTouchEnd);
+        }
+
+        // --- Swipe-delete confirmation helpers ---
+        let _pendingSwipeDelete = null;
+
+        function snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble) {
+            rowEl.style.setProperty('transform', 'translate3d(0, 0, 0)');
+            deleteBg.classList.remove('visible');
+            dupBg.classList.remove('visible');
+            deleteBubble.style.width = '';
+            deleteBubble.style.borderRadius = '';
+            dupBubble.style.width = '';
+            dupBubble.style.borderRadius = '';
+        }
+
+        function executeSwipeDelete(wrapper, rowId) {
+            wrapper.classList.add('swiped-out');
+            wrapper.style.height = wrapper.offsetHeight + 'px';
+            requestAnimationFrame(() => {
+                wrapper.style.height = '0px';
+                wrapper.style.marginBottom = '0px';
+            });
+            setTimeout(() => {
+                removeRow(rowId);
+            }, 350);
+        }
+
+        function executeSwipeDuplicate(wrapper, rowEl, rowId) {
+            // Animate slide-right then snap back and duplicate
+            wrapper.classList.add('swiped-right');
+            setTimeout(() => {
+                wrapper.classList.remove('swiped-right');
+                rowEl.style.setProperty('transform', 'translate3d(0, 0, 0)');
+                duplicateRow(rowId);
+            }, 350);
+        }
+
+        function confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId) {
+            // Skip confirmation if user opted out
+            if (localStorage.getItem('swipeDeleteNoConfirm') === 'true') {
+                executeSwipeDelete(wrapper, rowId);
+                return;
+            }
+
+            // Store pending info and show modal
+            _pendingSwipeDelete = { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId };
+            document.getElementById('swipe-dont-ask-again').checked = false;
+            document.getElementById('swipe-confirm-modal').classList.add('active');
+        }
+
+        function confirmSwipeDelete(yes) {
+            const modal = document.getElementById('swipe-confirm-modal');
+            modal.classList.remove('active');
+
+            if (!_pendingSwipeDelete) return;
+            const { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId } = _pendingSwipeDelete;
+
+            // Save "Don't ask again" preference
+            if (document.getElementById('swipe-dont-ask-again').checked) {
+                localStorage.setItem('swipeDeleteNoConfirm', 'true');
+            }
+
+            if (yes) {
+                executeSwipeDelete(wrapper, rowId);
+            } else {
+                snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
+            }
+            _pendingSwipeDelete = null;
+        }
+
+        function cancelSwipeDelete() {
+            confirmSwipeDelete(false);
+        }
+
         function removeRow(rowId) {
             const row = document.getElementById(rowId);
             if (row) {
+                // Remove the swipe wrapper if present
+                const wrapper = row.closest('.swipe-delete-wrapper');
+                const targetEl = wrapper || row;
                 // Add fade-out animation
-                row.classList.add('fade-out');
+                targetEl.classList.add('fade-out');
                 // Remove after animation completes
                 setTimeout(() => {
-                    row.remove();
+                    targetEl.remove();
                     delete STATE[rowId];
                     updateExportButtonVisibility();
                     // Update carousel if in stacked mode
@@ -17553,6 +17836,20 @@
                             } else {
                                 promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each</div>`;
                             }
+                        } else if (groupUnitCount === 1 && groupDevCost > 0) {
+                            if (groupDevPromo > 0) {
+                                if (showRetailPrices.bts) {
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off | Retail: $${groupDevCost.toFixed(2)})</div>`;
+                                } else {
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off)</div>`;
+                                }
+                            } else if (groupDevName) {
+                                if (showRetailPrices.bts) {
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                                } else {
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName}</div>`;
+                                }
+                            }
                         }
                         printSummary.innerHTML = `
                             <div class="cd-print-row">
@@ -17670,6 +17967,20 @@
                         promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each | Retail: $${groupDevCost.toFixed(2)}</div>`;
                     } else {
                         promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each</div>`;
+                    }
+                } else if (groupUnitCount === 1 && groupDevCost > 0) {
+                    if (groupDevPromo > 0) {
+                        if (showRetailPrices.bts) {
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off | Retail: $${groupDevCost.toFixed(2)})</div>`;
+                        } else {
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off)</div>`;
+                        }
+                    } else if (groupDevName) {
+                        if (showRetailPrices.bts) {
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                        } else {
+                            promoHtml = `<div class="cd-print-promo">${groupDevName}</div>`;
+                        }
                     }
                 }
                 printSummary.innerHTML = `
@@ -21235,8 +21546,9 @@
                 <button class="modal-header-close" onclick="closeSecretMenu()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 20px; min-height: 200px;">
-                <button class="btn btn-primary" onclick="generateRandomQuote(); closeSecretMenu();"
-                    style="width: 100%; margin-bottom: 10px;">🎲 Generate Random Quote</button>
+                <!-- Secret menu content will go here -->
+                <p style="color: var(--text-secondary); text-align: center; font-style: italic;">Developer options is
+                    currently empty.</p>
             </div>
         </div>
     </div>
