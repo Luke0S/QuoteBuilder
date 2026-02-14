@@ -4588,6 +4588,35 @@
             cursor: pointer;
         }
 
+        /* Trade-in toggle buttons */
+        .tradein-toggle-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .tradein-toggle-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tradein-toggle-btn:hover {
+            border-color: var(--primary-color);
+        }
+
+        .tradein-toggle-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
         .hidden {
             display: none !important;
         }
@@ -8226,12 +8255,13 @@
 
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Trading in a device?</label>
-                        <div class="radio-group">
-                            <label><input type="radio" name="modal-trade" value="yes" onchange="toggleModalFMV(true)">
-                                Yes</label>
-                            <label><input type="radio" name="modal-trade" value="no" checked
-                                    onchange="toggleModalFMV(false)"> No</label>
+                        <div class="tradein-toggle-group">
+                            <button type="button" class="tradein-toggle-btn active" id="tradein-btn-no"
+                                onclick="setTradeinToggle(false)">No</button>
+                            <button type="button" class="tradein-toggle-btn" id="tradein-btn-yes"
+                                onclick="setTradeinToggle(true)">Yes</button>
                         </div>
+                        <input type="hidden" id="modal-trade-value" value="no">
                     </div>
 
                     <div id="modal-fmv-group" class="input-group hidden">
@@ -8885,16 +8915,13 @@
 
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Payment Method</label>
-                        <div class="radio-group" style="display: flex; gap: 20px; margin-top: 8px;">
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="acc-payment" value="finance" checked>
-                                Finance (12 months)
-                            </label>
-                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                <input type="radio" name="acc-payment" value="today">
-                                Due Today
-                            </label>
+                        <div class="tradein-toggle-group">
+                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance"
+                                onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
+                            <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today"
+                                onclick="setAccPaymentToggle('today')">Due Today</button>
                         </div>
+                        <input type="hidden" id="acc-payment-value" value="today">
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -13778,7 +13805,7 @@
                     discounts.splice(i, 1);
                 } else if (type === 'Free Line' && (lineCount < 3 || !isFreeLineEligible)) {
                     discounts.splice(i, 1);
-                } else if (type === 'Work Perks' && (!isPremium || lineCount > 2 || isBusinessPlan)) {
+                } else if (type === 'Work Perks' && (!isPremium || lineCount > 5 || isBusinessPlan || discounts.some(d => d.type === 'Free Line'))) {
                     discounts.splice(i, 1);
                 } else if (type === 'Insider Discount' && !isPremium) {
                     discounts.splice(i, 1);
@@ -15715,6 +15742,39 @@
             }
         }
 
+        function setTradeinToggle(isYes) {
+            const yesBtn = document.getElementById('tradein-btn-yes');
+            const noBtn = document.getElementById('tradein-btn-no');
+            const hiddenInput = document.getElementById('modal-trade-value');
+
+            if (isYes) {
+                yesBtn.classList.add('active');
+                noBtn.classList.remove('active');
+                hiddenInput.value = 'yes';
+                toggleModalFMV(true);
+            } else {
+                yesBtn.classList.remove('active');
+                noBtn.classList.add('active');
+                hiddenInput.value = 'no';
+                toggleModalFMV(false);
+            }
+        }
+
+        function setAccPaymentToggle(method) {
+            const financeBtn = document.getElementById('acc-payment-btn-finance');
+            const todayBtn = document.getElementById('acc-payment-btn-today');
+            const hiddenInput = document.getElementById('acc-payment-value');
+
+            if (method === 'finance') {
+                financeBtn.classList.add('active');
+                todayBtn.classList.remove('active');
+            } else {
+                financeBtn.classList.remove('active');
+                todayBtn.classList.add('active');
+            }
+            hiddenInput.value = method;
+        }
+
         function toggleDeviceSearchBtn() {
             const input = document.getElementById('modal-dev-label');
             const btn = document.getElementById('device-search-btn');
@@ -15761,9 +15821,7 @@
                     document.getElementById('modal-dev-fmv').value = '';
                     document.getElementById('modal-dev-tradein-name').value = '';
                     toggleDeviceSearchBtn();
-                    const radios = document.getElementsByName('modal-trade');
-                    radios.forEach(r => r.value === 'no' ? r.checked = true : null);
-                    toggleModalFMV(false);
+                    setTradeinToggle(false);
 
                     document.getElementById('device-modal').classList.add('open');
                     return;
@@ -15814,9 +15872,7 @@
             document.getElementById('modal-dev-fmv').value = '';
             document.getElementById('modal-dev-tradein-name').value = '';
             toggleDeviceSearchBtn(); // Reset search button visibility
-            const radios = document.getElementsByName('modal-trade');
-            radios.forEach(r => r.value === 'no' ? r.checked = true : null);
-            toggleModalFMV(false);
+            setTradeinToggle(false);
 
             titleEl.textContent = "Edit Device";
             const dev = STATE[rowId].devices[index];
@@ -15861,8 +15917,7 @@
             }
 
             if (dev.fmv > 0) {
-                radios.forEach(r => r.value === 'yes' ? r.checked = true : null);
-                toggleModalFMV(true);
+                setTradeinToggle(true);
                 document.getElementById('modal-dev-fmv').value = dev.fmv;
                 document.getElementById('modal-dev-tradein-name').value = dev.tradeinName || '';
             }
@@ -15896,8 +15951,8 @@
             const promo = Math.min(parseFloat(document.getElementById('modal-dev-promo').value) || 0, 9999.99);
             let fmv = 0;
             let tradeinName = '';
-            const tradeRadio = document.querySelector('input[name="modal-trade"]:checked');
-            const isTrade = tradeRadio && tradeRadio.value === 'yes';
+            const tradeValue = document.getElementById('modal-trade-value').value;
+            const isTrade = tradeValue === 'yes';
             if (isTrade) {
                 fmv = Math.min(parseFloat(document.getElementById('modal-dev-fmv').value) || 0, 9999.99);
                 tradeinName = document.getElementById('modal-dev-tradein-name').value.trim();
@@ -17608,7 +17663,7 @@
             else if (category === 'SyncUp Drive') defaultDevName = 'Drive';
 
             // Get values from form - capture them before any async operations
-            const devName = document.getElementById('cd-dev-name').value || defaultDevName;
+            const devName = document.getElementById('cd-dev-name').value.trim();
             const devCost = Math.min(parseFloat(document.getElementById('cd-dev-cost').value) || 0, 9999.99);
             const devDown = Math.min(parseFloat(document.getElementById('cd-dev-down').value) || 0, 9999.99);
             const devPromo = Math.min(parseFloat(document.getElementById('cd-dev-promo').value) || 0, 9999.99);
@@ -18717,15 +18772,16 @@
             const hasWorkPerks = currentDiscounts.includes('Work Perks');
             const hasInsider = currentDiscounts.includes('Insider Discount');
 
-            // Work Perks: valid if premium, 2 or fewer lines, NOT a business plan, and Insider not applied
-            const workPerksValid = isPremium && lineCount <= 2 && !isBusinessPlan && !hasInsider;
+            // Work Perks: valid if premium, 5 or fewer lines, NOT a business plan, Insider not applied, and Free Line not applied
+            const hasFreeLineDiscount = currentDiscounts.includes('Free Line');
+            const workPerksValid = isPremium && lineCount <= 5 && !isBusinessPlan && !hasInsider && !hasFreeLineDiscount;
             // Insider: valid if premium and Work Perks not applied
             const insiderValid = isPremium && !hasWorkPerks;
 
             const options = [
                 { type: 'Autopay Discount', label: autopayLabel, valid: autopayValid },
-                { type: 'Free Line', label: '3rd Line Free', valid: lineCount >= 3 && PLANS_DATA[planName] && PLANS_DATA[planName].freeLineEligible !== false },
-                { type: 'Work Perks', label: 'Work Perks (15%)', valid: workPerksValid },
+                { type: 'Free Line', label: '3rd Line Free', valid: lineCount >= 3 && PLANS_DATA[planName] && PLANS_DATA[planName].freeLineEligible !== false && !hasWorkPerks },
+                { type: 'Work Perks', label: 'Work Perks (15%, max 5 lines)', valid: workPerksValid },
                 { type: 'Insider Discount', label: 'Insider Discount (20%)', valid: insiderValid }
             ];
 
@@ -18878,7 +18934,7 @@
             document.getElementById('acc-name').value = '';
             document.getElementById('acc-price').value = '';
             document.getElementById('acc-qty').value = '1';
-            document.querySelector('input[name="acc-payment"][value="finance"]').checked = true;
+            setAccPaymentToggle('today');
             // Clear pill selections
             document.querySelectorAll('.acc-pill').forEach(p => p.classList.remove('active'));
             renderAccessoriesModalList(rowId);
@@ -18919,7 +18975,7 @@
             let name = document.getElementById('acc-name').value.trim();
             const price = parseFloat(document.getElementById('acc-price').value) || 0;
             const qty = parseInt(document.getElementById('acc-qty').value) || 1;
-            const paymentMethod = document.querySelector('input[name="acc-payment"]:checked').value;
+            const paymentMethod = document.getElementById('acc-payment-value').value;
 
             // Default to "Accessory" if no name entered
             if (!name) {
@@ -18956,7 +19012,7 @@
             document.getElementById('acc-name').value = acc.name;
             document.getElementById('acc-price').value = acc.price;
             document.getElementById('acc-qty').value = acc.quantity;
-            document.querySelector(`input[name="acc-payment"][value="${acc.paymentMethod}"]`).checked = true;
+            setAccPaymentToggle(acc.paymentMethod);
 
             // Remove the item and let user re-add it with changes
             STATE[rowId].accessories.splice(index, 1);
@@ -19596,7 +19652,7 @@
                 let planSubtotal = currentLineCosts.reduce((a, b) => a + b, 0);
 
                 if (isPremium && !isManualMode) {
-                    if (activeDiscounts.includes('Work Perks') && lineCount <= 2) {
+                    if (activeDiscounts.includes('Work Perks') && lineCount <= 5) {
                         savingsData.percentageSavings = planSubtotal * 0.15;
                         savingsData.percentageSavingsType = 'Work Perks';
                     } else if (activeDiscounts.includes('Insider Discount')) {
@@ -19644,7 +19700,7 @@
                 let percentageDisc = 0;
 
                 if (isPremium) {
-                    if (activeDiscounts.includes('Work Perks') && lineCount <= 2) {
+                    if (activeDiscounts.includes('Work Perks') && lineCount <= 5) {
                         percentageDisc = netPlanCost * 0.15;
                     } else if (activeDiscounts.includes('Insider Discount')) {
                         percentageDisc = netPlanCost * 0.20;
