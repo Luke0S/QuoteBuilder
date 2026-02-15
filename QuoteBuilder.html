@@ -1552,10 +1552,12 @@
 
         .swipe-delete-bg .swipe-action-bubble {
             background: #ef9a9a;
+            border-radius: 0 8px 8px 0;
         }
 
         .swipe-duplicate-bg .swipe-action-bubble {
             background: #a5d6a7;
+            border-radius: 8px 0 0 8px;
         }
 
         .swipe-action-bubble svg {
@@ -1563,6 +1565,39 @@
             height: 24px;
             fill: white;
             flex-shrink: 0;
+        }
+
+        /* Ripple effect for swipe action success */
+        .swipe-action-bubble {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swipe-action-bubble .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.5s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .swipe-delete-bg .swipe-action-bubble .ripple {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .swipe-duplicate-bg .swipe-action-bubble .ripple {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes ripple-animation {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
 
         /* Disable bubble transitions during active swipe for instant response */
@@ -4609,6 +4644,13 @@
 
         .tradein-toggle-btn:hover {
             border-color: var(--primary-color);
+            background: #ffeef5;
+            color: var(--primary-color);
+        }
+
+        .tradein-toggle-btn.active:hover {
+            background: var(--primary-color);
+            color: #fff;
         }
 
         .tradein-toggle-btn.active {
@@ -8143,23 +8185,6 @@
                     </div>
                 </div>
 
-                <!-- Quote Display Style -->
-                <div class="settings-section draggable-section" data-section-id="display-style">
-                    <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
-                        Quote Display Style
-                    </div>
-                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Change how quotes
-                        are displayed</p>
-                    <div class="settings-row">
-                        <select id="display-style" class="settings-select" style="width: 100%;"
-                            onchange="updateDisplayStyle(this.value)">
-                            <option value="list">List</option>
-                            <option value="stacked">Swipe Between</option>
-                        </select>
-                    </div>
-                </div>
-
                 <!-- Compare Page Prices -->
                 <div class="settings-section draggable-section" data-section-id="compare-prices">
                     <div class="settings-section-title">
@@ -8256,10 +8281,8 @@
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Trading in a device?</label>
                         <div class="tradein-toggle-group">
-                            <button type="button" class="tradein-toggle-btn active" id="tradein-btn-no"
-                                onclick="setTradeinToggle(false)">No</button>
-                            <button type="button" class="tradein-toggle-btn" id="tradein-btn-yes"
-                                onclick="setTradeinToggle(true)">Yes</button>
+                            <button type="button" class="tradein-toggle-btn active" id="tradein-btn-no" onclick="setTradeinToggle(false)">No</button>
+                            <button type="button" class="tradein-toggle-btn" id="tradein-btn-yes" onclick="setTradeinToggle(true)">Yes</button>
                         </div>
                         <input type="hidden" id="modal-trade-value" value="no">
                     </div>
@@ -8916,10 +8939,8 @@
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Payment Method</label>
                         <div class="tradein-toggle-group">
-                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance"
-                                onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
-                            <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today"
-                                onclick="setAccPaymentToggle('today')">Due Today</button>
+                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance" onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
+                            <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today" onclick="setAccPaymentToggle('today')">Due Today</button>
                         </div>
                         <input type="hidden" id="acc-payment-value" value="today">
                     </div>
@@ -11059,7 +11080,6 @@
                 }
                 if (settings.qds) {
                     quoteDisplayStyle = settings.qds;
-                    document.getElementById('display-style').value = quoteDisplayStyle;
                 }
                 if (settings.adj && Array.isArray(settings.adj)) {
                     globalAdjustments = settings.adj;
@@ -15173,7 +15193,8 @@
             }
 
             function updateBubbleSize(bub, absDrag, type) {
-                bub.style.width = Math.max(48, absDrag) + 'px';
+                // Add 10px buffer to keep bubble's inner edge hidden under row's rounded corner
+                bub.style.width = Math.max(48, absDrag + 10) + 'px';
                 // Color darkens as you drag further; fully saturated at the swipe threshold
                 const rowWidth = rowEl.offsetWidth;
                 const progress = Math.min(1, absDrag / (rowWidth * threshold));
@@ -15224,6 +15245,7 @@
                     // Right swipe → duplicate
                     const fastFlick = velocity > velocityThreshold;
                     if (swipeRatio >= threshold || fastFlick) {
+                        triggerRipple(dupBubble);
                         executeSwipeDuplicate(wrapper, rowEl, rowId);
                         dupBg.classList.remove('visible');
                         resetBubble(dupBubble);
@@ -15259,6 +15281,17 @@
             dupBubble.style.boxShadow = '';
         }
 
+        function triggerRipple(bubble) {
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple';
+            const size = Math.max(bubble.offsetWidth, bubble.offsetHeight);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (bubble.offsetWidth / 2 - size / 2) + 'px';
+            ripple.style.top = (bubble.offsetHeight / 2 - size / 2) + 'px';
+            bubble.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 500);
+        }
+
         function executeSwipeDelete(wrapper, rowId) {
             wrapper.classList.add('swiped-out');
             wrapper.style.height = wrapper.offsetHeight + 'px';
@@ -15284,6 +15317,7 @@
         function confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId) {
             // Skip confirmation if user opted out
             if (localStorage.getItem('swipeDeleteNoConfirm') === 'true') {
+                triggerRipple(deleteBubble);
                 executeSwipeDelete(wrapper, rowId);
                 return;
             }
@@ -15307,6 +15341,7 @@
             }
 
             if (yes) {
+                triggerRipple(deleteBubble);
                 executeSwipeDelete(wrapper, rowId);
             } else {
                 snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
@@ -15746,7 +15781,7 @@
             const yesBtn = document.getElementById('tradein-btn-yes');
             const noBtn = document.getElementById('tradein-btn-no');
             const hiddenInput = document.getElementById('modal-trade-value');
-
+            
             if (isYes) {
                 yesBtn.classList.add('active');
                 noBtn.classList.remove('active');
@@ -15764,7 +15799,7 @@
             const financeBtn = document.getElementById('acc-payment-btn-finance');
             const todayBtn = document.getElementById('acc-payment-btn-today');
             const hiddenInput = document.getElementById('acc-payment-value');
-
+            
             if (method === 'finance') {
                 financeBtn.classList.add('active');
                 todayBtn.classList.remove('active');
@@ -18781,7 +18816,7 @@
             const options = [
                 { type: 'Autopay Discount', label: autopayLabel, valid: autopayValid },
                 { type: 'Free Line', label: '3rd Line Free', valid: lineCount >= 3 && PLANS_DATA[planName] && PLANS_DATA[planName].freeLineEligible !== false && !hasWorkPerks },
-                { type: 'Work Perks', label: 'Work Perks (15%, max 5 lines)', valid: workPerksValid },
+                { type: 'Work Perks', label: 'Work Perks (15%)', valid: workPerksValid },
                 { type: 'Insider Discount', label: 'Insider Discount (20%)', valid: insiderValid }
             ];
 
