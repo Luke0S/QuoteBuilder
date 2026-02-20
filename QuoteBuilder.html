@@ -807,7 +807,7 @@
             border: none;
             border-radius: 0;
             font-size: 1.1rem;
-            font-weight: 800;
+            font-weight: 900;
             background: white;
             color: var(--text-main);
             cursor: pointer;
@@ -1594,6 +1594,7 @@
                 transform: scale(0);
                 opacity: 1;
             }
+
             100% {
                 transform: scale(4);
                 opacity: 0;
@@ -1719,6 +1720,210 @@
         .swipe-delete-wrapper.swiped-right {
             transition: height 0.3s ease 0.1s, margin 0.3s ease 0.1s, opacity 0.3s ease;
             opacity: 0;
+            overflow: visible;
+        }
+
+        /* Duplicate swipe pulse animation — applied to the wrapper so it doesn't
+           conflict with the !important inline transform on the inner row */
+        @keyframes swipe-dup-pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            30% {
+                transform: scale(1.04);
+                opacity: 1;
+            }
+
+            75% {
+                transform: scale(0.96);
+                opacity: 0.08;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .swipe-delete-wrapper.dup-pulsing {
+            animation: swipe-dup-pulse 0.28s ease-in-out forwards;
+            overflow: visible !important;
+        }
+
+        /* Undo Delete Card */
+        .undo-delete-card {
+            background: var(--card-bg);
+            border: none;
+            border-radius: 8px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            position: relative;
+            z-index: 2;
+            touch-action: pan-y;
+            opacity: 0;
+            transform: scale(0.97);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: default;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .undo-delete-card.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .undo-delete-card.swiping {
+            transition: none !important;
+        }
+
+        /* Horizontal countdown progress fill bar */
+        .undo-progress-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background: var(--primary-color);
+            transform-origin: left center;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 8px;
+            transition: none;
+        }
+
+        .undo-delete-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .undo-delete-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .undo-delete-icon svg {
+            width: 16px;
+            height: 16px;
+            fill: var(--text-secondary);
+        }
+
+        .undo-delete-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .undo-delete-text strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .undo-delete-btn {
+            padding: 4px 10px;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: 700;
+            line-height: 1.5;
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 2px 5px rgba(226, 0, 116, 0.3);
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: background-color 0.2s;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .undo-delete-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .undo-delete-btn:active {
+            transform: scale(0.95);
+        }
+
+        .undo-countdown-text {
+            font-size: 11px;
+            opacity: 0.85;
+            flex-shrink: 0;
+            min-width: 20px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            color: var(--text-secondary);
+        }
+
+        /* Content stacked above the fill bar */
+        .undo-delete-info,
+        .undo-delete-btn,
+        .undo-countdown-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .undo-delete-btn {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Undo card swipe-out animation */
+        .undo-delete-card.swiped-out {
+            transform: translateX(-120%) !important;
+            transition: transform 0.3s ease-out !important;
+        }
+
+        /* Undo card swipe backgrounds */
+        .swipe-delete-wrapper .undo-swipe-bg {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            border-radius: 8px;
+        }
+
+        .swipe-delete-wrapper .undo-swipe-bg.visible {
+            opacity: 1;
+        }
+
+        .swipe-delete-wrapper .undo-swipe-bg .swipe-action-bubble {
+            transition: none;
+        }
+
+        /* Undo card collapse animation */
+        .swipe-delete-wrapper.undo-collapsing {
+            transition: height 0.3s ease, margin 0.3s ease, opacity 0.25s ease;
+            opacity: 0;
+            overflow: hidden;
+        }
+
+        /* Allow undo card to be visible */
+        .swipe-delete-wrapper.showing-undo {
+            overflow: visible;
         }
 
         /* In carousel mode, neutralize the wrapper so it doesn't break absolute positioning */
@@ -3481,6 +3686,7 @@
             font-size: 1.5rem !important;
             border-radius: 8px !important;
             min-width: 40px !important;
+            border: 2px solid var(--primary-color) !important;
         }
 
         /* Scan button */
@@ -4636,6 +4842,7 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             background: #fff;
+            color: #333;
             font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
@@ -5263,7 +5470,7 @@
                 height: 100%;
                 padding: 10px;
                 font-size: 0.95rem;
-                font-weight: 800;
+                font-weight: 900;
                 background: white;
                 color: #000;
                 text-align: center;
@@ -5521,6 +5728,12 @@
             .swipe-delete-wrapper {
                 overflow: visible !important;
                 margin-bottom: 15px;
+            }
+
+            .undo-delete-card,
+            .undo-swipe-bg,
+            .undo-border-svg {
+                display: none !important;
             }
 
             .calculator-row {
@@ -7989,7 +8202,7 @@
             </div>
 
             <!-- Page Footer Credit (visible on screen) -->
-            <div class="page-footer-credit">Quote Builder V2.6 | Made by Luke Shrader</div>
+            <div class="page-footer-credit">Quote Builder V2.7 | Made by Luke Shrader</div>
 
             <!-- Plan Benefits Pages (print only) -->
             <div id="plan-benefits-container" class="plan-benefits-container">
@@ -8281,8 +8494,10 @@
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Trading in a device?</label>
                         <div class="tradein-toggle-group">
-                            <button type="button" class="tradein-toggle-btn active" id="tradein-btn-no" onclick="setTradeinToggle(false)">No</button>
-                            <button type="button" class="tradein-toggle-btn" id="tradein-btn-yes" onclick="setTradeinToggle(true)">Yes</button>
+                            <button type="button" class="tradein-toggle-btn active" id="tradein-btn-no"
+                                onclick="setTradeinToggle(false)">No</button>
+                            <button type="button" class="tradein-toggle-btn" id="tradein-btn-yes"
+                                onclick="setTradeinToggle(true)">Yes</button>
                         </div>
                         <input type="hidden" id="modal-trade-value" value="no">
                     </div>
@@ -8939,8 +9154,10 @@
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Payment Method</label>
                         <div class="tradein-toggle-group">
-                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance" onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
-                            <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today" onclick="setAccPaymentToggle('today')">Due Today</button>
+                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance"
+                                onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
+                            <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today"
+                                onclick="setAccPaymentToggle('today')">Due Today</button>
                         </div>
                         <input type="hidden" id="acc-payment-value" value="today">
                     </div>
@@ -15155,12 +15372,14 @@
                         isDown = false;
                         rowEl.classList.remove('swiping');
                         rowEl.style.userSelect = '';
+                        wrapper.style.overflow = ''; // restore clipping on scroll-abort
                         // Restore transitions
                         deleteBubble.style.transition = '';
                         dupBubble.style.transition = '';
                         return;
                     }
                     isSwiping = true;
+                    wrapper.style.overflow = 'visible'; // allow card to slide beyond wrapper edge
                 }
 
                 // Track velocity
@@ -15237,7 +15456,7 @@
                     // Left swipe → delete
                     const fastFlick = velocity < -velocityThreshold;
                     if (swipeRatio >= threshold || fastFlick) {
-                        confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId);
+                        confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId, currentX);
                     } else {
                         snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
                     }
@@ -15267,7 +15486,22 @@
         let _pendingSwipeDelete = null;
 
         function snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble) {
+            const sw = rowEl.closest('.swipe-delete-wrapper');
+
+            // Start the snap-back — CSS `transition: transform 0.3s ease` on .calculator-row
+            // animates the card back to centre. Do NOT restore overflow:hidden yet, or the
+            // card gets clipped while it's still mid-transition.
             rowEl.style.setProperty('transform', 'translate3d(0, 0, 0)');
+
+            // Restore overflow after the snap-back transition finishes.
+            // Guard with isSwiping: if the user starts a new swipe before the
+            // timeout/transitionend fires, skip the restore — handleMove already
+            // set overflow:visible for the new swipe.
+            const restoreOverflow = () => { if (!isSwiping && sw) sw.style.overflow = ''; };
+            rowEl.addEventListener('transitionend', restoreOverflow, { once: true });
+            // Fallback: if no transition fires (card was already near centre), clear after 350ms
+            setTimeout(restoreOverflow, 350);
+
             deleteBg.classList.remove('visible');
             dupBg.classList.remove('visible');
             // Restore transitions
@@ -15292,38 +15526,463 @@
             setTimeout(() => ripple.remove(), 500);
         }
 
-        function executeSwipeDelete(wrapper, rowId) {
-            wrapper.classList.add('swiped-out');
+        // --- Undo Delete system ---
+        let _activeUndoTimers = new Map(); // rowId → { interval, timeout }
+
+        function executeSwipeDelete(wrapper, rowId, rowEl, currentX) {
+            const state = STATE[rowId];
+            const quoteTitle = (state && state.quoteTitle) || 'Quote';
+
+            // Pulse animation — freeze at swipe offset, scale-up then scale-down+fade (matches countdown bubble)
+            const DELAY = 260; // total pulse time before showing undo card
+            if (rowEl) {
+                const cx = currentX || 0;
+                // Phase 1: scale-up pulse
+                rowEl.style.transition = 'transform 0.09s ease-out';
+                rowEl.style.setProperty('transform', `translate3d(${cx}px,0,0) scale(1.05)`, 'important');
+                setTimeout(() => {
+                    // Phase 2: scale-down + fade out
+                    rowEl.style.transition = 'transform 0.17s ease-in, opacity 0.17s ease-in';
+                    rowEl.style.setProperty('transform', `translate3d(${cx}px,0,0) scale(0.95)`, 'important');
+                    rowEl.style.opacity = '0';
+                }, 90);
+            }
+
+            setTimeout(() => {
+
+                // ── Step 1: lock the wrapper's current height so hiding the row doesn't cause a jump
+                const lockedHeight = wrapper.offsetHeight;
+                wrapper.style.height = lockedHeight + 'px';
+                wrapper.style.overflow = 'hidden';
+
+                // ── Step 2: hide the original row content (keep in DOM for undo)
+                const rowElInner = wrapper.querySelector('.calculator-row');
+                const deleteBg = wrapper.querySelector('.swipe-action-bg.swipe-delete-bg');
+                const dupBg = wrapper.querySelector('.swipe-action-bg.swipe-duplicate-bg');
+                if (rowElInner) rowElInner.style.display = 'none';
+                if (deleteBg) deleteBg.style.display = 'none';
+                if (dupBg) dupBg.style.display = 'none';
+
+                // ── Step 3: build and insert the undo card (starts invisible so we can measure its height)
+                const undoSwipeBg = document.createElement('div');
+                undoSwipeBg.className = 'undo-swipe-bg';
+                undoSwipeBg.innerHTML = '<div class="swipe-action-bubble" style="width:48px;background:rgb(239,154,154);"><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:#fff;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>';
+
+                const undoCard = document.createElement('div');
+                undoCard.className = 'undo-delete-card';
+                undoCard.innerHTML = `
+                    <div class="undo-progress-fill"></div>
+                    <div class="undo-delete-info">
+                        <div class="undo-delete-icon"><svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+                        <span class="undo-delete-text"><strong>${quoteTitle}</strong> deleted</span>
+                    </div>
+                    <span class="undo-countdown-text">10s</span>
+                    <button class="undo-delete-btn">Undo</button>
+                `;
+
+                wrapper.classList.add('showing-undo');
+                wrapper.appendChild(undoSwipeBg);
+                wrapper.appendChild(undoCard);
+
+                // Wire up undo button
+                const undoBtn = undoCard.querySelector('.undo-delete-btn');
+                undoBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    undoDelete(wrapper, rowId);
+                });
+
+                // ── Step 4: measure undo card height, then animate wrapper height to it
+                requestAnimationFrame(() => {
+                    const targetHeight = undoCard.offsetHeight;
+                    wrapper.style.transition = 'height 0.3s ease';
+                    wrapper.style.height = targetHeight + 'px';
+
+                    // ── Step 5: after height settled, clear inline styles and fade in the undo card
+                    setTimeout(() => {
+                        wrapper.style.height = '';
+                        wrapper.style.overflow = '';
+                        wrapper.style.transition = '';
+                        // Fade in the undo card
+                        requestAnimationFrame(() => {
+                            undoCard.classList.add('visible');
+                        });
+                        // Start countdown and wire swipe-to-dismiss
+                        startUndoCountdown(wrapper, rowId);
+                        initUndoCardSwipe(wrapper, undoCard, undoSwipeBg, rowId);
+                    }, 310);
+                });
+            }, DELAY);
+        }
+
+        function startUndoCountdown(wrapper, rowId) {
+            const UNDO_DURATION = 10000;
+            const startTime = performance.now();
+            const undoCard = wrapper.querySelector('.undo-delete-card');
+            const countdownText = wrapper.querySelector('.undo-countdown-text');
+            const progressFill = undoCard ? undoCard.querySelector('.undo-progress-fill') : null;
+
+            // Grab the specific text elements we'll apply the gradient trick to
+            const deleteTextEl = undoCard ? undoCard.querySelector('.undo-delete-text') : null;
+            const deleteStrong = deleteTextEl ? deleteTextEl.querySelector('strong') : null;
+            const iconSvg = undoCard ? undoCard.querySelector('.undo-delete-icon svg') : null;
+
+            // Capture real computed colors BEFORE we override anything
+            const darkText = deleteTextEl ? getComputedStyle(deleteTextEl).color : '#888';
+            const darkStrong = deleteStrong ? getComputedStyle(deleteStrong).color : darkText;
+            const darkCountdown = countdownText ? getComputedStyle(countdownText).color : darkText;
+            const darkIcon = iconSvg ? getComputedStyle(iconSvg).fill : darkText;
+
+            // Enable background-clip:text gradient mode on each text container
+            // The gradient will be drawn across the full element and clipped to glyph shapes
+            function enableGradient(el, inheritsFrom) {
+                if (!el) return;
+                el.style.webkitBackgroundClip = 'text';
+                el.style.backgroundClip = 'text';
+                el.style.webkitTextFillColor = 'transparent';
+                el.style.color = 'transparent';
+            }
+            enableGradient(deleteTextEl);
+            enableGradient(countdownText);
+            // strong's text fill must also be transparent so parent gradient shows through
+            if (deleteStrong) {
+                deleteStrong.style.webkitTextFillColor = 'transparent';
+                deleteStrong.style.color = 'transparent';
+            }
+            // Countdown text has opacity:0.85 in CSS — set to 1 so gradient looks correct
+            if (countdownText) countdownText.style.opacity = '1';
+
+            // Apply a sharp gradient split within an element at exact pixel 'barRightX'
+            function applyGradient(el, barRightX, darkColor) {
+                if (!el) return;
+                const r = el.getBoundingClientRect();
+                if (!r.width) return;
+                // splitPct: where, within THIS element's width, the bar edge falls
+                const splitPct = Math.min(100, Math.max(0,
+                    (barRightX - r.left) / r.width * 100
+                ));
+                el.style.backgroundImage =
+                    `linear-gradient(to right, white ${splitPct}%, ${darkColor} ${splitPct}%)`;
+            }
+
+            let rafId = null;
+            let lastSecond = 10;
+
+            function tick(now) {
+                const elapsed = now - startTime;
+                const remaining = Math.max(0, UNDO_DURATION - elapsed);
+                const pct = remaining / UNDO_DURATION;
+
+                // Shrink the fill bar from right
+                if (progressFill) progressFill.style.transform = `scaleX(${pct})`;
+
+                // Compute the absolute X position of the bar's right edge
+                const cardRect = undoCard ? undoCard.getBoundingClientRect() : null;
+                const barRightX = cardRect ? cardRect.left + cardRect.width * pct : 0;
+
+                // Apply per-pixel gradient to every text element
+                applyGradient(deleteTextEl, barRightX, darkStrong);  // dominant bold color for whole span
+                applyGradient(countdownText, barRightX, darkCountdown);
+
+                // SVG icon: still center-based (16px icon, imperceptible)
+                if (iconSvg && cardRect) {
+                    const ir = iconSvg.getBoundingClientRect();
+                    iconSvg.style.fill = (ir.left + ir.width / 2) < barRightX ? 'white' : darkIcon;
+                }
+
+                // Update countdown number (text content change doesn't affect gradient styles)
+                const sec = Math.ceil(remaining / 1000);
+                if (sec !== lastSecond) {
+                    lastSecond = sec;
+                    if (countdownText) countdownText.textContent = sec + 's';
+                }
+
+                if (remaining > 0) {
+                    rafId = requestAnimationFrame(tick);
+                } else {
+                    _activeUndoTimers.delete(rowId);
+                    finalizeUndoDelete(wrapper, rowId);
+                }
+            }
+
+            rafId = requestAnimationFrame(tick);
+
+            _activeUndoTimers.set(rowId, {
+                interval: null,
+                timeout: null,
+                cancel: () => { if (rafId) cancelAnimationFrame(rafId); }
+            });
+
+            const timeout = setTimeout(() => {
+                _activeUndoTimers.delete(rowId);
+                finalizeUndoDelete(wrapper, rowId);
+            }, UNDO_DURATION);
+
+            const existing = _activeUndoTimers.get(rowId);
+            if (existing) existing.timeout = timeout;
+        }
+
+        function finalizeUndoDelete(wrapper, rowId) {
+            // Collapse the undo card and truly remove
+            wrapper.classList.remove('showing-undo');
             wrapper.style.height = wrapper.offsetHeight + 'px';
+            wrapper.classList.add('undo-collapsing');
             requestAnimationFrame(() => {
                 wrapper.style.height = '0px';
                 wrapper.style.marginBottom = '0px';
             });
+
             setTimeout(() => {
-                removeRow(rowId);
+                wrapper.remove();
+                delete STATE[rowId];
+                updateExportButtonVisibility();
+                if (quoteDisplayStyle === 'stacked') {
+                    const remainingRows = document.querySelectorAll('.calculator-row');
+                    if (currentCarouselIndex >= remainingRows.length) {
+                        currentCarouselIndex = Math.max(0, remainingRows.length - 1);
+                    }
+                    updateCarouselView();
+                }
+                toggleDefaultBenefitsSwitch();
+                updateCompareQuotesButtonState();
             }, 350);
+        }
+
+        function undoDelete(wrapper, rowId) {
+            // Cancel timer
+            const timer = _activeUndoTimers.get(rowId);
+            if (timer) {
+                if (timer.cancel) timer.cancel();
+                if (timer.interval) clearInterval(timer.interval);
+                if (timer.timeout) clearTimeout(timer.timeout);
+                _activeUndoTimers.delete(rowId);
+            }
+
+            // Remove the undo card and swipe bg (progress fill is inside the card)
+            wrapper.classList.remove('showing-undo');
+            const undoCard = wrapper.querySelector('.undo-delete-card');
+            const undoSwipeBg = wrapper.querySelector('.undo-swipe-bg');
+            if (undoCard) undoCard.remove();
+            if (undoSwipeBg) undoSwipeBg.remove();
+
+            // Show the original row content again
+            const rowEl = wrapper.querySelector('.calculator-row');
+            const deleteBg = wrapper.querySelector('.swipe-action-bg.swipe-delete-bg');
+            const dupBg = wrapper.querySelector('.swipe-action-bg.swipe-duplicate-bg');
+            if (rowEl) {
+                rowEl.style.display = '';
+                rowEl.style.transform = '';
+                rowEl.style.removeProperty('transform');
+                // Subtle fade-in
+                rowEl.style.opacity = '0';
+                requestAnimationFrame(() => {
+                    rowEl.style.transition = 'opacity 0.3s ease';
+                    rowEl.style.opacity = '1';
+                    setTimeout(() => {
+                        rowEl.style.transition = '';
+                        rowEl.style.opacity = '';
+                    }, 350);
+                });
+            }
+            if (deleteBg) deleteBg.style.display = '';
+            if (dupBg) dupBg.style.display = '';
+
+            updateExportButtonVisibility();
+            toggleDefaultBenefitsSwitch();
+            updateCompareQuotesButtonState();
+        }
+
+        function dismissUndoCard(wrapper, rowId) {
+            // Cancel timer
+            const timer = _activeUndoTimers.get(rowId);
+            if (timer) {
+                if (timer.cancel) timer.cancel();
+                if (timer.interval) clearInterval(timer.interval);
+                if (timer.timeout) clearTimeout(timer.timeout);
+                _activeUndoTimers.delete(rowId);
+            }
+            finalizeUndoDelete(wrapper, rowId);
+        }
+
+        function initUndoCardSwipe(wrapper, card, swipeBg, rowId) {
+            const bubble = swipeBg ? swipeBg.querySelector('.swipe-action-bubble') : null;
+
+            let startX = 0, startY = 0, currentX = 0;
+            let isDown = false, isSwiping = false, isScrolling = false;
+            let lastMoveX = 0, lastMoveTime = 0, velocity = 0;
+            const thresh = 0.3;
+            const velThresh = 700;
+            const deadzone = 8;
+
+            function pointerDown(clientX, clientY) {
+                isDown = true;
+                startX = clientX;
+                startY = clientY;
+                currentX = 0;
+                velocity = 0;
+                lastMoveX = clientX;
+                lastMoveTime = Date.now();
+                isSwiping = false;
+                isScrolling = false;
+                card.classList.add('swiping');
+                if (bubble) bubble.style.transition = 'none';
+            }
+
+            function handleMove(clientX, clientY, e) {
+                if (isScrolling) return;
+                const dx = clientX - startX;
+                const dy = clientY - startY;
+
+                if (!isSwiping && Math.abs(dx) < deadzone && Math.abs(dy) < deadzone) return;
+                if (!isSwiping) {
+                    if (Math.abs(dy) > Math.abs(dx)) {
+                        isScrolling = true;
+                        isDown = false;
+                        card.classList.remove('swiping');
+                        if (bubble) bubble.style.transition = '';
+                        return;
+                    }
+                    isSwiping = true;
+                }
+
+                const now = Date.now();
+                const dt = now - lastMoveTime;
+                if (dt > 0) velocity = (clientX - lastMoveX) / dt * 1000;
+                lastMoveX = clientX;
+                lastMoveTime = now;
+
+                // Allow both directions
+                currentX = dx;
+                card.style.setProperty('transform', `translate3d(${currentX}px, 0, 0)`, 'important');
+
+                const absDrag = Math.abs(currentX);
+                if (swipeBg) {
+                    swipeBg.classList.toggle('visible', absDrag > 15);
+                    // Position bg on correct side
+                    if (currentX < 0) {
+                        swipeBg.style.justifyContent = 'flex-end';
+                    } else {
+                        swipeBg.style.justifyContent = 'flex-start';
+                    }
+                    if (bubble && absDrag > 15) {
+                        bubble.style.width = Math.max(48, absDrag + 10) + 'px';
+                        const progress = Math.min(1, absDrag / (card.offsetWidth * thresh));
+                        const r = Math.round(239 - progress * (239 - 211));
+                        const g = Math.round(154 - progress * (154 - 47));
+                        const b = Math.round(154 - progress * (154 - 47));
+                        bubble.style.background = `rgb(${r},${g},${b})`;
+                    }
+                }
+
+                if (e && e.cancelable) e.preventDefault();
+            }
+
+            function handleEnd() {
+                if (!isDown && !isSwiping) return;
+                isDown = false;
+                card.classList.remove('swiping');
+
+                if (!isSwiping) return;
+
+                const cardWidth = card.offsetWidth;
+                const swipeRatio = Math.abs(currentX) / cardWidth;
+                const fastFlick = Math.abs(velocity) > velThresh;
+
+                if (swipeRatio >= thresh || fastFlick) {
+                    // Freeze at swipe position → pulse scale-up → scale-down + fade out
+                    if (swipeBg) swipeBg.classList.remove('visible');
+                    // Phase 1: quick scale-up (pulse) at current offset
+                    card.style.transition = 'transform 0.09s ease-out';
+                    card.style.setProperty('transform', `translate3d(${currentX}px,0,0) scale(1.05)`, 'important');
+                    setTimeout(() => {
+                        // Phase 2: scale down + fade out simultaneously
+                        card.style.transition = 'transform 0.17s ease-in, opacity 0.17s ease-in';
+                        card.style.setProperty('transform', `translate3d(${currentX}px,0,0) scale(0.95)`, 'important');
+                        card.style.opacity = '0';
+                        setTimeout(() => dismissUndoCard(wrapper, rowId), 170);
+                    }, 90);
+                } else {
+                    // Snap back
+                    card.style.transition = '';
+                    card.style.setProperty('transform', 'translate3d(0, 0, 0)', 'important');
+                    // Clear the important transform after transition settles
+                    setTimeout(() => {
+                        card.style.removeProperty('transform');
+                    }, 350);
+                    if (swipeBg) swipeBg.classList.remove('visible');
+                    if (bubble) {
+                        bubble.style.transition = '';
+                        bubble.style.width = '';
+                        bubble.style.background = '';
+                    }
+                }
+                isSwiping = false;
+            }
+
+            // Mouse
+            function onMouseDown(e) {
+                if (e.button !== 0) return;
+                if (e.target.closest('button')) return;
+                e.preventDefault();
+                pointerDown(e.clientX, e.clientY);
+                card.style.userSelect = 'none';
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+            function onMouseMove(e) { if (isDown) handleMove(e.clientX, e.clientY, e); }
+            function onMouseUp() {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                handleEnd();
+            }
+
+            // Touch
+            function onTouchStart(e) {
+                if (e.target.closest('button')) return;
+                pointerDown(e.touches[0].clientX, e.touches[0].clientY);
+            }
+            function onTouchMove(e) {
+                if (isDown) handleMove(e.touches[0].clientX, e.touches[0].clientY, e);
+            }
+            function onTouchEnd() { handleEnd(); }
+
+            card.addEventListener('mousedown', onMouseDown);
+            card.addEventListener('touchstart', onTouchStart, { passive: true });
+            card.addEventListener('touchmove', onTouchMove, { passive: false });
+            card.addEventListener('touchend', onTouchEnd);
         }
 
         function executeSwipeDuplicate(wrapper, rowEl, rowId) {
-            // Animate slide-right then snap back and duplicate
-            wrapper.classList.add('swiped-right');
-            setTimeout(() => {
-                wrapper.classList.remove('swiped-right');
-                rowEl.style.setProperty('transform', 'translate3d(0, 0, 0)');
+            // Step 1: snap the row back to centre immediately.
+            // setProperty WITHOUT !important reliably replaces the !important inline
+            // transform that handleMove set — the browser spec guarantees this.
+            rowEl.style.setProperty('transform', 'translate3d(0, 0, 0)');
+
+            // Step 2: play the pulse animation on the WRAPPER via CSS @keyframes.
+            // We animate the wrapper (not the row) to avoid any !important conflicts.
+            wrapper.classList.add('dup-pulsing');
+
+            // Step 3: after the animation finishes, clean up and duplicate.
+            wrapper.addEventListener('animationend', () => {
+                wrapper.classList.remove('dup-pulsing');
+                rowEl.style.removeProperty('transform'); // clear the non-!important snap we set
+                wrapper.style.overflow = '';              // restore overflow clipping from drag
                 duplicateRow(rowId);
-            }, 350);
+            }, { once: true });
         }
 
-        function confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId) {
+
+
+
+        function confirmOrDeleteSwipe(wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId, currentX) {
             // Skip confirmation if user opted out
             if (localStorage.getItem('swipeDeleteNoConfirm') === 'true') {
                 triggerRipple(deleteBubble);
-                executeSwipeDelete(wrapper, rowId);
+                executeSwipeDelete(wrapper, rowId, rowEl, currentX);
                 return;
             }
 
             // Store pending info and show modal
-            _pendingSwipeDelete = { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId };
+            _pendingSwipeDelete = { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId, currentX };
             document.getElementById('swipe-dont-ask-again').checked = false;
             document.getElementById('swipe-confirm-modal').classList.add('active');
         }
@@ -15342,7 +16001,7 @@
 
             if (yes) {
                 triggerRipple(deleteBubble);
-                executeSwipeDelete(wrapper, rowId);
+                executeSwipeDelete(wrapper, rowId, rowEl, currentX);
             } else {
                 snapBackSwipe(rowEl, deleteBg, deleteBubble, dupBg, dupBubble);
             }
@@ -15781,7 +16440,7 @@
             const yesBtn = document.getElementById('tradein-btn-yes');
             const noBtn = document.getElementById('tradein-btn-no');
             const hiddenInput = document.getElementById('modal-trade-value');
-            
+
             if (isYes) {
                 yesBtn.classList.add('active');
                 noBtn.classList.remove('active');
@@ -15799,7 +16458,7 @@
             const financeBtn = document.getElementById('acc-payment-btn-finance');
             const todayBtn = document.getElementById('acc-payment-btn-today');
             const hiddenInput = document.getElementById('acc-payment-value');
-            
+
             if (method === 'finance') {
                 financeBtn.classList.add('active');
                 todayBtn.classList.remove('active');
