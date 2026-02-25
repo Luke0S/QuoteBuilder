@@ -9024,10 +9024,39 @@
                     <input type="hidden" id="disc-row-id">
                 </div>
                 <div class="modal-body">
-                    <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Select a discount
-                        to apply to this quote:</p>
-                    <div id="disc-list" class="prot-list">
-                        <!-- Injected here -->
+                    <div id="disc-list-container">
+                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Select a
+                            discount
+                            to apply to this quote:</p>
+                        <div id="disc-list" class="prot-list">
+                            <!-- Injected here -->
+                        </div>
+                    </div>
+
+                    <div id="custom-disc-container" style="display: none;">
+                        <div class="input-group">
+                            <label class="step-label" style="font-size: 0.9rem;">Discount Name</label>
+                            <input type="text" id="custom-disc-name" placeholder="e.g. Employee Discount">
+                        </div>
+                        <div class="input-group">
+                            <label class="step-label" style="font-size: 0.9rem;">Discount Type</label>
+                            <select id="custom-disc-type"
+                                style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; background: white;">
+                                <option value="Custom Flat">Flat Rate ($)</option>
+                                <option value="Custom Percent">Overall Percent (%)</option>
+                                <option value="Custom Per Line">Per Line ($)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="step-label" style="font-size: 0.9rem;">Amount / Percentage</label>
+                            <input type="number" id="custom-disc-amount" min="0" step="0.01" placeholder="0.00">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="cancelCustomDiscount()"
+                                style="flex: 1;">Cancel</button>
+                            <button class="btn btn-primary" onclick="saveCustomDiscount()" style="flex: 1;">Add
+                                Discount</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -14896,9 +14925,6 @@
             // Build connected devices HTML - show plan name, device name as subtext, include device financing
             let cdHtml = '';
             if (connectedDevices.length > 0) {
-                // Default device names that shouldn't be displayed
-                const defaultDevNames = ['Watch', 'Tablet', 'Data Device', 'Tracker', 'Drive', 'Watches', 'Tablets', 'Data', 'SyncUp Trackers', 'SyncUp Drive'];
-
                 connectedDevices.forEach(cd => {
                     // Plan name is the main label
                     const cdPlanName = cd.planKey || 'Connected Device Plan';
@@ -14907,16 +14933,29 @@
                     // 2. It's not a default name
                     // 3. There's a device cost (matching main page behavior)
                     const devCost = cd.devCost || 0;
-                    const rawDevName = cd.devName && cd.devName.trim() !== '' ? cd.devName.trim() : '';
-                    const isDefaultName = defaultDevNames.includes(rawDevName);
-                    const cdDeviceName = (rawDevName && !isDefaultName && devCost > 0) ? rawDevName : '';
+                    let defaultDevName = cd.category;
+                    if (cd.category === 'Watches') defaultDevName = 'Watch';
+                    else if (cd.category === 'Tablets') defaultDevName = 'Tablet';
+                    else if (cd.category === 'Data') defaultDevName = 'Hotspot';
+                    else if (cd.category === 'SyncUp Trackers') defaultDevName = 'Tracker';
+                    else if (cd.category === 'SyncUp Drive') defaultDevName = 'Drive';
 
-                    // Calculate total monthly: plan cost + device financing
-                    const cdPlanCost = cd.planData?.price || 0;
+                    const rawDevName = cd.devName && cd.devName.trim() !== '' ? cd.devName.trim() : '';
+                    const displayDevName = rawDevName || defaultDevName || '';
+
                     const term = cd.term || 24;
                     const devDown = cd.devDown || 0;
                     const devPromo = cd.devPromo || 0;
                     const devMonthly = Math.max(0, (devCost - devDown - devPromo) / term);
+
+                    let cdDeviceName = (displayDevName && devCost > 0) ? displayDevName : '';
+                    if (devDown > 0) {
+                        const downStr = `$${devDown.toFixed(2)} Down`;
+                        cdDeviceName = cdDeviceName ? `${cdDeviceName} | ${downStr}` : downStr;
+                    }
+
+                    // Calculate total monthly: plan cost + device financing
+                    const cdPlanCost = cd.planData?.price || 0;
                     const cdTotalMonthly = cdPlanCost + devMonthly;
 
                     cdHtml += `
@@ -15365,9 +15404,13 @@
                 const dx = clientX - startX;
                 const dy = clientY - startY;
 
-                if (!isSwiping && Math.abs(dx) < deadzone && Math.abs(dy) < deadzone) return;
                 if (!isSwiping) {
-                    if (Math.abs(dy) > Math.abs(dx)) {
+                    // Increase deadzone from 10 to 15 for better intent detection
+                    if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+
+                    // Stricter check for horizontal swipe to avoid false positives during scrolling
+                    // Requires horizontal movement to be significantly larger than vertical movement
+                    if (Math.abs(dy) > Math.abs(dx) * 0.6) {
                         isScrolling = true;
                         isDown = false;
                         rowEl.classList.remove('swiping');
@@ -15832,9 +15875,10 @@
                 const dx = clientX - startX;
                 const dy = clientY - startY;
 
-                if (!isSwiping && Math.abs(dx) < deadzone && Math.abs(dy) < deadzone) return;
                 if (!isSwiping) {
-                    if (Math.abs(dy) > Math.abs(dx)) {
+                    if (Math.abs(dx) < 15 && Math.abs(dy) < 15) return;
+
+                    if (Math.abs(dy) > Math.abs(dx) * 0.6) {
                         isScrolling = true;
                         isDown = false;
                         card.classList.remove('swiping');
@@ -18601,24 +18645,25 @@
                         }
                         // Add promo info for multiplied items
                         let promoHtml = '';
+                        let downText = groupDevDown > 0 ? ` | $${groupDevDown.toFixed(2)} Down` : '';
                         if (groupUnitCount > 1 && groupDevPromo > 0) {
                             if (showRetailPrices.bts) {
-                                promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                                promoHtml = `<div class="cd-print-promo">Retail: $${groupDevCost.toFixed(2)} | Promo: $${groupDevPromo.toFixed(2)} Off/Each${downText}</div>`;
                             } else {
-                                promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each</div>`;
+                                promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each${downText}</div>`;
                             }
                         } else if (groupUnitCount === 1 && groupDevCost > 0) {
                             if (groupDevPromo > 0) {
                                 if (showRetailPrices.bts) {
-                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off | Retail: $${groupDevCost.toFixed(2)})</div>`;
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Retail: $${groupDevCost.toFixed(2)} | Promo: $${groupDevPromo.toFixed(2)} Off${downText})</div>`;
                                 } else {
-                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off)</div>`;
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off${downText})</div>`;
                                 }
                             } else if (groupDevName) {
                                 if (showRetailPrices.bts) {
-                                    promoHtml = `<div class="cd-print-promo">${groupDevName} | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName} (Retail: $${groupDevCost.toFixed(2)}${downText})</div>`;
                                 } else {
-                                    promoHtml = `<div class="cd-print-promo">${groupDevName}</div>`;
+                                    promoHtml = `<div class="cd-print-promo">${groupDevName}${downText}</div>`;
                                 }
                             }
                         }
@@ -18640,7 +18685,15 @@
                     groupPlanKey = item.planKey;
                     groupDevPromo = item.devPromo || 0;
                     groupDevCost = item.devCost || 0;
-                    groupDevName = item.devName || '';
+                    let defaultDevName = item.category;
+                    if (item.category === 'Watches') defaultDevName = 'Watch';
+                    else if (item.category === 'Tablets') defaultDevName = 'Tablet';
+                    else if (item.category === 'Data') defaultDevName = 'Data Device';
+                    else if (item.category === 'SyncUp Trackers') defaultDevName = 'Tracker';
+                    else if (item.category === 'SyncUp Drive') defaultDevName = 'Drive';
+
+                    groupDevName = item.devName || defaultDevName || '';
+                    groupDevDown = item.devDown || 0;
 
                     groupDiv = document.createElement('div');
                     groupDiv.className = 'item-pill cd-pill';
@@ -18693,17 +18746,29 @@
 
                     // Promo line
                     let promoLine = '';
+                    let downLine = item.devDown > 0 ? ` | $${item.devDown.toFixed(2)} Down` : '';
                     if (item.devPromo > 0) {
                         if (showRetailPrices.bts) {
-                            promoLine = `<div class="cd-promo-line">Promo: $${item.devPromo.toFixed(2)} Off | Retail: $${item.devCost.toFixed(2)}</div>`;
+                            promoLine = `<div class="cd-promo-line">Retail: $${item.devCost.toFixed(2)} | Promo: $${item.devPromo.toFixed(2)} Off${downLine}</div>`;
                         } else {
-                            promoLine = `<div class="cd-promo-line">Promo: $${item.devPromo.toFixed(2)} Off</div>`;
+                            promoLine = `<div class="cd-promo-line">Promo: $${item.devPromo.toFixed(2)} Off${downLine}</div>`;
                         }
                     } else if (showRetailPrices.bts) {
-                        promoLine = `<div class="cd-promo-line">Retail: $${item.devCost.toFixed(2)}</div>`;
+                        promoLine = `<div class="cd-promo-line">Retail: $${item.devCost.toFixed(2)}${downLine}</div>`;
+                    } else if (item.devDown > 0) {
+                        promoLine = `<div class="cd-promo-line">$${item.devDown.toFixed(2)} Down</div>`;
                     }
 
-                    deviceLine = `<div class="cd-device-submenu"><span class="cd-device-name">${item.devName}</span>${devicePaymentText}</div>${promoLine}`;
+                    let defaultDevName = item.category;
+                    if (item.category === 'Watches') defaultDevName = 'Watch';
+                    else if (item.category === 'Tablets') defaultDevName = 'Tablet';
+                    else if (item.category === 'Data') defaultDevName = 'Data Device';
+                    else if (item.category === 'SyncUp Trackers') defaultDevName = 'Tracker';
+                    else if (item.category === 'SyncUp Drive') defaultDevName = 'Drive';
+
+                    let displayDevName = item.devName || defaultDevName || '';
+
+                    deviceLine = `<div class="cd-device-submenu"><span class="cd-device-name">${displayDevName}</span>${devicePaymentText}</div>${promoLine}`;
                 }
 
                 unitLine.innerHTML = `
@@ -18733,24 +18798,25 @@
                 }
                 // Add promo info for multiplied items
                 let promoHtml = '';
+                let downText = groupDevDown > 0 ? ` | $${groupDevDown.toFixed(2)} Down` : '';
                 if (groupUnitCount > 1 && groupDevPromo > 0) {
                     if (showRetailPrices.bts) {
-                        promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                        promoHtml = `<div class="cd-print-promo">Retail: $${groupDevCost.toFixed(2)} | Promo: $${groupDevPromo.toFixed(2)} Off/Each${downText}</div>`;
                     } else {
-                        promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each</div>`;
+                        promoHtml = `<div class="cd-print-promo">$${groupDevPromo.toFixed(2)} Off/Each${downText}</div>`;
                     }
                 } else if (groupUnitCount === 1 && groupDevCost > 0) {
                     if (groupDevPromo > 0) {
                         if (showRetailPrices.bts) {
-                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off | Retail: $${groupDevCost.toFixed(2)})</div>`;
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Retail: $${groupDevCost.toFixed(2)} | Promo: $${groupDevPromo.toFixed(2)} Off${downText})</div>`;
                         } else {
-                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off)</div>`;
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Promo: $${groupDevPromo.toFixed(2)} Off${downText})</div>`;
                         }
                     } else if (groupDevName) {
                         if (showRetailPrices.bts) {
-                            promoHtml = `<div class="cd-print-promo">${groupDevName} | Retail: $${groupDevCost.toFixed(2)}</div>`;
+                            promoHtml = `<div class="cd-print-promo">${groupDevName} (Retail: $${groupDevCost.toFixed(2)}${downText})</div>`;
                         } else {
-                            promoHtml = `<div class="cd-print-promo">${groupDevName}</div>`;
+                            promoHtml = `<div class="cd-print-promo">${groupDevName}${downText}</div>`;
                         }
                     }
                 }
@@ -19336,6 +19402,13 @@
 
         function closeDiscountModal() {
             document.getElementById('discount-modal').classList.remove('open');
+            // Reset to default list view when closing
+            const customContainer = document.getElementById('custom-disc-container');
+            const listContainer = document.getElementById('disc-list-container');
+            if (customContainer && listContainer) {
+                customContainer.style.display = 'none';
+                listContainer.style.display = 'block';
+            }
         }
 
         function closeManualDiscountModal() {
@@ -19492,9 +19565,66 @@
                 }
             });
 
+            const customLink = document.createElement('a');
+            customLink.textContent = 'Custom discount';
+            customLink.style.display = 'block';
+            customLink.style.textAlign = 'center';
+            customLink.style.marginTop = '15px';
+            customLink.style.color = 'var(--text-secondary)';
+            customLink.style.textDecoration = 'underline';
+            customLink.style.cursor = 'pointer';
+            customLink.onclick = () => promptCustomDiscount(rowId);
+            container.appendChild(customLink);
+
             if (availableCount === 0) {
-                container.innerHTML = '<div style="text-align:center; color:#666; padding: 20px;">No more discounts available for this configuration.</div>';
+                const emptyMsg = document.createElement('div');
+                emptyMsg.style.textAlign = 'center';
+                emptyMsg.style.color = '#666';
+                emptyMsg.style.padding = '20px';
+                emptyMsg.textContent = 'No more predefined discounts available for this configuration.';
+                container.insertBefore(emptyMsg, customLink);
             }
+        }
+
+        function promptCustomDiscount(rowId) {
+            document.getElementById('disc-list-container').style.display = 'none';
+            document.getElementById('custom-disc-container').style.display = 'block';
+
+            document.getElementById('custom-disc-name').value = '';
+            document.getElementById('custom-disc-type').value = 'Custom Flat';
+            document.getElementById('custom-disc-amount').value = '';
+        }
+
+        function cancelCustomDiscount() {
+            document.getElementById('custom-disc-container').style.display = 'none';
+            document.getElementById('disc-list-container').style.display = 'block';
+        }
+
+        function saveCustomDiscount() {
+            const rowId = document.getElementById('disc-row-id').value;
+            const name = document.getElementById('custom-disc-name').value.trim();
+            const type = document.getElementById('custom-disc-type').value;
+            const amount = parseFloat(document.getElementById('custom-disc-amount').value);
+
+            if (!name) {
+                alert("Please enter a discount name.");
+                return;
+            }
+            if (isNaN(amount) || amount <= 0) {
+                alert("Please enter a valid amount.");
+                return;
+            }
+
+            const discountObj = { type: type, name: name, amount: amount };
+            STATE[rowId].discounts.push(discountObj);
+
+            calculateRow(rowId);
+            renderDiscountList(rowId);
+            renderCDList(rowId);
+            renderHIList(rowId);
+
+            cancelCustomDiscount();
+            closeDiscountModal();
         }
 
         function renderDiscountList(rowId) {
@@ -19513,8 +19643,17 @@
                 STATE[rowId].discounts.forEach((item, index) => {
                     const div = document.createElement('div');
                     div.className = 'item-pill';
-                    const escapedType = (item.type || '').replace(/'/g, "\\'");
-                    div.innerHTML = `<span class="item-text">${item.type}</span><span class="remove-x" onclick="removeDiscountByType('${rowId}', '${escapedType}')">×</span>`;
+                    const isCustom = item.type && item.type.startsWith('Custom');
+
+                    if (isCustom) {
+                        const escapedType = (item.type || '').replace(/'/g, "\\'");
+                        let label = item.name || 'Custom Discount';
+
+                        div.innerHTML = `<span class="item-text">${label}</span><span class="remove-x" onclick="removeDiscountItem('${rowId}', ${index})">×</span>`;
+                    } else {
+                        const escapedType = (item.type || '').replace(/'/g, "\\'");
+                        div.innerHTML = `<span class="item-text">${item.type}</span><span class="remove-x" onclick="removeDiscountByType('${rowId}', '${escapedType}')">×</span>`;
+                    }
                     container.appendChild(div);
                 });
             }
@@ -20014,10 +20153,17 @@
                 voiceLineBogo = 0
             } = savingsData;
 
+            let customDiscountsAmount = 0;
+            STATE[rowId].discounts.forEach(d => {
+                if (d.type && d.type.startsWith('Custom') && d.calculatedAmount > 0) {
+                    customDiscountsAmount += d.calculatedAmount;
+                }
+            });
+
             const totalSavings = autopaySavingsVoice + autopaySavingsHI + autopaySavingsCD +
                 freeLineSavings + percentageSavings + planTypeSavings + devicePromoSavings +
                 hiBundlingSavings + cdBeyondSavings + cdBundlingSavings +
-                cdDevicePromoSavings + cd2for1Savings + manualDiscounts + voiceLineBogo;
+                cdDevicePromoSavings + cd2for1Savings + manualDiscounts + voiceLineBogo + customDiscountsAmount;
 
             if (totalSavings <= 0) {
                 container.classList.remove('visible');
@@ -20092,10 +20238,17 @@
                 html += `<div class="discount-summary-item">Connected Device Promos: <b>-$${cdDevicePromoSavings.toFixed(2)}/mo</b></div>`;
             }
 
+            // Custom discounts (both modes)
+            STATE[rowId].discounts.forEach(d => {
+                if (d.type && d.type.startsWith('Custom') && d.calculatedAmount > 0) {
+                    html += `<div class="discount-summary-item">${d.name || 'Custom Discount'}: <b>-$${d.calculatedAmount.toFixed(2)}/mo</b></div>`;
+                }
+            });
+
             // Manual discounts (existing mode)
             if (isManualMode && manualDiscounts > 0) {
                 STATE[rowId].discounts.forEach(d => {
-                    if (d.amount > 0) {
+                    if (!d.type.startsWith('Custom') && d.amount > 0) {
                         html += `<div class="discount-summary-item">${d.name || 'Discount'}: <b>-$${d.amount.toFixed(2)}/mo</b></div>`;
                     }
                 });
@@ -20387,6 +20540,7 @@
                 }
             }
 
+            let customDiscountsTotal = 0;
             if (!isManualMode) {
                 let netPlanCost = currentLineCosts.reduce((a, b) => a + b, 0);
                 const activeDiscounts = STATE[rowId].discounts.map(d => d.type);
@@ -20400,10 +20554,36 @@
                         percentageDisc = netPlanCost * 0.20;
                     }
                 }
-                baseTotal = netPlanCost - percentageDisc;
+
+                STATE[rowId].discounts.forEach(d => {
+                    let amountToDeduct = 0;
+                    if (d.type === 'Custom Flat') amountToDeduct = (d.amount || 0);
+                    else if (d.type === 'Custom Per Line') amountToDeduct = ((d.amount || 0) * lineCount);
+                    else if (d.type === 'Custom Percent') amountToDeduct = (netPlanCost * ((d.amount || 0) / 100));
+
+                    if (d.type && d.type.startsWith('Custom')) {
+                        d.calculatedAmount = amountToDeduct;
+                        customDiscountsTotal += amountToDeduct;
+                    }
+                });
+
+                baseTotal = netPlanCost - percentageDisc - customDiscountsTotal;
 
             } else {
+                STATE[rowId].discounts.forEach(d => {
+                    let amountToDeduct = 0;
+                    if (d.type === 'Custom Flat') amountToDeduct = (d.amount || 0);
+                    else if (d.type === 'Custom Per Line') amountToDeduct = ((d.amount || 0) * lineCount);
+                    else if (d.type === 'Custom Percent') amountToDeduct = (baseTotal * ((d.amount || 0) / 100));
+
+                    if (d.type && d.type.startsWith('Custom')) {
+                        d.calculatedAmount = amountToDeduct;
+                        customDiscountsTotal += amountToDeduct;
+                    }
+                });
+
                 baseTotal -= savingsData.manualDiscounts;
+                baseTotal -= customDiscountsTotal;
             }
 
             // Calculate device monthly payments and promo savings
