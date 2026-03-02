@@ -8295,7 +8295,7 @@
             </div>
 
             <!-- Page Footer Credit (visible on screen) -->
-            <div class="page-footer-credit">Quote Builder V2.75 | Made by Luke Shrader</div>
+            <div class="page-footer-credit">Quote Builder V2.8 | Made by Luke Shrader</div>
 
             <!-- Plan Benefits Pages (print only) -->
             <div id="plan-benefits-container" class="plan-benefits-container">
@@ -8571,7 +8571,7 @@
 
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Retail Price ($) <span
-                                style="color: magenta;">*</span></label>
+                                style="color: var(--primary-color);">*</span></label>
                         <input type="number" id="modal-dev-cost" min="0" max="9999.99" step="0.01" placeholder="0.00">
                     </div>
 
@@ -8600,7 +8600,7 @@
                         <label class="step-label" style="font-size: 0.9rem;"><a
                                 href="https://www.t-mobile.com/devices/phone-trade-in" target="_blank"
                                 style="color: var(--primary-color); text-decoration: underline;">Fair Market Value
-                                (FMV)</a> <span style="color: magenta;">*</span></label>
+                                (FMV)</a> <span style="color: var(--primary-color);">*</span></label>
                         <input type="number" id="modal-dev-fmv" min="0" step="0.01" placeholder="0.00">
                     </div>
 
@@ -8891,18 +8891,17 @@
                                 <!-- Add form -->
                                 <div
                                     style="padding-top: 10px; border-top: 1px dashed var(--border-color); flex-shrink: 0;">
-                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;"
-                                        id="addon-form-subtitle">Add a new add-on:</p>
+
                                     <input type="hidden" id="addon-edit-index" value="">
                                     <div class="input-group" style="margin-bottom: 8px;">
                                         <label class="step-label" style="font-size: 0.9rem;">Title <span
-                                                style="color: magenta;">*</span></label>
+                                                style="color: var(--primary-color);">*</span></label>
                                         <input type="text" id="addon-name-input" placeholder="e.g., Hotspot"
                                             style="font-size: 0.9rem;">
                                     </div>
                                     <label class="step-label"
                                         style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
-                                            style="color: magenta;">*</span></label>
+                                            style="color: var(--primary-color);">*</span></label>
                                     <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
                                         <input type="number" id="addon-price-input" min="0" step="0.01"
                                             placeholder="Price ($)" style="flex: 1; font-size: 0.9rem;">
@@ -9135,12 +9134,12 @@
                     <div id="custom-disc-container" style="display: none;">
                         <div class="input-group">
                             <label class="step-label" style="font-size: 0.9rem;">Discount Name <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <input type="text" id="custom-disc-name" placeholder="e.g. Employee Discount">
                         </div>
                         <div class="input-group">
                             <label class="step-label" style="font-size: 0.9rem;">Discount Type <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <select id="custom-disc-type"
                                 style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; background: white;">
                                 <option value="Custom Flat">Flat Rate ($)</option>
@@ -9150,7 +9149,7 @@
                         </div>
                         <div class="input-group">
                             <label class="step-label" style="font-size: 0.9rem;">Amount / Percentage <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <input type="number" id="custom-disc-amount" min="0" step="0.01" placeholder="0.00">
                         </div>
                         <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -9204,7 +9203,8 @@
                     <input type="hidden" id="rebate-pill-selected" value="">
 
                     <div class="input-group" style="margin-bottom: 15px;">
-                        <label class="step-label">Rebate Name <span style="color: magenta;">*</span></label>
+                        <label class="step-label">Rebate Name <span
+                                style="color: var(--primary-color);">*</span></label>
                         <input type="text" id="rebate-modal-name" placeholder="e.g. Gift Card">
                         <div class="suggestions-carousel-wrapper">
                             <div
@@ -9214,7 +9214,7 @@
                         </div>
                     </div>
                     <div class="input-group">
-                        <label class="step-label">Amount ($) <span style="color: magenta;">*</span></label>
+                        <label class="step-label">Amount ($) <span style="color: var(--primary-color);">*</span></label>
                         <input type="number" id="rebate-modal-value" placeholder="0.00">
                     </div>
                     <div class="input-group">
@@ -9273,7 +9273,7 @@
                     <div style="display: flex; gap: 15px;">
                         <div class="input-group" style="flex: 1;">
                             <label class="step-label" style="font-size: 0.9rem;">Price ($) <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <input type="number" id="acc-price" min="0" step="0.01" placeholder="0.00">
                         </div>
 
@@ -9343,13 +9343,13 @@
                         <div style="padding-top: 10px; border-top: 1px dashed var(--border-color);">
                             <div class="input-group" style="margin-bottom: 8px;">
                                 <label class="step-label" style="font-size: 0.9rem;">Title <span
-                                        style="color: magenta;">*</span></label>
+                                        style="color: var(--primary-color);">*</span></label>
                                 <input type="text" id="saved-today-desc" placeholder="e.g. Activation Fee Waived"
                                     style="font-size: 0.9rem;">
                             </div>
                             <label class="step-label"
                                 style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                                 <input type="number" id="saved-today-amount-input" min="0" step="0.01"
                                     placeholder="0.00" style="flex: 1; font-size: 0.9rem;">
@@ -9381,13 +9381,13 @@
                         <div style="padding-top: 10px; border-top: 1px dashed var(--border-color);">
                             <div class="input-group" style="margin-bottom: 8px;">
                                 <label class="step-label" style="font-size: 0.9rem;">Title <span
-                                        style="color: magenta;">*</span></label>
+                                        style="color: var(--primary-color);">*</span></label>
                                 <input type="text" id="due-today-desc" placeholder="e.g. DCC"
                                     style="font-size: 0.9rem;">
                             </div>
                             <label class="step-label"
                                 style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
-                                    style="color: magenta;">*</span></label>
+                                    style="color: var(--primary-color);">*</span></label>
                             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                                 <input type="number" id="due-today-amount" min="0" step="0.01" placeholder="0.00"
                                     style="flex: 1; font-size: 0.9rem;">
