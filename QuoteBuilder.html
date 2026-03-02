@@ -1422,6 +1422,43 @@
             margin: 0;
         }
 
+        @keyframes flashError {
+            0% {
+                border-color: var(--border-color);
+                background-color: white;
+            }
+
+            20% {
+                border-color: #e20074;
+                background-color: rgba(226, 0, 116, 0.05);
+            }
+
+            40% {
+                border-color: var(--border-color);
+                background-color: white;
+            }
+
+            60% {
+                border-color: #e20074;
+                background-color: rgba(226, 0, 116, 0.05);
+            }
+
+            80% {
+                border-color: var(--border-color);
+                background-color: white;
+            }
+
+            100% {
+                border-color: #e20074;
+                background-color: white;
+            }
+        }
+
+        .error-flash {
+            animation: flashError 0.6s ease-in-out;
+            border-color: #e20074 !important;
+        }
+
         /* CUSTOM SEARCHABLE DROPDOWN */
         .search-select-wrapper {
             position: relative;
@@ -3862,17 +3899,14 @@
         }
 
         .settings-section.dragging {
+            transition: none;
+            /* No transition on the element actively being dragged */
             opacity: 0.8;
-            background: #ffeef5;
-            border: 2px solid var(--primary-color);
+            background: #f9f9f9;
+            border: 1px solid var(--border-color);
             transform: scale(1.02);
-            box-shadow: 0 8px 25px rgba(226, 0, 116, 0.3);
-            z-index: 100;
-        }
-
-        .settings-section.drag-over {
-            border-color: var(--primary-color);
-            background: #fff0f7;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
         }
 
         .settings-section-title {
@@ -3909,6 +3943,28 @@
 
         .drag-handle:active {
             cursor: grabbing;
+        }
+
+        /* Fluent Drag and Drop Animations for Quotes */
+        .swipe-delete-wrapper {
+            transition: transform 0.3s cubic-bezier(0.2, 1, 0.2, 1);
+        }
+
+        .swipe-delete-wrapper.dragging {
+            transition: none;
+            /* No transition on the element being actively dragged */
+            opacity: 0.9;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            /* z-index handled in JS */
+        }
+
+        /* Create space when dragging over */
+        .swipe-delete-wrapper.drag-over-top {
+            transform: translateY(20px);
+        }
+
+        .swipe-delete-wrapper.drag-over-bottom {
+            transform: translateY(-20px);
         }
 
         .settings-row {
@@ -8053,6 +8109,43 @@
         .three-way-slider[data-position="2"] {
             left: calc(66.66% - 2px);
         }
+
+        /* Suggestion Carousels */
+        .suggestions-carousel-wrapper {
+            display: flex;
+            align-items: center;
+            padding-top: 6px;
+            padding-bottom: 4px;
+        }
+
+        .suggestions-carousel {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow-x: auto;
+            flex: 1;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+        }
+
+        .suggestions-carousel::-webkit-scrollbar {
+            display: none;
+            /* Safari and Chrome */
+        }
+
+        .suggestion-item {
+            font-size: 0.8rem;
+            color: #888;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .suggestion-item:hover {
+            color: var(--primary-color);
+        }
     </style>
 </head>
 
@@ -8477,7 +8570,8 @@
                     </div>
 
                     <div class="input-group">
-                        <label class="step-label" style="font-size: 0.9rem;">Retail Price ($)</label>
+                        <label class="step-label" style="font-size: 0.9rem;">Retail Price ($) <span
+                                style="color: magenta;">*</span></label>
                         <input type="number" id="modal-dev-cost" min="0" max="9999.99" step="0.01" placeholder="0.00">
                     </div>
 
@@ -8506,7 +8600,7 @@
                         <label class="step-label" style="font-size: 0.9rem;"><a
                                 href="https://www.t-mobile.com/devices/phone-trade-in" target="_blank"
                                 style="color: var(--primary-color); text-decoration: underline;">Fair Market Value
-                                (FMV)</a></label>
+                                (FMV)</a> <span style="color: magenta;">*</span></label>
                         <input type="number" id="modal-dev-fmv" min="0" step="0.01" placeholder="0.00">
                     </div>
 
@@ -8801,9 +8895,14 @@
                                         id="addon-form-subtitle">Add a new add-on:</p>
                                     <input type="hidden" id="addon-edit-index" value="">
                                     <div class="input-group" style="margin-bottom: 8px;">
+                                        <label class="step-label" style="font-size: 0.9rem;">Title <span
+                                                style="color: magenta;">*</span></label>
                                         <input type="text" id="addon-name-input" placeholder="e.g., Hotspot"
                                             style="font-size: 0.9rem;">
                                     </div>
+                                    <label class="step-label"
+                                        style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
+                                            style="color: magenta;">*</span></label>
                                     <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 10px;">
                                         <input type="number" id="addon-price-input" min="0" step="0.01"
                                             placeholder="Price ($)" style="flex: 1; font-size: 0.9rem;">
@@ -9035,11 +9134,13 @@
 
                     <div id="custom-disc-container" style="display: none;">
                         <div class="input-group">
-                            <label class="step-label" style="font-size: 0.9rem;">Discount Name</label>
+                            <label class="step-label" style="font-size: 0.9rem;">Discount Name <span
+                                    style="color: magenta;">*</span></label>
                             <input type="text" id="custom-disc-name" placeholder="e.g. Employee Discount">
                         </div>
                         <div class="input-group">
-                            <label class="step-label" style="font-size: 0.9rem;">Discount Type</label>
+                            <label class="step-label" style="font-size: 0.9rem;">Discount Type <span
+                                    style="color: magenta;">*</span></label>
                             <select id="custom-disc-type"
                                 style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; background: white;">
                                 <option value="Custom Flat">Flat Rate ($)</option>
@@ -9048,7 +9149,8 @@
                             </select>
                         </div>
                         <div class="input-group">
-                            <label class="step-label" style="font-size: 0.9rem;">Amount / Percentage</label>
+                            <label class="step-label" style="font-size: 0.9rem;">Amount / Percentage <span
+                                    style="color: magenta;">*</span></label>
                             <input type="number" id="custom-disc-amount" min="0" step="0.01" placeholder="0.00">
                         </div>
                         <div style="display: flex; gap: 10px; margin-top: 15px;">
@@ -9101,22 +9203,18 @@
                     <input type="hidden" id="rebate-row-id">
                     <input type="hidden" id="rebate-pill-selected" value="">
 
-                    <!-- Rebate Type Pills -->
-                    <div class="rebate-pills" style="display: flex; gap: 8px; width: 100%;">
-                        <div class="rebate-pill" style="flex: 1; text-align: center;" data-pill="Sam's Club"
-                            onclick="selectRebatePill(this, 'Sam\'s Club')">Sam's Club</div>
-                        <div class="rebate-pill" style="flex: 1; text-align: center;" data-pill="T-Mobile"
-                            onclick="selectRebatePill(this, 'T-Mobile')">T-Mobile</div>
-                        <div class="rebate-pill" style="flex: 1; text-align: center;" data-pill="Mastercard"
-                            onclick="selectRebatePill(this, 'Mastercard')">Mastercard</div>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="step-label">Rebate Name</label>
+                    <div class="input-group" style="margin-bottom: 15px;">
+                        <label class="step-label">Rebate Name <span style="color: magenta;">*</span></label>
                         <input type="text" id="rebate-modal-name" placeholder="e.g. Gift Card">
+                        <div class="suggestions-carousel-wrapper">
+                            <div
+                                style="color: #666; font-size: 0.8rem; user-select: none; cursor: default; margin-right: 8px;">
+                                Suggestions:</div>
+                            <div id="rebate-suggestions-carousel" class="suggestions-carousel"></div>
+                        </div>
                     </div>
                     <div class="input-group">
-                        <label class="step-label">Amount ($)</label>
+                        <label class="step-label">Amount ($) <span style="color: magenta;">*</span></label>
                         <input type="number" id="rebate-modal-value" placeholder="0.00">
                     </div>
                     <div class="input-group">
@@ -9149,17 +9247,7 @@
 
                     <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
 
-                    <!-- Accessory Preset Pills -->
-                    <div class="accessory-pills" style="display: flex; gap: 8px; width: 100%;">
-                        <div class="acc-pill" style="flex: 1; text-align: center;"
-                            onclick="selectAccessoryPill('Screen Protector')">Screen Protector</div>
-                        <div class="acc-pill" style="flex: 1; text-align: center;"
-                            onclick="selectAccessoryPill('Case')">Case</div>
-                        <div class="acc-pill" style="flex: 1; text-align: center;"
-                            onclick="selectAccessoryPill('Charger')">Charger</div>
-                    </div>
-
-                    <div class="input-group">
+                    <div class="input-group" style="margin-bottom: 15px;">
                         <label class="step-label" style="font-size: 0.9rem;">Accessory Name</label>
                         <div style="display: flex; gap: 8px;">
                             <input type="text" id="acc-name" placeholder="e.g. Screen Protector" style="flex: 1;"
@@ -9174,11 +9262,18 @@
                                 </svg>
                             </a>
                         </div>
+                        <div class="suggestions-carousel-wrapper">
+                            <div
+                                style="color: #666; font-size: 0.8rem; user-select: none; cursor: default; margin-right: 8px;">
+                                Suggestions:</div>
+                            <div id="acc-suggestions-carousel" class="suggestions-carousel"></div>
+                        </div>
                     </div>
 
                     <div style="display: flex; gap: 15px;">
                         <div class="input-group" style="flex: 1;">
-                            <label class="step-label" style="font-size: 0.9rem;">Price ($)</label>
+                            <label class="step-label" style="font-size: 0.9rem;">Price ($) <span
+                                    style="color: magenta;">*</span></label>
                             <input type="number" id="acc-price" min="0" step="0.01" placeholder="0.00">
                         </div>
 
@@ -9195,10 +9290,10 @@
                     <div class="input-group">
                         <label class="step-label" style="font-size: 0.9rem;">Payment Method</label>
                         <div class="tradein-toggle-group">
-                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance"
-                                onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
                             <button type="button" class="tradein-toggle-btn active" id="acc-payment-btn-today"
                                 onclick="setAccPaymentToggle('today')">Due Today</button>
+                            <button type="button" class="tradein-toggle-btn" id="acc-payment-btn-finance"
+                                onclick="setAccPaymentToggle('finance')">Finance (12 months)</button>
                         </div>
                         <input type="hidden" id="acc-payment-value" value="today">
                     </div>
@@ -9247,9 +9342,14 @@
                         <!-- Add saved today item form -->
                         <div style="padding-top: 10px; border-top: 1px dashed var(--border-color);">
                             <div class="input-group" style="margin-bottom: 8px;">
+                                <label class="step-label" style="font-size: 0.9rem;">Title <span
+                                        style="color: magenta;">*</span></label>
                                 <input type="text" id="saved-today-desc" placeholder="e.g. Activation Fee Waived"
                                     style="font-size: 0.9rem;">
                             </div>
+                            <label class="step-label"
+                                style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
+                                    style="color: magenta;">*</span></label>
                             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                                 <input type="number" id="saved-today-amount-input" min="0" step="0.01"
                                     placeholder="0.00" style="flex: 1; font-size: 0.9rem;">
@@ -9280,9 +9380,14 @@
                         <!-- Add due today item form -->
                         <div style="padding-top: 10px; border-top: 1px dashed var(--border-color);">
                             <div class="input-group" style="margin-bottom: 8px;">
+                                <label class="step-label" style="font-size: 0.9rem;">Title <span
+                                        style="color: magenta;">*</span></label>
                                 <input type="text" id="due-today-desc" placeholder="e.g. DCC"
                                     style="font-size: 0.9rem;">
                             </div>
+                            <label class="step-label"
+                                style="font-size: 0.9rem; margin-bottom: 4px; display: block;">Amount <span
+                                    style="color: magenta;">*</span></label>
                             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                                 <input type="number" id="due-today-amount" min="0" step="0.01" placeholder="0.00"
                                     style="flex: 1; font-size: 0.9rem;">
@@ -12687,6 +12792,9 @@
         // Settings Section Drag Functionality
         let sectionDraggedItem = null;
         let sectionDragStartY = 0;
+        let sectionDragSiblings = [];
+        let sectionDraggedIndex = -1;
+        let sectionDraggedHeight = 0;
 
         function initSettingsSectionDrag() {
             const settingsBody = document.getElementById('settings-body');
@@ -12718,8 +12826,24 @@
         function startSectionDrag(e, section) {
             sectionDraggedItem = section;
             sectionDragStartY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
             section.classList.add('dragging');
-            section.style.zIndex = '100';
+            section.style.zIndex = '1000';
+            section.style.position = 'relative';
+
+            const settingsBody = document.getElementById('settings-body');
+            const sections = Array.from(settingsBody.querySelectorAll('.draggable-section'));
+
+            sectionDraggedIndex = sections.indexOf(section);
+            sectionDraggedHeight = section.offsetHeight + 25; // Including margin-bottom
+
+            sectionDragSiblings = sections.map(s => {
+                const rect = s.getBoundingClientRect();
+                return {
+                    section: s,
+                    centerY: rect.top + (rect.height / 2)
+                };
+            });
         }
 
         function moveSectionDrag(e) {
@@ -12731,19 +12855,27 @@
 
             const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             const deltaY = currentY - sectionDragStartY;
-            sectionDraggedItem.style.transform = `translateY(${deltaY}px)`;
+            // The dragged item scales and drops slightly so we don't clobber the inline scale from CSS if possible, but the transform overrides it.
+            // A quick fix is to include the scale(1.02) usually set in CSS
+            sectionDraggedItem.style.transform = `translateY(${deltaY}px) scale(1.02)`;
 
-            // Find potential drop target
-            const settingsBody = document.getElementById('settings-body');
-            const sections = settingsBody.querySelectorAll('.draggable-section');
+            if (sectionDraggedIndex < 0 || !sectionDragSiblings || sectionDragSiblings.length === 0 || !sectionDragSiblings[sectionDraggedIndex]) return;
 
-            sections.forEach(section => {
-                if (section === sectionDraggedItem) return;
-                section.classList.remove('drag-over');
+            const draggedCurrentCenter = sectionDragSiblings[sectionDraggedIndex].centerY + deltaY;
 
-                const rect = section.getBoundingClientRect();
-                if (currentY > rect.top && currentY < rect.bottom) {
-                    section.classList.add('drag-over');
+            sectionDragSiblings.forEach((sib, index) => {
+                if (index === sectionDraggedIndex) return;
+
+                const section = sib.section;
+                section.classList.remove('drag-over-top', 'drag-over-bottom');
+                section.style.transform = '';
+
+                if (index < sectionDraggedIndex && draggedCurrentCenter < sib.centerY) {
+                    section.classList.add('drag-over-top');
+                    section.style.transform = `translateY(${sectionDraggedHeight}px)`;
+                } else if (index > sectionDraggedIndex && draggedCurrentCenter > sib.centerY) {
+                    section.classList.add('drag-over-bottom');
+                    section.style.transform = `translateY(-${sectionDraggedHeight}px)`;
                 }
             });
         }
@@ -12751,45 +12883,45 @@
         function endSectionDrag(e) {
             if (!sectionDraggedItem) return;
 
-            const currentY = e.type.includes('touch')
-                ? (e.changedTouches ? e.changedTouches[0].clientY : 0)
-                : e.clientY;
-
             const settingsBody = document.getElementById('settings-body');
             const sections = Array.from(settingsBody.querySelectorAll('.draggable-section'));
 
-            // Find drop target
-            let targetSection = null;
-            let insertBefore = true;
+            let dropIndex = sectionDraggedIndex;
 
-            sections.forEach(section => {
+            sections.forEach((section, index) => {
                 if (section === sectionDraggedItem) return;
-                section.classList.remove('drag-over');
 
-                const rect = section.getBoundingClientRect();
-                if (currentY > rect.top && currentY < rect.bottom) {
-                    targetSection = section;
-                    const sectionCenter = rect.top + rect.height / 2;
-                    insertBefore = currentY < sectionCenter;
+                if (section.classList.contains('drag-over-top')) {
+                    dropIndex = Math.min(dropIndex, index);
+                } else if (section.classList.contains('drag-over-bottom')) {
+                    dropIndex = Math.max(dropIndex, index);
                 }
+
+                section.classList.remove('drag-over-top', 'drag-over-bottom');
+                section.style.transform = '';
             });
 
-            // Reorder if valid target
-            if (targetSection) {
-                if (insertBefore) {
-                    settingsBody.insertBefore(sectionDraggedItem, targetSection);
+            if (dropIndex !== sectionDraggedIndex) {
+                settingsBody.removeChild(sectionDraggedItem);
+
+                const currentSiblings = Array.from(settingsBody.querySelectorAll('.draggable-section'));
+
+                if (dropIndex < currentSiblings.length) {
+                    settingsBody.insertBefore(sectionDraggedItem, currentSiblings[dropIndex]);
                 } else {
-                    settingsBody.insertBefore(sectionDraggedItem, targetSection.nextSibling);
+                    settingsBody.appendChild(sectionDraggedItem);
                 }
-                // Save the new section order
+
                 saveSectionOrder();
             }
 
-            // Reset styles
             sectionDraggedItem.classList.remove('dragging');
             sectionDraggedItem.style.transform = '';
             sectionDraggedItem.style.zIndex = '';
+            sectionDraggedItem.style.position = '';
+
             sectionDraggedItem = null;
+            sectionDragSiblings = [];
         }
 
         function saveSectionOrder() {
@@ -13107,9 +13239,10 @@
                 quotes: []
             };
 
-            // Save each row
-            Object.keys(STATE).forEach(rowId => {
-                const row = document.getElementById(rowId);
+            // Save each row in its actual DOM order so reordered quotes stay reordered
+            Array.from(document.querySelectorAll('#rows-container .calculator-row')).forEach(row => {
+                const rowId = row.id;
+                if (!STATE[rowId]) return;
                 const isManualMode = row?.getAttribute('data-mode') === 'existing';
                 const titleInput = document.getElementById(`${rowId}-quote-title`);
                 const notesTextarea = document.getElementById(`${rowId}-notes`);
@@ -13790,18 +13923,24 @@
         function saveAddon() {
             const rowId = document.getElementById('plan-modal-row-id').value;
             let name = document.getElementById('addon-name-input').value.trim();
-            const price = parseFloat(document.getElementById('addon-price-input').value) || 0;
+            const priceStr = document.getElementById('addon-price-input').value;
             let amount = parseInt(document.getElementById('addon-amount-input').value) || 1;
             const editIndex = document.getElementById('addon-edit-index').value;
 
-            // Default name if empty
             if (!name) {
-                name = 'Add-On';
+                flashInputError('addon-name-input');
+                return;
             }
+            if (priceStr === '') {
+                flashInputError('addon-price-input');
+                return;
+            }
+
+            const price = parseFloat(priceStr) || 0;
 
             // Validate price
             if (price <= 0) {
-                alert('Please enter a valid price');
+                flashInputError('addon-price-input');
                 return;
             }
 
@@ -14322,7 +14461,19 @@
                         <div class="row-actions-left">
                             <input type="text" class="quote-title-input" id="${rowId}-quote-title" value="Quote ${currentRowCount}" placeholder="Quote Title" oninput="autoResizeQuoteTitle('${rowId}')" onchange="updateQuoteTitle('${rowId}', this.value)">
                         </div>
-                        <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">Plan Benefits</button>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <button class="btn btn-secondary btn-action" onclick="goToCompareWithPlan('${rowId}')">Plan Benefits</button>
+                            <div class="drag-handle quote-drag-handle" title="Drag to reorder" style="padding: 4px; display: flex; align-items: center;" id="${rowId}-drag-handle">
+                                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row-contact-info" id="${rowId}-contact-info">
@@ -14488,6 +14639,11 @@
             swipeWrapper.appendChild(rowDiv);
             container.appendChild(swipeWrapper);
             initSwipeToDelete(rowDiv, rowId);
+
+            const dragHandle = rowDiv.querySelector('.quote-drag-handle');
+            if (dragHandle) {
+                initQuoteDrag(dragHandle, swipeWrapper);
+            }
 
             // Find the correct container for extra sections
             let extrasContainer;
@@ -15727,8 +15883,15 @@
                 const remaining = Math.max(0, UNDO_DURATION - elapsed);
                 const pct = remaining / UNDO_DURATION;
 
-                // Shrink the fill bar from right
-                if (progressFill) progressFill.style.transform = `scaleX(${pct})`;
+                // Shrink the fill bar from right and animate color
+                if (progressFill) {
+                    progressFill.style.transform = `scaleX(${pct})`;
+                    // Interpolate from light magenta (#f26ea4) at start (pct=1) to normal magenta (#E20074) at end (pct=0)
+                    const r = Math.round(226 + pct * (242 - 226));
+                    const g = Math.round(0 + pct * (110 - 0));
+                    const b = Math.round(116 + pct * (164 - 116));
+                    progressFill.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+                }
 
                 // Compute the absolute X position of the bar's right edge
                 const cardRect = undoCard ? undoCard.getBoundingClientRect() : null;
@@ -16694,6 +16857,32 @@
         function closeModal() { document.getElementById('device-modal').classList.remove('open'); }
 
         let _saveDeviceDebounce = 0;
+
+        function flashInputError(inputId) {
+            const el = document.getElementById(inputId);
+            if (!el) return;
+            el.classList.remove('error-flash');
+            void el.offsetWidth; // Trigger reflow
+            el.classList.add('error-flash');
+            el.focus();
+
+            function removeError() {
+                el.classList.remove('error-flash');
+                el.removeEventListener('input', removeError);
+                el.removeEventListener('blur', removeError);
+                if (el.tagName === 'SELECT') {
+                    el.removeEventListener('change', removeError);
+                }
+            }
+
+            el.addEventListener('input', removeError, { once: true });
+            el.addEventListener('blur', removeError, { once: true });
+
+            if (el.tagName === 'SELECT') {
+                el.addEventListener('change', removeError, { once: true });
+            }
+        }
+
         function saveDevice() {
             // Debounce - prevent double execution within 500ms
             const now = Date.now();
@@ -16711,7 +16900,12 @@
 
             // Capture all values from form immediately
             let label = document.getElementById('modal-dev-label').value.trim();
-            const cost = Math.min(parseFloat(document.getElementById('modal-dev-cost').value) || 0, 9999.99);
+            const costStr = document.getElementById('modal-dev-cost').value;
+            if (costStr === '') {
+                flashInputError('modal-dev-cost');
+                return;
+            }
+            const cost = Math.min(parseFloat(costStr) || 0, 9999.99);
             const down = Math.min(parseFloat(document.getElementById('modal-dev-down').value) || 0, 9999.99);
             const promo = Math.min(parseFloat(document.getElementById('modal-dev-promo').value) || 0, 9999.99);
             let fmv = 0;
@@ -16719,7 +16913,12 @@
             const tradeValue = document.getElementById('modal-trade-value').value;
             const isTrade = tradeValue === 'yes';
             if (isTrade) {
-                fmv = Math.min(parseFloat(document.getElementById('modal-dev-fmv').value) || 0, 9999.99);
+                const fmvStr = document.getElementById('modal-dev-fmv').value;
+                if (fmvStr === '') {
+                    flashInputError('modal-dev-fmv');
+                    return;
+                }
+                fmv = Math.min(parseFloat(fmvStr) || 0, 9999.99);
                 tradeinName = document.getElementById('modal-dev-tradein-name').value.trim();
             }
 
@@ -19631,14 +19830,20 @@
             const rowId = document.getElementById('disc-row-id').value;
             const name = document.getElementById('custom-disc-name').value.trim();
             const type = document.getElementById('custom-disc-type').value;
-            const amount = parseFloat(document.getElementById('custom-disc-amount').value);
+            const amountStr = document.getElementById('custom-disc-amount').value;
 
             if (!name) {
-                alert("Please enter a discount name.");
+                flashInputError('custom-disc-name');
                 return;
             }
+            if (amountStr === '') {
+                flashInputError('custom-disc-amount');
+                return;
+            }
+
+            const amount = parseFloat(amountStr);
             if (isNaN(amount) || amount <= 0) {
-                alert("Please enter a valid amount.");
+                flashInputError('custom-disc-amount');
                 return;
             }
 
@@ -19690,6 +19895,35 @@
             else w.classList.remove('print-hidden');
         }
 
+        // --- SUGGESTION CAROUSELS ---
+        // Easily add or remove name suggestions here. 
+        // Format: { label: "What appears on the carousel", value: "What it fills the textbox with" }
+        const rebateSuggestions = [
+            { label: "Sam's Club", value: "Sam's Club Gift Card" },
+            { label: "Sam's Club Plus Up", value: "Sam's Club Plus Up (Yearly)" },
+            { label: "T-Mobile", value: "T-Mobile Prepaid Card" },
+            { label: "Mastercard", value: "Prepaid Mastercard" },
+
+        ];
+
+        const accessorySuggestions = [
+            { label: "Screen Protector", value: "Screen Protector" },
+            { label: "Case", value: "Case" },
+            { label: "Camera Protector", value: "Camera Protector" },
+            { label: "Charging Block", value: "Charging Block" },
+            { label: "Charging Cable", value: "Charging Cable" },
+            { label: "Wireless Charger", value: "Wireless Charger" },
+            { label: "Headphones", value: "Headphones" }
+        ];
+
+        function renderSuggestionCarousel(containerId, inputId, suggestions, clickCallback) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = suggestions.map(s =>
+                `<div class="suggestion-item" onclick="document.getElementById('${inputId}').value = '${s.value.replace(/'/g, "\\'")}'; ${clickCallback ? clickCallback + '();' : ''}">${s.label}</div>`
+            ).join('<div style="color: #ccc; font-size: 0.8rem; user-select: none;">|</div>');
+        }
+
         // --- REBATE MODAL LOGIC ---
         function openRebateModal(rowId) {
             // Check if button is disabled
@@ -19698,32 +19932,13 @@
 
             document.getElementById('rebate-row-id').value = rowId;
             document.getElementById('rebate-pill-selected').value = '';
-            // Reset pills
-            document.querySelectorAll('.rebate-pill').forEach(p => p.classList.remove('active'));
             document.getElementById('rebate-modal-name').value = '';
             document.getElementById('rebate-modal-value').value = '';
             document.getElementById('rebate-modal-count').value = '1';
-            document.getElementById('rebate-modal').classList.add('open');
-        }
 
-        function selectRebatePill(el, pillValue) {
-            const nameInput = document.getElementById('rebate-modal-name');
-            // Toggle off if already selected
-            if (el.classList.contains('active')) {
-                el.classList.remove('active');
-                document.getElementById('rebate-pill-selected').value = '';
-                // Clear the name if it matches the pill value
-                if (nameInput.value === pillValue) {
-                    nameInput.value = '';
-                }
-            } else {
-                // Deselect all, select this one
-                document.querySelectorAll('.rebate-pill').forEach(p => p.classList.remove('active'));
-                el.classList.add('active');
-                document.getElementById('rebate-pill-selected').value = pillValue;
-                // Auto-fill the rebate name
-                nameInput.value = pillValue;
-            }
+            renderSuggestionCarousel('rebate-suggestions-carousel', 'rebate-modal-name', rebateSuggestions);
+
+            document.getElementById('rebate-modal').classList.add('open');
         }
 
         function closeRebateModal() {
@@ -19740,32 +19955,26 @@
         function saveRebateItem() {
             const rowId = document.getElementById('rebate-row-id').value;
             let name = document.getElementById('rebate-modal-name').value.trim();
-            const pillValue = document.getElementById('rebate-pill-selected').value;
-            const val = parseFloat(document.getElementById('rebate-modal-value').value) || 0;
+            const valStr = document.getElementById('rebate-modal-value').value;
             const count = parseInt(document.getElementById('rebate-modal-count').value) || 1;
 
-            // Handle rebate name with pill value
-            // If pill is selected and name is exactly the pill value (not modified), add "Gift Card"
-            // If name was modified by user, use it as-is (user already included what they want)
-            if (pillValue && name === pillValue) {
-                // User selected pill but didn't modify the auto-filled name
-                name = `${pillValue} Gift Card`;
-            } else if (!name && pillValue) {
-                // No name entered but pill selected
-                name = `${pillValue} Gift Card`;
+            if (!name) {
+                flashInputError('rebate-modal-name');
+                return;
             }
-            // Otherwise use the name as-is (user entered custom name)
+            if (valStr === '') {
+                flashInputError('rebate-modal-value');
+                return;
+            }
 
-            if (name) {
-                STATE[rowId].rebates.push({ name: name, value: val, count: count });
-                renderRebateList(rowId);
-                calculateRow(rowId);
-            }
+            const val = parseFloat(valStr) || 0;
+
+            STATE[rowId].rebates.push({ name: name, value: val, count: count });
+            renderRebateList(rowId);
+            calculateRow(rowId);
             document.getElementById('rebate-modal-name').value = '';
             document.getElementById('rebate-modal-value').value = '';
             document.getElementById('rebate-modal-count').value = '1';
-            document.getElementById('rebate-pill-selected').value = '';
-            document.querySelectorAll('.rebate-pill').forEach(p => p.classList.remove('active'));
 
             closeRebateModal();
         }
@@ -19796,8 +20005,9 @@
             document.getElementById('acc-price').value = '';
             document.getElementById('acc-qty').value = '1';
             setAccPaymentToggle('today');
-            // Clear pill selections
-            document.querySelectorAll('.acc-pill').forEach(p => p.classList.remove('active'));
+
+            renderSuggestionCarousel('acc-suggestions-carousel', 'acc-name', accessorySuggestions, 'toggleAccSearchBtn');
+
             renderAccessoriesModalList(rowId);
             document.getElementById('accessories-modal').classList.add('open');
         }
@@ -19818,24 +20028,17 @@
             input.value = val;
         }
 
-        function selectAccessoryPill(name) {
-            // Set the accessory name input
-            document.getElementById('acc-name').value = name;
-            toggleAccSearchBtn();
-            // Toggle active state on pills
-            document.querySelectorAll('.acc-pill').forEach(p => {
-                if (p.textContent === name) {
-                    p.classList.add('active');
-                } else {
-                    p.classList.remove('active');
-                }
-            });
-        }
-
         function saveAccessoryItem() {
             const rowId = document.getElementById('acc-row-id').value;
             let name = document.getElementById('acc-name').value.trim();
-            const price = parseFloat(document.getElementById('acc-price').value) || 0;
+            const priceStr = document.getElementById('acc-price').value;
+
+            if (priceStr === '') {
+                flashInputError('acc-price');
+                return;
+            }
+
+            const price = parseFloat(priceStr) || 0;
             const qty = parseInt(document.getElementById('acc-qty').value) || 1;
             const paymentMethod = document.getElementById('acc-payment-value').value;
 
@@ -19851,11 +20054,10 @@
                 paymentMethod: paymentMethod // 'finance' or 'today'
             });
 
-            // Clear inputs and pills
+            // Clear inputs
             document.getElementById('acc-name').value = '';
             document.getElementById('acc-price').value = '';
             document.getElementById('acc-qty').value = '1';
-            document.querySelectorAll('.acc-pill').forEach(p => p.classList.remove('active'));
 
             renderAccessoriesModalList(rowId);
             renderDeviceList(rowId);
@@ -19962,13 +20164,19 @@
         function addDueTodayItem() {
             const rowId = document.getElementById('due-today-row-id').value;
             const description = document.getElementById('due-today-desc').value.trim();
-            const amount = parseFloat(document.getElementById('due-today-amount').value) || 0;
+            const amountStr = document.getElementById('due-today-amount').value;
             const quantity = parseInt(document.getElementById('due-today-qty').value) || 1;
 
-            if (!description || amount <= 0) {
-                alert('Please enter a description and amount');
+            if (!description) {
+                flashInputError('due-today-desc');
                 return;
             }
+            if (amountStr === '') {
+                flashInputError('due-today-amount');
+                return;
+            }
+
+            const amount = parseFloat(amountStr) || 0;
 
             STATE[rowId].dueTodayItems.push({ description, amount, quantity });
 
@@ -20041,13 +20249,19 @@
         function addSavedTodayItem() {
             const rowId = document.getElementById('due-today-row-id').value;
             const description = document.getElementById('saved-today-desc').value.trim();
-            const amount = parseFloat(document.getElementById('saved-today-amount-input').value) || 0;
+            const amountStr = document.getElementById('saved-today-amount-input').value;
             const quantity = parseInt(document.getElementById('saved-today-qty').value) || 1;
 
-            if (!description || amount <= 0) {
-                alert('Please enter a description and amount');
+            if (!description) {
+                flashInputError('saved-today-desc');
                 return;
             }
+            if (amountStr === '') {
+                flashInputError('saved-today-amount-input');
+                return;
+            }
+
+            const amount = parseFloat(amountStr) || 0;
 
             if (!STATE[rowId].savedTodayItems) {
                 STATE[rowId].savedTodayItems = [];
@@ -22495,6 +22709,175 @@
             // Update default benefits slider visibility
             toggleDefaultBenefitsSwitch();
         }
+
+        // --- QUOTE ROW DRAG AND DROP ---
+        let quoteDraggedItem = null;
+        let quoteDragStartY = 0;
+        let quoteDragSiblings = [];
+        let quoteDraggedIndex = -1;
+        let quoteDraggedHeight = 0;
+        let quoteDragScrollActive = false;
+        let lastQuoteDragClientY = 0;
+
+        function initQuoteDrag(handle, wrapper) {
+            handle.addEventListener('mousedown', (e) => startQuoteDrag(e, wrapper));
+            handle.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Prevent scrolling while holding the handle
+                startQuoteDrag(e, wrapper);
+            }, { passive: false });
+        }
+
+        function startQuoteDrag(e, wrapper) {
+            quoteDraggedItem = wrapper;
+            quoteDragStartY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            lastQuoteDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+            wrapper.classList.add('dragging');
+            // Provide visual feedback for drag over other elements
+            wrapper.style.zIndex = '1000';
+            wrapper.style.position = 'relative';
+
+            const container = document.getElementById('rows-container');
+            const wrappers = Array.from(container.querySelectorAll('.swipe-delete-wrapper'));
+
+            quoteDraggedIndex = wrappers.indexOf(wrapper);
+            quoteDraggedHeight = wrapper.offsetHeight;
+
+            // Cache the original static positions before we start transforming things
+            quoteDragSiblings = wrappers.map(w => {
+                const rect = w.getBoundingClientRect();
+                return {
+                    wrapper: w,
+                    // Store document-relative center
+                    centerY: rect.top + window.scrollY + (rect.height / 2)
+                };
+            });
+
+            if (!quoteDragScrollActive) {
+                quoteDragScrollActive = true;
+                requestAnimationFrame(autoScrollQuoteDrag);
+            }
+        }
+
+        function checkQuoteDragSiblings(deltaY) {
+            if (quoteDraggedIndex < 0 || !quoteDragSiblings || quoteDragSiblings.length === 0 || !quoteDragSiblings[quoteDraggedIndex]) return;
+
+            const draggedCurrentCenter = quoteDragSiblings[quoteDraggedIndex].centerY + deltaY;
+
+            quoteDragSiblings.forEach((sib, index) => {
+                if (index === quoteDraggedIndex) return;
+
+                const wrapper = sib.wrapper;
+                wrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+                // Reset inline transform first
+                wrapper.style.transform = '';
+
+                // Compare our math against the cached, untransformed layout
+                if (index < quoteDraggedIndex && draggedCurrentCenter < sib.centerY) {
+                    wrapper.classList.add('drag-over-top');
+                    wrapper.style.transform = `translateY(${quoteDraggedHeight}px)`;
+                } else if (index > quoteDraggedIndex && draggedCurrentCenter > sib.centerY) {
+                    wrapper.classList.add('drag-over-bottom');
+                    wrapper.style.transform = `translateY(-${quoteDraggedHeight}px)`;
+                }
+            });
+        }
+
+        function autoScrollQuoteDrag() {
+            if (!quoteDragScrollActive || !quoteDraggedItem) return;
+
+            const threshold = 60;
+            const maxSpeed = 15;
+            let scrolled = false;
+
+            if (lastQuoteDragClientY < threshold) {
+                window.scrollBy(0, -maxSpeed);
+                scrolled = true;
+            } else if (lastQuoteDragClientY > window.innerHeight - threshold) {
+                window.scrollBy(0, maxSpeed);
+                scrolled = true;
+            }
+
+            if (scrolled) {
+                const currentY = lastQuoteDragClientY + window.scrollY;
+                const deltaY = currentY - quoteDragStartY;
+                quoteDraggedItem.style.transform = `translateY(${deltaY}px)`;
+                checkQuoteDragSiblings(deltaY);
+            }
+
+            requestAnimationFrame(autoScrollQuoteDrag);
+        }
+
+        function moveQuoteDrag(e) {
+            if (!quoteDraggedItem) return;
+
+            if (e.type === 'touchmove') {
+                e.preventDefault(); // Prevent scrolling while dragging
+            }
+
+            lastQuoteDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const currentY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            const deltaY = currentY - quoteDragStartY;
+            // Restrict movement to vertical (Y) only
+            quoteDraggedItem.style.transform = `translateY(${deltaY}px)`;
+
+            checkQuoteDragSiblings(deltaY);
+        }
+
+        function endQuoteDrag(e) {
+            quoteDragScrollActive = false;
+            if (!quoteDraggedItem) return;
+
+            const container = document.getElementById('rows-container');
+            const wrappers = Array.from(container.querySelectorAll('.swipe-delete-wrapper'));
+
+            let dropIndex = quoteDraggedIndex;
+
+            // Find the active drop position based on the transform classes applied during move
+            wrappers.forEach((wrapper, index) => {
+                if (wrapper === quoteDraggedItem) return;
+
+                if (wrapper.classList.contains('drag-over-top')) {
+                    // This sibling moved DOWN to make space, so we drop ABOVE it
+                    dropIndex = Math.min(dropIndex, index);
+                } else if (wrapper.classList.contains('drag-over-bottom')) {
+                    // This sibling moved UP to make space, so we drop BELOW it
+                    dropIndex = Math.max(dropIndex, index);
+                }
+
+                wrapper.classList.remove('drag-over-top', 'drag-over-bottom');
+                wrapper.style.transform = '';
+            });
+
+            // If we actually moved to a new slot
+            if (dropIndex !== quoteDraggedIndex) {
+                // Remove from old position naturally
+                container.removeChild(quoteDraggedItem);
+
+                // Re-fetch current siblings array (now missing our dragged item)
+                const currentSiblings = Array.from(container.querySelectorAll('.swipe-delete-wrapper'));
+
+                if (dropIndex < currentSiblings.length) {
+                    container.insertBefore(quoteDraggedItem, currentSiblings[dropIndex]);
+                } else {
+                    container.appendChild(quoteDraggedItem);
+                }
+            }
+
+            // Reset styles
+            quoteDraggedItem.classList.remove('dragging');
+            quoteDraggedItem.style.transform = '';
+            quoteDraggedItem.style.zIndex = '';
+            quoteDraggedItem.style.position = '';
+
+            quoteDraggedItem = null;
+            quoteDragSiblings = [];
+        }
+
+        document.addEventListener('mousemove', moveQuoteDrag);
+        document.addEventListener('mouseup', endQuoteDrag);
+        document.addEventListener('touchmove', moveQuoteDrag, { passive: false });
+        document.addEventListener('touchend', endQuoteDrag);
     </script>
 
     <!-- SECRET PASSWORD MODAL -->
