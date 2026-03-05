@@ -1349,12 +1349,46 @@
 
         .floating-buttons-container {
             position: fixed;
-            bottom: 30px;
+            bottom: max(30px, env(safe-area-inset-bottom, 30px));
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate3d(-50%, 0, 0);
             display: flex;
             gap: 12px;
             z-index: 999;
+        }
+
+        @keyframes bubblePop {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translateY(20px);
+            }
+
+            60% {
+                opacity: 1;
+                transform: scale(1.05) translateY(-5px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes bubblePopOut {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1.05) translateY(-5px);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translateY(20px);
+            }
         }
 
         .btn-export-pdf {
@@ -1366,12 +1400,20 @@
             font-size: 1rem;
             border-radius: 50px;
             padding: 14px 30px;
-            transition: background-color 0.2s, box-shadow 0.2s;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s;
+            animation: bubblePop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            opacity: 0;
+            /* Starts hidden for animation */
+        }
+
+        .btn-export-pdf.hide-anim {
+            animation: bubblePopOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
         .btn-export-pdf:hover {
             background-color: var(--primary-hover);
             box-shadow: 0 8px 25px rgba(226, 0, 116, 0.5);
+            transform: scale(1.03);
         }
 
         /* CUSTOM STEPPER */
@@ -1414,11 +1456,13 @@
             font-size: 1.1rem;
             height: 46px;
             -moz-appearance: textfield;
+            appearance: textfield;
         }
 
         .stepper-input::-webkit-outer-spin-button,
         .stepper-input::-webkit-inner-spin-button {
             -webkit-appearance: none;
+            appearance: none;
             margin: 0;
         }
 
@@ -1977,8 +2021,6 @@
         .calculator-row.active-dropdown {
             z-index: 100 !important;
         }
-
-        .calculator-row[data-row-index="1"][data-mode="existing"] {}
 
         .calculator-row[data-row-index="1"][data-mode="existing"] .row-title {
             color: var(--primary-color);
@@ -2757,8 +2799,6 @@
             flex-direction: column;
             align-items: center;
         }
-
-        .total-block.secondary-block {}
 
         .total-label {
             font-size: 0.8rem;
@@ -4202,6 +4242,7 @@
             -webkit-text-fill-color: var(--text-main);
             -webkit-tap-highlight-color: transparent;
             -webkit-appearance: none;
+            appearance: none;
         }
 
         .discount-btn-option:hover {
@@ -4501,11 +4542,13 @@
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
+            appearance: none;
             margin: 0;
         }
 
         input[type="number"] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
 
         /* Options text styling */
@@ -6906,8 +6949,6 @@
                 flex-direction: column !important;
             }
 
-            .total-block.secondary-block {}
-
             .total-block.hidden {
                 display: none !important;
             }
@@ -8316,6 +8357,7 @@
         <!-- Settings Overlay -->
         <div id="settings-overlay" class="settings-overlay" onclick="closeSettingsSidebar()"></div>
 
+
         <!-- Settings Modal (Rules) -->
         <div id="settings-sidebar" class="settings-sidebar">
             <div class="settings-header">
@@ -8327,11 +8369,62 @@
                 <button class="settings-close" onclick="closeSettingsSidebar()">×</button>
             </div>
             <div class="settings-body" id="settings-body">
+
+                <!-- Price Adjustments -->
+                <div class="settings-section draggable-section" data-section-id="price-adjustments">
+                    <div class="settings-section-title">
+                        Price Adjustments
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Add unlisted manual
+                        adjustments to all quotes</p>
+                    <div class="settings-row">
+                        <input type="text" id="adjustment-name" class="settings-input" placeholder="Adjustment name">
+                    </div>
+                    <div class="settings-row" style="display: flex; gap: 8px;">
+                        <input type="number" id="adjustment-value" class="settings-input" placeholder="($) Amount"
+                            style="flex: 1; text-align: left;">
+                        <select id="adjustment-type" class="settings-select" style="flex: 1;">
+                            <option value="per-line">Per Line</option>
+                            <option value="per-device">Per Device</option>
+                            <option value="one-time">Flat Rate</option>
+                            <option value="percent">Percent</option>
+                        </select>
+                    </div>
+                    <div class="settings-row">
+                        <button class="settings-btn" onclick="addGlobalAdjustment()" style="width: 100%;">Add
+                            Adjustment</button>
+                    </div>
+                    <div id="adjustment-list" class="adjustment-list"></div>
+                </div>
+
                 <!-- Show Itemized Device List -->
                 <div class="settings-section draggable-section" data-section-id="itemized-prices">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Show Itemized Prices
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Control which items
                         show prices</p>
@@ -8386,39 +8479,22 @@
                     </div>
                 </div>
 
-                <!-- Price Adjustments -->
-                <div class="settings-section draggable-section" data-section-id="price-adjustments">
-                    <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
-                        Price Adjustments
-                    </div>
-                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Add unlisted manual
-                        adjustments to all quotes</p>
-                    <div class="settings-row">
-                        <input type="text" id="adjustment-name" class="settings-input" placeholder="Adjustment name">
-                    </div>
-                    <div class="settings-row" style="display: flex; gap: 8px;">
-                        <input type="number" id="adjustment-value" class="settings-input" placeholder="($) Amount"
-                            style="flex: 1;">
-                        <select id="adjustment-type" class="settings-select" style="flex: 1;">
-                            <option value="per-line">Per Line</option>
-                            <option value="per-device">Per Device</option>
-                            <option value="one-time">Flat Rate</option>
-                            <option value="percent">Percent</option>
-                        </select>
-                    </div>
-                    <div class="settings-row">
-                        <button class="settings-btn" onclick="addGlobalAdjustment()" style="width: 100%;">Add
-                            Adjustment</button>
-                    </div>
-                    <div id="adjustment-list" class="adjustment-list"></div>
-                </div>
-
                 <!-- Retail Price Visibility -->
                 <div class="settings-section draggable-section" data-section-id="retail-visibility">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Retail Price Visibility
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Show retail prices
                         on added items</p>
@@ -8453,8 +8529,19 @@
                 <!-- Total Rounding -->
                 <div class="settings-section draggable-section" data-section-id="total-rounding">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Total Rounding
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Round final totals
                         up or down</p>
@@ -8475,8 +8562,19 @@
                 <!-- Combine Identical Devices -->
                 <div class="settings-section draggable-section" data-section-id="combine-devices">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Combine Identical Devices
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Group identical
                         devices together when printed (Example: "iPhone 17 x3")</p>
@@ -8494,8 +8592,19 @@
                 <!-- Compare Page Prices -->
                 <div class="settings-section draggable-section" data-section-id="compare-prices">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Compare Page Prices
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Show itemized
                         prices on the quote comparison page</p>
@@ -8513,8 +8622,19 @@
                 <!-- Store Address -->
                 <div class="settings-section draggable-section" data-section-id="store-address">
                     <div class="settings-section-title">
-                        <span class="drag-handle">⋮⋮</span>
                         Store Address
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
                     </div>
                     <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Address to display
                         on printed quotes</p>
@@ -8964,26 +9084,39 @@
                     <!-- Quick Links Tab Content -->
                     <div id="prot-quicklinks-content" class="prot-tab-content" style="display: none;">
                         <div style="display: flex; flex-direction: column; gap: 12px; padding: 10px 0;">
-                            <a href="https://magentapulse.t-mobile.com/us/en/customer-support/device-programs/device-protection"
-                                target="_blank"
+                            <a href="https://mytmoclaim.com/nwbrochure" target="_blank"
                                 style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
                                 onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(226,0,116,0.04)';"
                                 onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='var(--card-bg)';">
-                                Protection Info
+                                P360 Benefits
                             </a>
                             <a href="https://cts.assurant.com/ctsclient/tmo/devicereplacementcalc/default.aspx"
                                 target="_blank"
                                 style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
                                 onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(226,0,116,0.04)';"
                                 onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='var(--card-bg)';">
-                                Savings Calculator
+                                P360 Savings Calculator
                             </a>
-                            <a href="https://apps.powerapps.com/play/e/268196d3-978e-ed6b-bed3-cdc126efdf1e/a/818532cd-f871-4802-b48c-e73c79a7ff66?tenantId=be0f980b-dd99-4b19-bd7b-bc71a09b026c&hint=e15157be-0453-49c6-83f2-900436809369&sourcetime=1767644115251&source=portal#"
+                            <a href="https://magentapulse.t-mobile.com/us/en/customer-support/device-programs/device-protection"
+                                target="_blank"
+                                style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(226,0,116,0.04)';"
+                                onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='var(--card-bg)';">
+                                Protection Info Overview
+                            </a>
+                            <a href="https://apps.powerapps.com/play/e/268196d3-978e-ed6b-bed3-cdc126efdf1e/a/818532cd-f871-4802-b48c-e73c79a7ff66"
                                 target="_blank"
                                 style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
                                 onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(226,0,116,0.04)';"
                                 onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='var(--card-bg)';">
                                 Tax Calculator
+                            </a>
+                            <a href="https://magentapulse.t-mobile.com/us/en/customer-support/news/t-mobile-weekly-postpaid-promotions"
+                                target="_blank"
+                                style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 10px; color: var(--primary-color); text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s;"
+                                onmouseover="this.style.borderColor='var(--primary-color)'; this.style.background='rgba(226,0,116,0.04)';"
+                                onmouseout="this.style.borderColor='var(--border-color)'; this.style.background='var(--card-bg)';">
+                                Weekly Promotions
                             </a>
                         </div>
                     </div>
@@ -9175,12 +9308,25 @@
                     <input type="hidden" id="manual-disc-row-id">
 
                     <div class="input-group">
-                        <label class="step-label" style="font-size: 0.9rem;">Discount Name</label>
+                        <label class="step-label" style="font-size: 0.9rem;">Discount Name <span
+                                style="color: var(--primary-color);">*</span></label>
                         <input type="text" id="manual-disc-name" placeholder="e.g. Employee Discount">
                     </div>
 
                     <div class="input-group">
-                        <label class="step-label" style="font-size: 0.9rem;">Amount ($)</label>
+                        <label class="step-label" style="font-size: 0.9rem;">Discount Type <span
+                                style="color: var(--primary-color);">*</span></label>
+                        <select id="manual-disc-type"
+                            style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 4px; font-size: 0.95rem; background: white;">
+                            <option value="Custom Flat">Flat Rate ($)</option>
+                            <option value="Custom Percent">Overall Percent (%)</option>
+                            <option value="Custom Per Line">Per Line ($)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="step-label" style="font-size: 0.9rem;">Amount / Percentage <span
+                                style="color: var(--primary-color);">*</span></label>
                         <input type="number" id="manual-disc-amount" min="0" step="0.01" placeholder="0.00">
                     </div>
                 </div>
@@ -12329,14 +12475,22 @@
         function updateExportButtonVisibility() {
             const btn = document.getElementById('export-pdf');
             const rowDivs = document.querySelectorAll('.calculator-row');
-            const count = rowDivs.length;
 
             let show = false;
             let text = "Print Quote";
 
-            // Check if any row has valid content
-            let hasContent = false;
+            // Check if any row has valid content and count them
+            let validRowsCount = 0;
             Object.keys(STATE).forEach(rowId => {
+                const row = document.getElementById(rowId);
+                if (!row) return; // Skip if row doesn't exist
+
+                // Check if row is currently pending deletion
+                const isPendingDeletion = row.closest('.swipe-delete-wrapper')?.classList.contains('swiped-out') ||
+                    row.closest('.swipe-delete-wrapper')?.classList.contains('undo-collapsing') ||
+                    row.closest('.swipe-delete-wrapper')?.classList.contains('showing-undo');
+                if (isPendingDeletion) return;
+
                 const lineCount = parseInt(document.getElementById(`${rowId}-lines`)?.value) || 0;
                 const planEl = document.getElementById(`${rowId}-plan`);
                 const planName = planEl ? planEl.value : '';
@@ -12344,45 +12498,65 @@
                 const hiCount = STATE[rowId].homeInternet?.length || 0;
 
                 // For existing mode, also check manual price
-                const row = document.getElementById(rowId);
-                const isManual = row?.getAttribute('data-mode') === 'existing';
+                const isManual = row.getAttribute('data-mode') === 'existing';
                 const manualPrice = isManual ? (parseFloat(document.getElementById(`${rowId}-manual-price`)?.value) || 0) : 0;
 
                 // New mode: needs (lines + plan selected) OR CD OR HI
                 // Existing mode: needs manual price OR upgrades OR CD OR HI
+                let hasRowContent = false;
                 if (isManual) {
                     if (manualPrice > 0 || lineCount > 0 || cdCount > 0 || hiCount > 0) {
-                        hasContent = true;
+                        hasRowContent = true;
                     }
                 } else {
                     if ((lineCount > 0 && planName) || cdCount > 0 || hiCount > 0) {
-                        hasContent = true;
+                        hasRowContent = true;
                     }
+                }
+
+                if (hasRowContent) {
+                    validRowsCount++;
                 }
             });
 
-            if (currentMode === 'new') {
-                if (count >= 1 && hasContent) show = true;
-                text = "Print Quote";
-            } else {
-                // Existing mode: show button with at least 1 row and content
-                if (count >= 1 && hasContent) show = true;
-                text = "Print Quote";
-            }
+            // Show print button with at least 1 valid row
+            if (validRowsCount >= 1) show = true;
 
             btn.textContent = text;
-            if (show) btn.classList.remove('hidden');
-            else btn.classList.add('hidden');
+
+            // Helper function to animate button visibility
+            const animateButtonVisibility = (button, shouldShow) => {
+                const isCurrentlyHidden = button.classList.contains('hidden');
+
+                if (shouldShow && isCurrentlyHidden) {
+                    // Show: remove hidden and hide-anim immediately to trigger pop-in
+                    button.classList.remove('hidden');
+                    button.classList.remove('hide-anim');
+                    // Force reflow to restart animation
+                    void button.offsetWidth;
+                } else if (!shouldShow && !isCurrentlyHidden) {
+                    // Hide: Avoid triggering animation multiple times
+                    if (!button.classList.contains('hide-anim')) {
+                        button.classList.add('hide-anim');
+                        // Wait for animation to finish before applying hidden
+                        setTimeout(() => {
+                            if (button.classList.contains('hide-anim')) {
+                                button.classList.add('hidden');
+                                button.classList.remove('hide-anim');
+                            }
+                        }, 400); // Wait for the 0.4s animation
+                    }
+                }
+            };
+
+            animateButtonVisibility(btn, show);
 
             // Update floating Compare Quotes button visibility
             const compareFloatingBtn = document.getElementById('compare-quotes-floating-btn');
             if (compareFloatingBtn) {
-                const rowCount = document.querySelectorAll('.calculator-row').length;
-                if (show && rowCount >= 2) {
-                    compareFloatingBtn.classList.remove('hidden');
-                } else {
-                    compareFloatingBtn.classList.add('hidden');
-                }
+                // Show compare with at least 2 valid rows
+                const showCompare = validRowsCount >= 2;
+                animateButtonVisibility(compareFloatingBtn, showCompare);
             }
         }
 
@@ -12795,6 +12969,9 @@
         let sectionDragSiblings = [];
         let sectionDraggedIndex = -1;
         let sectionDraggedHeight = 0;
+        let sectionDragScrollActive = false;
+        let lastSectionDragClientY = 0;
+        let sectionDragStartScrollTop = 0;
 
         function initSettingsSectionDrag() {
             const settingsBody = document.getElementById('settings-body');
@@ -12824,8 +13001,11 @@
         }
 
         function startSectionDrag(e, section) {
+            const settingsSidebar = document.getElementById('settings-sidebar');
             sectionDraggedItem = section;
-            sectionDragStartY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            sectionDragStartY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+            lastSectionDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            sectionDragStartScrollTop = settingsSidebar ? settingsSidebar.scrollTop : 0;
 
             section.classList.add('dragging');
             section.style.zIndex = '1000';
@@ -12841,24 +13021,17 @@
                 const rect = s.getBoundingClientRect();
                 return {
                     section: s,
-                    centerY: rect.top + (rect.height / 2)
+                    centerY: rect.top + (settingsSidebar ? settingsSidebar.scrollTop : 0) + (rect.height / 2)
                 };
             });
+
+            if (!sectionDragScrollActive) {
+                sectionDragScrollActive = true;
+                requestAnimationFrame(autoScrollSectionDrag);
+            }
         }
 
-        function moveSectionDrag(e) {
-            if (!sectionDraggedItem) return;
-
-            if (e.type === 'touchmove') {
-                e.preventDefault();
-            }
-
-            const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-            const deltaY = currentY - sectionDragStartY;
-            // The dragged item scales and drops slightly so we don't clobber the inline scale from CSS if possible, but the transform overrides it.
-            // A quick fix is to include the scale(1.02) usually set in CSS
-            sectionDraggedItem.style.transform = `translateY(${deltaY}px) scale(1.02)`;
-
+        function checkSectionDragSiblings(deltaY) {
             if (sectionDraggedIndex < 0 || !sectionDragSiblings || sectionDragSiblings.length === 0 || !sectionDragSiblings[sectionDraggedIndex]) return;
 
             const draggedCurrentCenter = sectionDragSiblings[sectionDraggedIndex].centerY + deltaY;
@@ -12880,7 +13053,70 @@
             });
         }
 
+        function autoScrollSectionDrag() {
+            if (!sectionDragScrollActive || !sectionDraggedItem) return;
+
+            const settingsSidebar = document.getElementById('settings-sidebar');
+            if (!settingsSidebar) return;
+
+            const rect = settingsSidebar.getBoundingClientRect();
+            const threshold = 60;
+            const maxSpeed = 15;
+            let scrolled = false;
+
+            const relativeY = lastSectionDragClientY - rect.top;
+
+            if (relativeY < threshold) {
+                settingsSidebar.scrollTop -= maxSpeed;
+                scrolled = true;
+            } else if (relativeY > rect.height - threshold) {
+                settingsSidebar.scrollTop += maxSpeed;
+                scrolled = true;
+            }
+
+            if (scrolled) {
+                // Calculate the true delta Y dynamically taking scroll distance into account
+                const currentScrollTop = settingsSidebar.scrollTop;
+                const scrollDiff = currentScrollTop - sectionDragStartScrollTop;
+
+                // For position relative to mouse:
+                // base displacement = lastClientY - startClientY
+                // Add scroll displacement since the container moved under the mouse
+                const baseDeltaY = lastSectionDragClientY - (sectionDragStartY - sectionDragStartScrollTop);
+                // Alternatively, matching quote logic tracking document Y:
+                // current true page Y = clientY + scrollTop
+                const currentY = lastSectionDragClientY + currentScrollTop;
+                const deltaY = currentY - sectionDragStartY;
+
+                sectionDraggedItem.style.transform = `translateY(${deltaY}px) scale(1.02)`;
+                checkSectionDragSiblings(deltaY);
+            }
+
+            requestAnimationFrame(autoScrollSectionDrag);
+        }
+
+        function moveSectionDrag(e) {
+            if (!sectionDraggedItem) return;
+
+            if (e.type === 'touchmove') {
+                e.preventDefault();
+            }
+
+            lastSectionDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            const settingsSidebar = document.getElementById('settings-sidebar');
+            const currentScrollTop = settingsSidebar ? settingsSidebar.scrollTop : 0;
+            const currentY = lastSectionDragClientY + currentScrollTop;
+
+            const deltaY = currentY - sectionDragStartY;
+            sectionDraggedItem.style.transform = `translateY(${deltaY}px) scale(1.02)`;
+
+            checkSectionDragSiblings(deltaY);
+        }
+
+
+
         function endSectionDrag(e) {
+            sectionDragScrollActive = false;
             if (!sectionDraggedItem) return;
 
             const settingsBody = document.getElementById('settings-body');
@@ -14393,7 +14629,7 @@
                         <div class="step-col step-col-plan hidden-step" id="${rowId}-col2">
                             <label class="step-label"><span class="step-number">2</span><span class="print-only-text">Plan</span><span class="screen-only-text">Select Plan</span></label>
                             <div class="plan-select-wrapper" id="${rowId}-plan-selector">
-                                <input type="text" id="${rowId}-plan-trigger" class="plan-select-trigger" placeholder="Select Plan..." readonly onclick="openPlanModal('${rowId}')">
+                                <input type="text" id="${rowId}-plan-trigger" class="plan-select-trigger" placeholder="No Voice Plan Selected" readonly onclick="openPlanModal('${rowId}')">
                                 <input type="hidden" id="${rowId}-plan">
                             </div>
                             <div class="addons-display-plan hidden" id="${rowId}-addons-display-plan"></div>
@@ -15820,6 +16056,9 @@
                         // Start countdown and wire swipe-to-dismiss
                         startUndoCountdown(wrapper, rowId);
                         initUndoCardSwipe(wrapper, undoCard, undoSwipeBg, rowId);
+
+                        // Recalculate print/compare buttons since a quote is now effectively pending deletion
+                        updateExportButtonVisibility();
                     }, 310);
                 });
             }, DELAY);
@@ -17310,12 +17549,12 @@
                 // Normalize floating point numbers to avoid precision issues
                 // Explicitly handle all properties to ensure consistency
                 const key = JSON.stringify({
-                    label: (dev.label || '').trim(),
-                    cost: parseFloat((dev.cost || 0).toFixed(2)),
-                    promo: parseFloat((dev.promo || 0).toFixed(2)),
-                    fmv: parseFloat((dev.fmv || 0).toFixed(2)),
-                    down: parseFloat((dev.down || 0).toFixed(2)),
-                    tradeinName: (dev.tradeinName || '').trim()
+                    label: (dev.label || '').trim().toLowerCase(),
+                    cost: parseFloat((parseFloat(dev.cost) || 0).toFixed(2)),
+                    promo: parseFloat((parseFloat(dev.promo) || 0).toFixed(2)),
+                    fmv: parseFloat((parseFloat(dev.fmv) || 0).toFixed(2)),
+                    down: parseFloat((parseFloat(dev.down) || 0).toFixed(2)),
+                    tradeinName: (dev.tradeinName || '').trim().toLowerCase()
                 });
 
                 if (deviceGroups[key]) {
@@ -18387,7 +18626,7 @@
                 const autopayCheckbox = document.getElementById(`${rowId}-has-autopay`);
                 hasAutopay = autopayCheckbox ? autopayCheckbox.checked : false;
             }
-            const hasVoiceline = lineCount >= 1;
+            const hasVoiceline = lineCount >= 1 && (isManualMode || hasPlanSelected);
 
             // For existing mode, check if plan cost is filled to determine bundle eligibility
             const baseTotal = isManualMode ? (parseFloat(document.getElementById(`${rowId}-manual-price`)?.value) || 0) : 0;
@@ -19255,7 +19494,8 @@
             const planEl = document.getElementById(`${rowId}-plan`);
             const planName = planEl ? planEl.value : '';
             const is55Plan = planName && planName.includes('55');
-            const hasVoiceline = lineCount >= 1;
+            const hasPlanSelected = planName && planName.trim() !== '';
+            const hasVoiceline = lineCount >= 1 && (isManualMode || hasPlanSelected);
 
             // Check if business plan (for new mode) or business checkbox (for existing mode)
             let isBusinessPlan = false;
@@ -19644,14 +19884,25 @@
         function saveManualDiscountItem() {
             const rowId = document.getElementById('manual-disc-row-id').value;
             const name = document.getElementById('manual-disc-name').value.trim();
-            const amount = parseFloat(document.getElementById('manual-disc-amount').value) || 0;
+            const type = document.getElementById('manual-disc-type').value;
+            const amountStr = document.getElementById('manual-disc-amount').value;
 
             if (!name) {
-                alert('Please enter a discount name');
+                flashInputError('manual-disc-name');
+                return;
+            }
+            if (amountStr === '') {
+                flashInputError('manual-disc-amount');
                 return;
             }
 
-            STATE[rowId].discounts.push({ type: 'Manual', name: name, amount: amount });
+            const amount = parseFloat(amountStr);
+            if (isNaN(amount) || amount <= 0) {
+                flashInputError('manual-disc-amount');
+                return;
+            }
+
+            STATE[rowId].discounts.push({ type: type, name: name, amount: amount });
             renderDiscountList(rowId);
             calculateRow(rowId);
             closeManualDiscountModal();
@@ -22878,6 +23129,40 @@
         document.addEventListener('mouseup', endQuoteDrag);
         document.addEventListener('touchmove', moveQuoteDrag, { passive: false });
         document.addEventListener('touchend', endQuoteDrag);
+
+        // --- Prevent body scroll when modals are open ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const preventOverlayScroll = (e) => {
+                if (e.target.classList.contains('modal-overlay') || e.target.classList.contains('settings-overlay')) {
+                    e.preventDefault();
+                }
+            };
+
+            document.querySelectorAll('.modal-overlay, .settings-overlay').forEach(overlay => {
+                overlay.addEventListener('wheel', preventOverlayScroll, { passive: false });
+                overlay.addEventListener('touchmove', preventOverlayScroll, { passive: false });
+            });
+
+            const modalObserver = new MutationObserver(() => {
+                const openModals = document.querySelectorAll('.modal-overlay.open, .settings-overlay.open');
+                if (openModals.length > 0) {
+                    document.documentElement.style.overflow = 'hidden';
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    document.documentElement.style.overflow = '';
+                    document.body.style.overflow = '';
+                }
+            });
+
+            document.querySelectorAll('.modal-overlay, .settings-overlay').forEach(el => {
+                modalObserver.observe(el, { attributes: true, attributeFilter: ['class'] });
+            });
+
+            // Prevent scroll chaining when interacting with modal content
+            document.querySelectorAll('.modal-content, .settings-sidebar').forEach(el => {
+                el.style.overscrollBehavior = 'contain';
+            });
+        });
     </script>
 
     <!-- SECRET PASSWORD MODAL -->
