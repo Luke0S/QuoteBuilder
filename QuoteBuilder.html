@@ -4980,6 +4980,7 @@
         .cd-tabs-container {
             display: flex;
             overflow-x: auto;
+            overflow-y: hidden;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -7980,6 +7981,7 @@
         .plan-tabs-container {
             display: flex;
             overflow-x: auto;
+            overflow-y: hidden;
             scroll-behavior: smooth;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: none;
@@ -13002,10 +13004,11 @@
 
         function startSectionDrag(e, section) {
             const settingsSidebar = document.getElementById('settings-sidebar');
-            sectionDraggedItem = section;
-            sectionDragStartY = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
-            lastSectionDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
             sectionDragStartScrollTop = settingsSidebar ? settingsSidebar.scrollTop : 0;
+
+            lastSectionDragClientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+            sectionDragStartY = lastSectionDragClientY + sectionDragStartScrollTop;
+            sectionDraggedItem = section;
 
             section.classList.add('dragging');
             section.style.zIndex = '1000';
@@ -16450,7 +16453,7 @@
             modal.classList.remove('active');
 
             if (!_pendingSwipeDelete) return;
-            const { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId } = _pendingSwipeDelete;
+            const { wrapper, rowEl, deleteBg, deleteBubble, dupBg, dupBubble, rowId, currentX } = _pendingSwipeDelete;
 
             // Save "Don't ask again" preference
             if (document.getElementById('swipe-dont-ask-again').checked) {
@@ -16991,6 +16994,14 @@
                     setTradeinToggle(false);
 
                     document.getElementById('device-modal').classList.add('open');
+
+                    const scrollArea = document.querySelector('#device-modal .modal-content');
+                    if (scrollArea) {
+                        scrollArea.style.display = 'none';
+                        void scrollArea.offsetHeight;
+                        scrollArea.style.display = '';
+                        scrollArea.scrollTop = 0;
+                    }
                     return;
                 }
 
@@ -17090,6 +17101,14 @@
             }
 
             document.getElementById('device-modal').classList.add('open');
+
+            const scrollArea = document.querySelector('#device-modal .modal-content');
+            if (scrollArea) {
+                scrollArea.style.display = 'none';
+                void scrollArea.offsetHeight;
+                scrollArea.style.display = '';
+                scrollArea.scrollTop = 0;
+            }
             // No auto-focus on mobile
         }
 
@@ -18408,6 +18427,15 @@
 
             document.getElementById('cd-modal').classList.add('open');
 
+            const scrollArea = document.querySelector('#cd-modal .cd-scroll-area');
+            if (scrollArea) {
+                // Force reflow and reset scroll
+                scrollArea.style.display = 'none';
+                void scrollArea.offsetHeight;
+                scrollArea.style.display = '';
+                scrollArea.scrollTop = 0;
+            }
+
             // Update tab arrows after modal is open
             setTimeout(updateCDTabArrows, 100);
         }
@@ -18497,6 +18525,16 @@
             const rowId = document.getElementById('cd-row-id').value;
             renderCDPlanList(rowId);
             updateCDMPLink();
+
+            const scrollArea = document.querySelector('#cd-modal .cd-scroll-area');
+            if (scrollArea) {
+                // Force reflow and reset scroll
+                scrollArea.style.display = 'none';
+                void scrollArea.offsetHeight;
+                scrollArea.style.display = '';
+                scrollArea.scrollTop = 0;
+            }
+
             setTimeout(updateCDTabArrows, 300);
         }
 
@@ -20261,6 +20299,15 @@
 
             renderAccessoriesModalList(rowId);
             document.getElementById('accessories-modal').classList.add('open');
+
+            const scrollArea = document.querySelector('#accessories-modal .modal-content');
+            if (scrollArea) {
+                // Force reflow and reset scroll
+                scrollArea.style.display = 'none';
+                void scrollArea.offsetHeight;
+                scrollArea.style.display = '';
+                scrollArea.scrollTop = 0;
+            }
         }
 
         function closeAccessoriesModal() {
