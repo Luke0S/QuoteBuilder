@@ -3401,32 +3401,178 @@
             display: none;
         }
 
-        .notes-textarea {
+        .notes-container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+            transition: border-color 0.2s;
+            position: relative;
+        }
+
+        .notes-container:focus-within {
+            border-color: var(--primary-color);
+        }
+
+        .notes-editor {
             width: 100%;
             flex: 1;
             min-height: 40px;
             padding: 12px;
             padding-top: 8px;
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
+            border: none;
             font-size: 0.9rem;
             font-family: BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: transparent;
+            overflow-y: auto;
             resize: vertical;
             box-sizing: border-box;
+            outline: none;
         }
 
-        .notes-textarea::placeholder {
+        .notes-editor:empty:before {
+            content: "NOTES";
             font-weight: 700;
             font-size: 0.9rem;
             color: var(--text-main);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             opacity: 0.6;
+            pointer-events: none;
         }
 
-        .notes-textarea:focus {
-            outline: none;
+        /* Toggle button — always-visible pill in bottom-right corner */
+        .notes-toolbar-toggle {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1.5px solid #ddd;
+            background: rgba(255, 255, 255, 0.95);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.2s;
+            line-height: 1;
+            user-select: none;
+        }
+
+        .notes-toolbar-toggle:hover {
             border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .notes-toolbar-toggle.open {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Toolbar row — sits at bottom of container, hidden by default */
+        .notes-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0;
+            padding: 4px 32px 4px 8px;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.22s ease, opacity 0.18s ease, padding 0.18s ease;
+        }
+
+        .notes-toolbar.open {
+            max-height: 60px;
+            opacity: 1;
+            padding: 5px 32px 5px 8px;
+        }
+
+        /* Buttons look like plain floating text, no borders */
+        .notes-toolbar-btn {
+            background: none;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 3px 6px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            transition: color 0.15s;
+            white-space: nowrap;
+            line-height: 1.4;
+        }
+
+        .notes-toolbar-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .notes-toolbar-btn.active {
+            color: var(--primary-color);
+        }
+
+        .notes-toolbar-divider {
+            width: 1px;
+            height: 14px;
+            background: #ddd;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .notes-color-picker-btn {
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            background-color: #000000;
+            transition: opacity 0.15s;
+            opacity: 0.6;
+        }
+
+        .notes-color-picker-btn:hover {
+            opacity: 1;
+        }
+
+        .notes-color-swatches-inline {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 0 4px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .notes-color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+            opacity: 0.7;
+        }
+
+        .notes-color-swatch:hover {
+            transform: scale(1.15);
+            opacity: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .notes-color-swatch.active {
+            opacity: 1;
+            transform: scale(1.15);
         }
 
         .notes-display {
@@ -3947,6 +4093,29 @@
             transform: scale(1.02);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             z-index: 1000;
+        }
+
+        .notes-toolbar-btn {
+            background: transparent;
+            border: none;
+            padding: 4px 8px;
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .notes-toolbar-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--primary-color);
+        }
+
+        .notes-toolbar-btn.active {
+            background: rgba(226, 0, 116, 0.1);
+            color: var(--primary-color);
         }
 
         .settings-section-title {
@@ -5823,6 +5992,33 @@
             /* Swipe actions: hidden in print */
             .swipe-action-bg {
                 display: none !important;
+            }
+
+            .notes-toolbar {
+                display: none !important;
+            }
+
+            .notes-section {
+                background: #ffeef5 !important;
+                border: 1px solid var(--primary-color) !important;
+                border-radius: 4px !important;
+                padding: 10px !important;
+                min-height: 60px !important;
+            }
+
+            .notes-container {
+                border: none !important;
+                background: transparent !important;
+            }
+
+            .notes-editor {
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+
+            .notes-editor:empty:before {
+                display: none !important;
+                /* Hides the placeholder text in print */
             }
 
             .swipe-delete-wrapper {
@@ -8591,6 +8787,35 @@
                     </div>
                 </div>
 
+                <!-- Specify Protected Devices -->
+                <div class="settings-section draggable-section" data-section-id="specify-protected">
+                    <div class="settings-section-title">
+                        Specify Protected Devices
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Control when the
+                        protection status is shown next to devices on the quote.</p>
+                    <div class="settings-row">
+                        <select id="specify-protected-devices-select" class="settings-select" style="width: 100%;"
+                            onchange="updateProtectedDevicesRule()">
+                            <option value="if-differ">If devices differ</option>
+                            <option value="always">Always</option>
+                            <option value="never">Never</option>
+                        </select>
+                    </div>
+                </div>
+
                 <!-- Compare Page Prices -->
                 <div class="settings-section draggable-section" data-section-id="compare-prices">
                     <div class="settings-section-title">
@@ -9258,9 +9483,6 @@
                 </div>
                 <div class="modal-body">
                     <div id="disc-list-container">
-                        <p style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 15px;">Select a
-                            discount
-                            to apply to this quote:</p>
                         <div id="disc-list" class="prot-list">
                             <!-- Injected here -->
                         </div>
@@ -9614,6 +9836,28 @@
             </div>
         </div>
 
+        <!-- FOLLOW UP MODAL -->
+        <div id="follow-up-modal" class="modal-overlay" onclick="if(event.target === this) closeFollowUpModal()">
+            <div class="modal-content" style="max-width: 400px; text-align: center;">
+                <div class="modal-header">
+                    <h3>Setup follow up timeline</h3>
+                    <button class="modal-header-close" onclick="closeFollowUpModal()">×</button>
+                </div>
+                <div class="modal-body" style="padding: 30px 20px;">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <a id="follow-up-2-day" href="#" target="_blank" class="tradein-toggle-btn"
+                            style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
+                            Create 2 Day Notice
+                        </a>
+                        <a id="follow-up-2-week" href="#" target="_blank" class="tradein-toggle-btn"
+                            style="text-decoration: none; display: flex; justify-content: center; align-items: center;">
+                            Create 2 Week Notice
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- LOAD QUOTE MODAL -->
         <div id="load-quote-modal" class="modal-overlay" onclick="if(event.target === this) closeLoadQuoteModal()">
             <div class="modal-content" style="max-width: 400px;">
@@ -9680,7 +9924,7 @@
 
             // 55+ Plans
             "Experience Beyond 55 Savings": { costs: [90, 50], maxLines: 2, freeLineEligible: false, beyond: true, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
-            "Experience More 55 Savings": { costs: [75, 45], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
+            "Experience More 55 Savings": { costs: [75, 35], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
             "Essentials Choice 55 Savings": { costs: [50, 20], maxLines: 2, freeLineEligible: false, beyond: false, planType: '55', keywords: ['senior', 'seniors', 'elderly', 'older', 'retirement', 'retired', 'aarp'] },
 
             // Military Plans
@@ -11048,6 +11292,13 @@
         let roundingMode = 'none'; // 'none', 'up-5', 'down-5', 'up-10', 'down-10'
         let showPerLinePricing = false; // Show price per line breakdown
         let showComparePrices = true; // Show monthly prices on compare quote page
+        let specifyProtectedDevices = 'if-differ'; // 'if-differ', 'always', 'never'
+        let enableFollowUpModal = false; // Enable/disable follow up modal after print
+
+        function toggleFollowUpModal(checked) {
+            enableFollowUpModal = checked;
+            saveSettingsToURL();
+        }
 
         // --- SECRET MENU FUNCTIONALITY ---
         let secretMenuTimer = null;
@@ -11498,6 +11749,22 @@
             document.body.style.pointerEvents = '';
         }
 
+        // --- NEW PREFERENCES FUNCTIONS ---
+        function updateProtectedDevicesRule() {
+            const select = document.getElementById('specify-protected-devices-select');
+            if (select) {
+                specifyProtectedDevices = select.value;
+                saveSettingsToURL();
+
+                // Re-render everything immediately to show changes
+                document.querySelectorAll('.calculator-row').forEach(row => {
+                    const rowId = row.id;
+                    renderDeviceList(rowId);
+                    calculateRow(rowId);
+                });
+            }
+        }
+
         // Save settings to URL hash
         function saveSettingsToURL() {
             const settings = {
@@ -11509,6 +11776,7 @@
                 adj: globalAdjustments,
                 splp: showPerLinePricing,
                 scp: showComparePrices,
+                spd: specifyProtectedDevices,
                 // Rep info
                 rn: document.getElementById('contact-rep-name')?.value || '',
                 rp: document.getElementById('contact-rep-phone')?.value || '',
@@ -11518,7 +11786,9 @@
                 // Store address
                 sa: document.getElementById('store-address')?.value || '',
                 // Tax percentage
-                tp: taxPercentage || 0
+                tp: taxPercentage || 0,
+                // Developer Options
+                efu: enableFollowUpModal
             };
             const encoded = btoa(JSON.stringify(settings));
             window.history.replaceState(null, '', '#' + encoded);
@@ -11606,6 +11876,11 @@
                     const checkbox = document.getElementById('show-compare-prices');
                     if (checkbox) checkbox.checked = showComparePrices;
                 }
+                if (settings.spd) {
+                    specifyProtectedDevices = settings.spd;
+                    const spdSelect = document.getElementById('specify-protected-devices-select');
+                    if (spdSelect) spdSelect.value = specifyProtectedDevices;
+                }
                 // Load rep info
                 if (settings.rn) {
                     document.getElementById('contact-rep-name').value = settings.rn;
@@ -11628,6 +11903,12 @@
                 if (settings.tp !== undefined) {
                     taxPercentage = settings.tp;
                     document.getElementById('tax-percentage').value = taxPercentage > 0 ? taxPercentage : '';
+                }
+                // Load Developer Options
+                if (settings.efu !== undefined) {
+                    enableFollowUpModal = settings.efu;
+                    const followupCheck = document.getElementById('enable-followup-modal');
+                    if (followupCheck) followupCheck.checked = enableFollowUpModal;
                 }
                 // Show/hide default benefits switch based on benefits page setting
                 toggleDefaultBenefitsSwitch();
@@ -13264,6 +13545,60 @@
             return adjustment;
         }
 
+        // Follow Up Modal Functions
+        function generateFollowUpICS(daysOffset, custName, custPhone, quotesDetails) {
+            const date = new Date();
+            date.setDate(date.getDate() + daysOffset);
+
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            // Outlook requires YYYY-MM-DD format
+            const dateString = `${year}-${month}-${day}`;
+
+            const name = custName || 'Customer';
+            const phone = custPhone || 'No phone provided';
+
+            const noticeType = daysOffset === 2 ? '2 Day' : '2 Week';
+
+            const subject = encodeURIComponent(`Follow up (${noticeType}): ${name}`);
+
+            let bodyText = `Customer: ${name} | Phone: ${phone}`;
+            if (quotesDetails) bodyText += ` | ${quotesDetails}`;
+
+            // Note: quotesDetails already comes pre-encoded with %0D%0A
+            const body = bodyText;
+
+            return `https://outlook.office.com/calendar/0/deeplink/compose?subject=${subject}&body=${body}&startdt=${dateString}T00:00:00&enddt=${dateString}T00:00:00&allday=true`;
+        }
+
+        function openFollowUpModal(custName, custPhone, quotesDetails) {
+            const link2Day = document.getElementById('follow-up-2-day');
+            const link2Week = document.getElementById('follow-up-2-week');
+
+            if (link2Day) {
+                link2Day.href = generateFollowUpICS(2, custName, custPhone, quotesDetails);
+                link2Day.className = 'tradein-toggle-btn';
+                link2Day.onclick = function () {
+                    this.className = 'tradein-toggle-btn active';
+                };
+            }
+            if (link2Week) {
+                link2Week.href = generateFollowUpICS(14, custName, custPhone, quotesDetails);
+                link2Week.className = 'tradein-toggle-btn';
+                link2Week.onclick = function () {
+                    this.className = 'tradein-toggle-btn active';
+                };
+            }
+
+            document.getElementById('follow-up-modal').classList.add('open');
+        }
+
+        function closeFollowUpModal() {
+            document.getElementById('follow-up-modal').classList.remove('open');
+        }
+
         function openContactModal() {
             document.getElementById('contact-modal').classList.add('open');
         }
@@ -13485,9 +13820,10 @@
                 }
 
                 // Load notes
-                const notesTextarea = document.getElementById(`${rowId}-notes`);
-                if (notesTextarea && quoteData.notes) {
-                    notesTextarea.value = quoteData.notes;
+                const notesEditor = document.getElementById(`${rowId}-notes`);
+                if (notesEditor && quoteData.notes) {
+                    notesEditor.innerHTML = quoteData.notes;
+                    updateNotesDisplay(rowId);
                 }
 
                 calculateRow(rowId);
@@ -13523,7 +13859,7 @@
                 if (!STATE[rowId]) return;
                 const isManualMode = row?.getAttribute('data-mode') === 'existing';
                 const titleInput = document.getElementById(`${rowId}-quote-title`);
-                const notesTextarea = document.getElementById(`${rowId}-notes`);
+                const notesEditor = document.getElementById(`${rowId}-notes`);
 
                 const rowData = {
                     title: titleInput?.value || '',
@@ -13558,7 +13894,7 @@
                     savedTodayItems: STATE[rowId].savedTodayItems || [],
                     savingsToday: STATE[rowId].savingsToday || 0,
                     compareSettings: STATE[rowId].compareSettings || { plan1Key: '', plan2Key: '', hasUserModified: false },
-                    notes: notesTextarea?.value || ''
+                    notes: notesEditor?.innerHTML || ''
                 };
 
                 quoteData.quotes.push(rowData);
@@ -13666,6 +14002,76 @@
             const includeBenefits = document.getElementById('include-benefits-page').checked;
             generatePlanBenefitsPages(includeBenefits);
 
+            // Gather quote details for Follow Up Modal
+            let allQuotesDetails = [];
+            let activeQuoteIndex = 1;
+            document.querySelectorAll('.calculator-row').forEach(row => {
+                if (row.classList.contains('swiped-out') || row.style.display === 'none') return;
+
+                const rowId = row.id;
+
+                // Get Plan & Lines
+                const planSelect = document.getElementById(`${rowId}-plan`);
+                const planName = planSelect ? (planSelect.value || 'Unknown Plan') : 'Unknown Plan';
+                const linesInput = document.getElementById(`${rowId}-lines`);
+                const lines = linesInput ? linesInput.value : 0;
+
+                // Get Devices, Connected Devices, Home Internet, and Protection Status
+                let devicesArr = [];
+                const state = STATE[rowId];
+                if (state) {
+                    if (state.devices && state.devices.length > 0) {
+                        state.devices.forEach((dev, idx) => {
+                            const devName = dev.label || dev.name || 'Unknown Device';
+                            const hasProtection = dev.protection === 'p360' || dev.protection === 'standard' || state.protectionStatus[idx];
+                            devicesArr.push(`${devName} (${hasProtection ? 'Protected' : 'No Protection'})`);
+                        });
+                    }
+                    if (state.connectedDevices && state.connectedDevices.length > 0) {
+                        state.connectedDevices.forEach(cd => {
+                            const cdNameBase = cd.planKey || cd.category || cd.label || cd.name || 'Unknown CD';
+                            const cdName = cd.devName ? `${cdNameBase} (${cd.devName})` : cdNameBase;
+                            // Omit "No Protection" for CDs since many don't support it
+                            devicesArr.push(`[CD] ${cdName}`);
+                        });
+                    }
+                    if (state.homeInternet && state.homeInternet.length > 0) {
+                        state.homeInternet.forEach(hi => {
+                            const hiName = hi.label || hi.name || 'Unknown Internet Device';
+                            devicesArr.push(`[Internet] ${hiName}`);
+                        });
+                    }
+                }
+
+                // Get Pricing & Discounts
+                const monthlyTotalEl = document.getElementById(`${rowId}-footer-total-protected`);
+                const monthlyTotal = monthlyTotalEl ? monthlyTotalEl.innerText.trim() : '$0.00';
+
+                const discountTotalEl = document.getElementById(`${rowId}-discount-total`);
+                const discountTotal = (discountTotalEl && discountTotalEl.innerText && discountTotalEl.innerText.trim() !== '') ? discountTotalEl.innerText.trim() : '$0.00';
+
+                const rebateTotalEl = document.getElementById(`${rowId}-rebate-grand-total`);
+                const rebateTotal = (rebateTotalEl && rebateTotalEl.innerText && rebateTotalEl.innerText.trim() !== '') ? rebateTotalEl.innerText.trim() : '$0.00';
+
+                // Get Notes
+                let notes = 'None';
+                // Try to get from Quill rich text editor if available
+                const editor = document.querySelector(`#editor-${rowId} .ql-editor`);
+                if (editor && editor.innerText && editor.innerText.trim()) {
+                    notes = editor.innerText.trim();
+                } else {
+                    const notesTextArea = document.getElementById(`${rowId}-notes-input`) || document.getElementById(`${rowId}-notes`);
+                    if (notesTextArea && notesTextArea.value && notesTextArea.value.trim()) {
+                        notes = notesTextArea.value.trim();
+                    }
+                }
+
+                // Format this quote's details using a physical separator instead of line breaks
+                allQuotesDetails.push(`[Quote ${activeQuoteIndex}] Plan: ${planName} | Lines: ${lines} | Devices: ${devicesArr.length > 0 ? devicesArr.join(', ') : 'None'} | ${discountTotal} | ${rebateTotal} | Notes: ${notes} | Monthly Total: ${monthlyTotal}`);
+                activeQuoteIndex++;
+            });
+            const quotesDetailsString = encodeURIComponent(allQuotesDetails.join(' || '));
+
             // Close all modals and sidebars
             closeContactModal();
             closeSettingsSidebar();
@@ -13679,6 +14085,11 @@
                     Object.keys(STATE).forEach(rowId => {
                         renderDeviceList(rowId);
                     });
+
+                    // Show follow up modal if enabled
+                    if (enableFollowUpModal) {
+                        openFollowUpModal(custName, custPhone, quotesDetailsString);
+                    }
                 }, 500);
             }, 200);
         }
@@ -14853,7 +15264,38 @@
                         </div>
                         <div class="notes-section" id="${rowId}-notes-section">
                             <label>Notes</label>
-                            <textarea class="notes-textarea" id="${rowId}-notes" placeholder="NOTES"></textarea>
+                            <div class="notes-container" onclick="document.getElementById('${rowId}-notes').focus();">
+                                <div class="notes-editor" contenteditable="true" id="${rowId}-notes" oninput="updateNotesDisplay('${rowId}')" onkeyup="updateNotesToolbarState('${rowId}')" onmouseup="updateNotesToolbarState('${rowId}')" style="user-select: text; -webkit-user-select: text; cursor: text;"></div>
+                                <div class="notes-toolbar" id="${rowId}-notes-toolbar">
+                                    <div class="notes-format-tools" id="${rowId}-notes-format-tools" style="display: flex; align-items: center;">
+                                        <button type="button" class="notes-toolbar-btn" data-command="bold" onclick="formatNoteText('${rowId}', 'bold')" title="Bold"><b>B</b></button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="italic" onclick="formatNoteText('${rowId}', 'italic')" title="Italic"><i>I</i></button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="underline" onclick="formatNoteText('${rowId}', 'underline')" title="Underline"><u>U</u></button>
+                                        <div class="notes-toolbar-divider"></div>
+                                        <button type="button" class="notes-toolbar-btn" data-command="justifyLeft" onclick="formatNoteText('${rowId}', 'justifyLeft')" title="Align Left">Left</button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="justifyCenter" onclick="formatNoteText('${rowId}', 'justifyCenter')" title="Align Center">Center</button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="justifyRight" onclick="formatNoteText('${rowId}', 'justifyRight')" title="Align Right">Right</button>
+                                        <div class="notes-toolbar-divider"></div>
+                                        <button type="button" class="notes-toolbar-btn" data-command="fontSize-3" onclick="formatNoteText('${rowId}', 'fontSize', 3)" title="Plain">Plain</button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="fontSize-6" onclick="formatNoteText('${rowId}', 'fontSize', 6)" title="H1">H1</button>
+                                        <button type="button" class="notes-toolbar-btn" data-command="fontSize-5" onclick="formatNoteText('${rowId}', 'fontSize', 5)" title="H2">H2</button>
+                                        <div class="notes-toolbar-divider"></div>
+                                        <button type="button" class="notes-color-picker-btn" id="${rowId}-notes-color-btn" onclick="toggleNotesColorPicker('${rowId}')" title="Text Color"></button>
+                                    </div>
+                                    <div class="notes-color-tools" id="${rowId}-notes-color-tools" style="display: none; align-items: center; width: 100%;">
+                                        <button type="button" class="notes-toolbar-btn" onclick="toggleNotesColorPicker('${rowId}')" title="Back" style="padding: 4px 6px;">&#8249; Back</button>
+                                        <div class="notes-toolbar-divider"></div>
+                                        <div class="notes-color-swatches-inline">
+                                            <button type="button" class="notes-color-swatch" style="background-color: #000000;" onclick="formatNoteText('${rowId}', 'foreColor', '#000000');" title="Black Text"></button>
+                                            <button type="button" class="notes-color-swatch" style="background-color: #E20074;" onclick="formatNoteText('${rowId}', 'foreColor', '#E20074');" title="Magenta Text"></button>
+                                            <button type="button" class="notes-color-swatch" style="background-color: #007bff;" onclick="formatNoteText('${rowId}', 'foreColor', '#007bff');" title="Blue Text"></button>
+                                            <button type="button" class="notes-color-swatch" style="background-color: #28a745;" onclick="formatNoteText('${rowId}', 'foreColor', '#28a745');" title="Green Text"></button>
+                                            <button type="button" class="notes-color-swatch" style="background-color: #dc3545;" onclick="formatNoteText('${rowId}', 'foreColor', '#dc3545');" title="Red Text"></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="notes-toolbar-toggle" id="${rowId}-notes-toggle" onclick="toggleNotesToolbar('${rowId}')" title="Format text">&#8249;</button>
+                            </div>
                             <div class="notes-display" id="${rowId}-notes-display"></div>
                         </div>
                     </div>
@@ -16612,7 +17054,10 @@
             // Copy notes
             const sourceNotes = document.getElementById(`${sourceRowId}-notes`);
             const newNotes = document.getElementById(`${newRowId}-notes`);
-            if (sourceNotes && newNotes) newNotes.value = sourceNotes.value;
+            if (sourceNotes && newNotes) {
+                newNotes.innerHTML = sourceNotes.innerHTML;
+                updateNotesDisplay(newRowId);
+            }
 
             // Copy existing mode checkboxes
             if (isManualMode) {
@@ -17359,6 +17804,25 @@
                 deviceCol.classList.remove('print-hidden');
             }
 
+            let protectedCount = 0;
+            if (STATE[rowId].protectionStatus && Array.isArray(STATE[rowId].protectionStatus) && STATE[rowId].devices) {
+                protectedCount = STATE[rowId].protectionStatus.filter((status, idx) => status === true && idx < STATE[rowId].devices.length).length;
+            } else if (STATE[rowId].protectionStatus && typeof STATE[rowId].protectionStatus === 'object') {
+                // Handle object case (e.g. {0: true, 1: false})
+                protectedCount = Object.keys(STATE[rowId].protectionStatus)
+                    .filter(key => parseInt(key) < STATE[rowId].devices.length && STATE[rowId].protectionStatus[key] === true)
+                    .length;
+            }
+
+            let hasMixedProtection = STATE[rowId].devices.length > 0 && protectedCount > 0 && protectedCount < STATE[rowId].devices.length;
+
+            // Apply Specify Protected Devices rule
+            if (specifyProtectedDevices === 'always') {
+                hasMixedProtection = true;
+            } else if (specifyProtectedDevices === 'never') {
+                hasMixedProtection = false;
+            }
+
             STATE[rowId].devices.forEach((dev, index) => {
                 const monthly = calculateDeviceMonthly(dev.cost, dev.down || 0, dev.promo, dev.fmv).toFixed(2);
                 const rawLabel = dev.label ? dev.label : `Device #${index + 1}`;
@@ -17400,13 +17864,40 @@
                     }
                 }
 
-                card.innerHTML = `
-                    <div class="device-info">
-                        <span class="device-label-text">${displayName}</span>
-                        ${priceDisplay}
-                        ${downDisplay}
-                        ${detailDisplay}
-                    </div>
+                let protectedHtml = '';
+                if (hasMixedProtection) {
+                    const isProtected = STATE[rowId].protectionStatus[index] === true;
+                    if (isProtected) {
+                        protectedHtml = `<span class="device-detail-preview" style="color: var(--primary-color); font-weight: 700; display: block; margin-top: 2px;">Protected</span>`;
+                    } else {
+                        protectedHtml = `<span class="device-detail-preview" style="color: var(--text-secondary); display: block; margin-top: 2px;">Unprotected</span>`;
+                    }
+                }
+
+                if (hasMixedProtection) {
+                    card.innerHTML = `
+                        <div class="device-info">
+                            <span class="device-label-text">${displayName}</span>
+                            <div style="display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap;">
+                                ${priceDisplay}
+                                ${detailDisplay}
+                            </div>
+                            ${protectedHtml}
+                            ${downDisplay}
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="device-info">
+                            <span class="device-label-text">${displayName}</span>
+                            ${priceDisplay}
+                            ${downDisplay}
+                            ${detailDisplay}
+                        </div>
+                    `;
+                }
+
+                card.innerHTML += `
                     <div class="device-actions">
                         <button class="btn btn-small btn-small-edit" onclick="duplicateDevice('${rowId}', ${index})">Copy</button>
                         <button class="btn btn-small btn-small-edit" onclick="openModal('${rowId}', ${index})">Edit</button>
@@ -17599,10 +18090,28 @@
                 byod.classList.remove('visible');
             }
 
+            let protectedCount = 0;
+            if (STATE[rowId].protectionStatus && Array.isArray(STATE[rowId].protectionStatus) && STATE[rowId].devices) {
+                protectedCount = STATE[rowId].protectionStatus.filter((status, idx) => status === true && idx < STATE[rowId].devices.length).length;
+            } else if (STATE[rowId].protectionStatus && typeof STATE[rowId].protectionStatus === 'object') {
+                protectedCount = Object.keys(STATE[rowId].protectionStatus)
+                    .filter(key => parseInt(key) < STATE[rowId].devices.length && STATE[rowId].protectionStatus[key] === true)
+                    .length;
+            }
+            let hasMixedProtection = STATE[rowId].devices.length > 0 && protectedCount > 0 && protectedCount < STATE[rowId].devices.length;
+
+            // Apply Specify Protected Devices rule
+            if (specifyProtectedDevices === 'always') {
+                hasMixedProtection = true;
+            } else if (specifyProtectedDevices === 'never') {
+                hasMixedProtection = false;
+            }
+
             // Group identical devices by all key properties
             const deviceGroups = {};
             devices.forEach((dev, idx) => {
                 const monthly = calculateDeviceMonthly(dev.cost, dev.down || 0, dev.promo, dev.fmv).toFixed(2);
+                const isProtected = STATE[rowId].protectionStatus[idx] === true;
                 // Create key from all device properties that make them identical
                 // Normalize floating point numbers to avoid precision issues
                 // Explicitly handle all properties to ensure consistency
@@ -17612,7 +18121,8 @@
                     promo: parseFloat((parseFloat(dev.promo) || 0).toFixed(2)),
                     fmv: parseFloat((parseFloat(dev.fmv) || 0).toFixed(2)),
                     down: parseFloat((parseFloat(dev.down) || 0).toFixed(2)),
-                    tradeinName: (dev.tradeinName || '').trim().toLowerCase()
+                    tradeinName: (dev.tradeinName || '').trim().toLowerCase(),
+                    isProtected: isProtected
                 });
 
                 if (deviceGroups[key]) {
@@ -17623,7 +18133,8 @@
                         device: dev,
                         monthly: monthly,
                         count: 1,
-                        totalMonthly: parseFloat(monthly)
+                        totalMonthly: parseFloat(monthly),
+                        isProtected: isProtected
                     };
                 }
             });
@@ -17676,15 +18187,40 @@
                     ? `Promo: $${dev.promo.toFixed(2)} Off/Phone${tradeInText}`
                     : `Promo: $${dev.promo.toFixed(2)} Off${tradeInText}`;
 
-                card.innerHTML = `
-                    <div class="device-info">
-                        <span class="device-label-text">${displayName}</span>
-                        <span class="device-cost-preview">$${displayMonthly}/mo</span>
-                        ${retailHtml}
-                        ${downHtml}
-                        <span class="device-detail-preview">${promoText}</span>
-                    </div>
-                `;
+                let protectedHtml = '';
+                if (hasMixedProtection) {
+                    if (group.isProtected) {
+                        protectedHtml = `<span class="device-detail-preview" style="color: var(--primary-color); font-weight: 700; display: block;">Protected</span>`;
+                    } else {
+                        protectedHtml = `<span class="device-detail-preview" style="color: var(--text-secondary); display: block;">Unprotected</span>`;
+                    }
+                }
+
+                if (hasMixedProtection) {
+                    card.innerHTML = `
+                        <div class="device-info">
+                            <span class="device-label-text">${displayName}</span>
+                            <div style="display: flex; gap: 8px; align-items: baseline;">
+                                <span class="device-cost-preview">$${displayMonthly}/mo</span>
+                                <span class="device-detail-preview">${promoText}</span>
+                            </div>
+                            ${retailHtml}
+                            ${downHtml}
+                            ${protectedHtml}
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="device-info">
+                            <span class="device-label-text">${displayName}</span>
+                            <span class="device-cost-preview">$${displayMonthly}/mo</span>
+                            ${retailHtml}
+                            ${downHtml}
+                            <span class="device-detail-preview">${promoText}</span>
+                        </div>
+                    `;
+                }
+
                 listContainer.appendChild(card);
             });
 
@@ -20135,7 +20671,7 @@
                 emptyMsg.style.textAlign = 'center';
                 emptyMsg.style.color = '#666';
                 emptyMsg.style.padding = '20px';
-                emptyMsg.textContent = 'No more predefined discounts available for this configuration.';
+                emptyMsg.textContent = 'No more discounts available.';
                 container.insertBefore(emptyMsg, customLink);
             }
         }
@@ -23267,6 +23803,121 @@
             });
         }
 
+        // --- RICH TEXT NOTES LOGIC ---
+        function formatNoteText(rowId, command, value = null) {
+            const editor = document.getElementById(`${rowId}-notes`);
+            if (editor) {
+                editor.focus();
+                document.execCommand(command, false, value);
+                updateNotesDisplay(rowId);
+                setTimeout(() => updateNotesToolbarState(rowId), 10);
+            }
+        }
+
+        function updateNotesToolbarState(rowId) {
+            const toolbar = document.getElementById(`${rowId}-notes-toolbar`);
+            if (!toolbar) return;
+
+            // Basic formatting commands we can query
+            const commands = ['bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight'];
+
+            commands.forEach(cmd => {
+                const btn = toolbar.querySelector(`[data-command="${cmd}"]`);
+                if (btn) {
+                    if (document.queryCommandState(cmd)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            // Check FontSize - returning numbers 1-7
+            const currentSize = document.queryCommandValue('fontSize');
+            const fontButtons = toolbar.querySelectorAll('[data-command^="fontSize-"]');
+            fontButtons.forEach(btn => btn.classList.remove('active'));
+            if (currentSize) {
+                const activeFontBtn = toolbar.querySelector(`[data-command="fontSize-${currentSize}"]`);
+                if (activeFontBtn) activeFontBtn.classList.add('active');
+            }
+
+            // Check ForeColor
+            const currentColor = document.queryCommandValue('foreColor');
+            const colorSwatches = toolbar.querySelectorAll('.notes-color-swatch');
+            const colorBtn = document.getElementById(`${rowId}-notes-color-btn`);
+            colorSwatches.forEach(swatch => swatch.classList.remove('active'));
+            if (currentColor) {
+                let foundMatch = false;
+                colorSwatches.forEach(swatch => {
+                    // Browser returns rgb() format for both style.backgroundColor and queryCommandValue
+                    if (swatch.style.backgroundColor.replace(/\s/g, '') === currentColor.replace(/\s/g, '')) {
+                        swatch.classList.add('active');
+                        if (colorBtn) colorBtn.style.backgroundColor = swatch.style.backgroundColor;
+                        foundMatch = true;
+                    }
+                });
+                // Default fallback if a color not in our swatches is present
+                if (!foundMatch && colorBtn) {
+                    colorBtn.style.backgroundColor = currentColor;
+                }
+            } else if (colorBtn) {
+                // Default black
+                colorBtn.style.backgroundColor = '#000000';
+            }
+        }
+
+        function updateNotesDisplay(rowId) {
+            const editor = document.getElementById(`${rowId}-notes`);
+            const display = document.getElementById(`${rowId}-notes-display`);
+            if (editor && display) {
+                // If the user deletes everything, clear residual formatting HTML like <font> tags
+                if (editor.innerHTML === '<br>' || editor.textContent.trim() === '') {
+                    if (editor.innerHTML !== '' && editor.innerHTML !== '<br>') {
+                        editor.innerHTML = '';
+                    }
+                }
+                display.innerHTML = editor.innerHTML;
+            }
+        }
+
+        function toggleNotesColorPicker(rowId) {
+            const formatTools = document.getElementById(`${rowId}-notes-format-tools`);
+            const colorTools = document.getElementById(`${rowId}-notes-color-tools`);
+            if (!formatTools || !colorTools) return;
+
+            if (formatTools.style.display === 'none') {
+                formatTools.style.display = 'flex';
+                colorTools.style.display = 'none';
+            } else {
+                formatTools.style.display = 'none';
+                colorTools.style.display = 'flex';
+            }
+        }
+
+        function toggleNotesToolbar(rowId) {
+            const toolbar = document.getElementById(`${rowId}-notes-toolbar`);
+            const toggle = document.getElementById(`${rowId}-notes-toggle`);
+            if (!toolbar || !toggle) return;
+            const isOpen = toolbar.classList.contains('open');
+            if (isOpen) {
+                toolbar.classList.remove('open');
+                toggle.classList.remove('open');
+                toggle.style.transform = '';
+
+                // Also reset to format tools if color picker open
+                const formatTools = document.getElementById(`${rowId}-notes-format-tools`);
+                const colorTools = document.getElementById(`${rowId}-notes-color-tools`);
+                if (formatTools && colorTools) {
+                    formatTools.style.display = 'flex';
+                    colorTools.style.display = 'none';
+                }
+            } else {
+                toolbar.classList.add('open');
+                toggle.classList.add('open');
+                toggle.style.transform = 'scaleX(-1)';
+            }
+        }
+
         document.addEventListener('mousemove', moveQuoteDrag);
         document.addEventListener('mouseup', endQuoteDrag);
         document.addEventListener('touchmove', moveQuoteDrag, { passive: false });
@@ -23337,9 +23988,18 @@
                 <button class="modal-header-close" onclick="closeSecretMenu()">&times;</button>
             </div>
             <div class="modal-body" style="padding: 20px; min-height: 200px;">
-                <!-- Secret menu content will go here -->
-                <p style="color: var(--text-secondary); text-align: center; font-style: italic;">Developer options is
-                    currently empty.</p>
+                <!-- Developer Options -->
+                <div class="settings-section" style="border: none; padding: 0; box-shadow: none;">
+                    <div class="settings-row"
+                        style="display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; padding: 12px 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <span style="font-size: 0.9rem; font-weight: 600;">Enable Follow Up Menu</span>
+                        <label class="switch-sm">
+                            <input type="checkbox" id="enable-followup-modal"
+                                onchange="toggleFollowUpModal(this.checked)">
+                            <span class="slider-sm"></span>
+                        </label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
