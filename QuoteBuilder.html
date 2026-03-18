@@ -6,47 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quote Builder</title>
     <style>
-  /* Fix iPad persistent hover/focus states */
-  @media (hover: none) {
-    .btn-primary:active,
-    .btn-secondary:active,
-    .btn-remove:active,
-    .btn-small-danger:active,
-    .btn-small-confirm:active,
-    .btn-small-edit:active,
-    .btn-small-cd-edit:active,
-    .row-actions-toggle:active {
-      opacity: 0.7;
-      transform: scale(0.98);
-    }
-    
-    /* Prevent sticky hover effects after tap */
-    .row-actions-toggle:hover {
-      background: none !important;
-      box-shadow: none !important;
-    }
-    
-    /* Fix row options modal button hover stickiness */
-    .row-options-modal button:hover {
-      background: #f8f9fa !important;
-      color: #333 !important;
-    }
-    .row-options-modal .row-option-danger:hover {
-      color: #e53935 !important;
-      background: #ffebee !important;
-    }
-  }
-  
-  /* Disable webkit tap highlight globally */
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  /* Ensure modals and popups don't inherit focused states inadvertently */
-  .modal-overlay:focus, .modal-content:focus, .row-options-modal:focus {
-    outline: none;
-  }
-
         :root {
             /* T-MOBILE INSPIRED THEME */
             --primary-color: #E20074;
@@ -67,6 +26,7 @@
 
         /* Global Box Sizing */
         * {
+            -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
@@ -3617,9 +3577,15 @@
         }
 
         .notes-color-picker-btn {
-            width: 18px;
-            height: 18px;
-            padding: 0;
+              width: 22px;
+              height: 22px;
+              min-width: 22px;
+              min-height: 22px;
+              flex-shrink: 0;
+              appearance: none;
+              -webkit-appearance: none;
+              box-sizing: border-box;
+              display: inline-block;
             border: 1px solid rgba(0, 0, 0, 0.2);
             border-radius: 3px;
             cursor: pointer;
@@ -3642,9 +3608,15 @@
         }
 
         .notes-color-swatch {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
+              width: 24px;
+              height: 24px;
+              min-width: 24px;
+              min-height: 24px;
+              flex-shrink: 0;
+              appearance: none;
+              -webkit-appearance: none;
+              box-sizing: border-box;
+              display: inline-block;
             border: 1px solid rgba(0, 0, 0, 0.2);
             cursor: pointer;
             padding: 0;
@@ -5649,6 +5621,10 @@
 
         /* PRINT STYLES */
         @media print {
+            #print-loading-overlay {
+                display: none !important;
+            }
+
             .hidden {
                 display: none !important;
             }
@@ -7306,9 +7282,9 @@
             .notes-section {
                 display: flex !important;
                 flex-direction: column !important;
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
                 margin-top: 0 !important;
@@ -7676,17 +7652,17 @@
             }
 
             .row-footer.new-mode-footer .footer-top .notes-section {
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
             }
 
             .row-footer.new-mode-footer .footer-top .due-today-group {
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
             }
@@ -7702,17 +7678,17 @@
             }
 
             .footer-top.hide-totals .notes-section {
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
             }
 
             .footer-top.hide-totals .due-today-group {
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
             }
@@ -7780,9 +7756,9 @@
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 2px !important;
-                flex: 1 !important;
+                flex: 1 1 0% !important;
                 min-width: 0 !important;
-                max-width: none !important;
+                max-width: 100% !important;
                 margin: 0 !important;
                 width: auto !important;
                 box-sizing: border-box !important;
@@ -8057,7 +8033,7 @@
             .summaries-row>div {
                 flex: 1 !important;
                 min-width: 0 !important;
-                max-width: calc(50% - 5px) !important;
+                max-width: 100% !important;
                 box-sizing: border-box !important;
             }
 
@@ -8538,6 +8514,12 @@
 </head>
 
 <body>
+    <!-- Print Loading Overlay -->
+    <div id="print-loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 999998; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);">
+        <h2 style="color: var(--primary-color); font-size: 28px; margin: 0 0 10px 0; font-family: sans-serif;">Preparing for printing...</h2>
+        <!--<p style="color: var(--text-secondary); font-size: 16px; margin: 0; font-family: sans-serif;">Please wait a moment while the layout is optimized.</p>-->
+    </div>
+
     <!-- Expiration Overlay -->
     <div id="expiration-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999999; color: var(--text-main); flex-direction: column; justify-content: center; align-items: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
         <h1 style="font-size: 2rem; margin-bottom: 15px;">This version (Quote Builder v<span id="exp-version-text"></span>) is out of date.</h1>
@@ -13945,18 +13927,27 @@
             const subject = encodeURIComponent(`Follow up (${noticeType}): ${name}`);
 
             let bodyText = `Customer: ${name} | Phone: ${phone}`;
-            if (quotesDetails) bodyText += ` | ${quotesDetails}`;
+            
+            // Decode quotesDetails so we have a clean string to start with
+            let decodedQuotes = quotesDetails ? decodeURIComponent(quotesDetails).replace(/ \|\| /g, '\n\n') : '';
+            if (decodedQuotes) {
+                bodyText += `\n\n${decodedQuotes}`;
+            }
 
-            // Note: quotesDetails already comes pre-encoded with %0D%0A
-            const body = bodyText;
+            // content must be URI encoded for the Teams deep link to parse correctly
+            const body = encodeURIComponent(bodyText);
 
             // Use the preferred follow-up time (default 14:00)
             const timeString = prefFollowUpTime || '14:00';
-            const startTime = `${dateString}T${timeString}:00`;
             
-            // Default 30 mins later for endTime if needed, or same time
-            // We'll set end time the same as start time for a basic reminder task
-            const endTime = `${dateString}T${timeString}:00`;
+            // Teams deep link expects standard ISO-8601 formatting
+            // Start by parsing local time safely
+            const localDate = new Date(`${dateString}T${timeString}:00`);
+            const startTime = localDate.toISOString();
+            
+            // Default 30 mins later for endTime
+            const endLocalDate = new Date(localDate.getTime() + (30 * 60000));
+            const endTime = endLocalDate.toISOString();
 
             return `msteams:/l/meeting/new?subject=${subject}&content=${body}&startTime=${startTime}&endTime=${endTime}`;
         }
@@ -14509,10 +14500,14 @@
                 const monthlyTotal = monthlyTotalEl ? monthlyTotalEl.innerText.trim() : '$0.00';
 
                 const discountTotalEl = document.getElementById(`${rowId}-discount-total`);
-                const discountTotal = (discountTotalEl && discountTotalEl.innerText && discountTotalEl.innerText.trim() !== '') ? discountTotalEl.innerText.trim() : '$0.00';
+                let discountTotal = (discountTotalEl && discountTotalEl.innerText && discountTotalEl.innerText.trim() !== '') ? discountTotalEl.innerText.trim() : '$0.00';
+                if (discountTotal === '$0.00' || discountTotal === '$0') discountTotal = 'No monthly savings';
+                else discountTotal = `Monthly Savings: ${discountTotal}`;
 
                 const rebateTotalEl = document.getElementById(`${rowId}-rebate-grand-total`);
-                const rebateTotal = (rebateTotalEl && rebateTotalEl.innerText && rebateTotalEl.innerText.trim() !== '') ? rebateTotalEl.innerText.trim() : '$0.00';
+                let rebateTotal = (rebateTotalEl && rebateTotalEl.innerText && rebateTotalEl.innerText.trim() !== '') ? rebateTotalEl.innerText.trim() : '$0.00';
+                if (rebateTotal === '$0.00' || rebateTotal === '$0') rebateTotal = 'No rebates';
+                else rebateTotal = `Rebates: ${rebateTotal}`;
 
                 // Get Notes
                 let notes = 'None';
@@ -14537,9 +14532,16 @@
             closeContactModal();
             closeSettingsSidebar();
 
-            // Give time for modals to close, then print
+            // Show loading overlay so user knows it hasn't frozen
+            const printOverlay = document.getElementById('print-loading-overlay');
+            if (printOverlay) printOverlay.style.display = 'flex';
+
+            // Give time for modals to close and screen to redraw devices, then print
             setTimeout(() => {
                 window.print();
+
+                // Hide overlay immediately when print dialog closes
+                if (printOverlay) printOverlay.style.display = 'none';
 
                 // Restore device lists to editable state after print
                 setTimeout(() => {
@@ -14552,7 +14554,7 @@
                         openFollowUpModal(custName, custPhone, quotesDetailsString);
                     }
                 }, 500);
-            }, 200);
+            }, 800);
         }
 
         function generatePlanBenefitsPages(includeBenefits) {
@@ -18469,6 +18471,11 @@
                 fmv: sourceDev.fmv,
                 tradeinName: sourceDev.tradeinName || ''
             };
+
+            // Copy accessories if any exist on the source device
+            if (sourceDev.accessories && sourceDev.accessories.length > 0) {
+                newDev.accessories = JSON.parse(JSON.stringify(sourceDev.accessories));
+            }
 
             STATE[rowId].devices.push(newDev);
             const newIndex = STATE[rowId].devices.length - 1;
