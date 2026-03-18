@@ -22482,11 +22482,10 @@
                     }
                 }
 
-                // Hide due-today-content in print only if totalDueToday is 0 AND savingsToday is also 0
-                // If savingsToday has a value, keep Due Today visible so they show side by side
-                const dueTodayContentEl = document.getElementById(`${rowId}-due-today-content`);
-                if (dueTodayContentEl) {
-                    if (totalDueToday === 0 && savingsToday === 0) {
+// Hide due-today-content in print if totalDueToday is 0
+                  const dueTodayContentEl = document.getElementById(`${rowId}-due-today-content`);
+                  if (dueTodayContentEl) {
+                      if (totalDueToday === 0) {
                         dueTodayContentEl.classList.add('hide-in-print');
                     } else {
                         dueTodayContentEl.classList.remove('hide-in-print');
