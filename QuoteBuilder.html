@@ -6,6 +6,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Quote Builder</title>
     <style>
+  /* Fix iPad persistent hover/focus states */
+  @media (hover: none) {
+    .btn-primary:active,
+    .btn-secondary:active,
+    .btn-remove:active,
+    .btn-small-danger:active,
+    .btn-small-confirm:active,
+    .btn-small-edit:active,
+    .btn-small-cd-edit:active,
+    .row-actions-toggle:active {
+      opacity: 0.7;
+      transform: scale(0.98);
+    }
+    
+    /* Prevent sticky hover effects after tap */
+    .row-actions-toggle:hover {
+      background: none !important;
+      box-shadow: none !important;
+    }
+    
+    /* Fix row options modal button hover stickiness */
+    .row-options-modal button:hover {
+      background: #f8f9fa !important;
+      color: #333 !important;
+    }
+    .row-options-modal .row-option-danger:hover {
+      color: #e53935 !important;
+      background: #ffebee !important;
+    }
+  }
+  
+  /* Disable webkit tap highlight globally */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Ensure modals and popups don't inherit focused states inadvertently */
+  .modal-overlay:focus, .modal-content:focus, .row-options-modal:focus {
+    outline: none;
+  }
+
         :root {
             /* T-MOBILE INSPIRED THEME */
             --primary-color: #E20074;
