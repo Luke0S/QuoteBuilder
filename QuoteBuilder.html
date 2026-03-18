@@ -1224,7 +1224,9 @@
             cursor: pointer;
             font-weight: 700;
             font-size: 0.9rem;
-            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+            max-height: 48px;
+            overflow: hidden;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s linear, height 0.3s linear, max-height 0.3s linear, margin 0.3s linear, padding 0.3s linear, border-width 0.3s linear, font-size 0.3s linear, line-height 0.3s linear, min-height 0.3s linear, gap 0.3s linear;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -2608,11 +2610,13 @@
         .byod-placeholder {
             display: none;
             text-align: center;
-            padding: 5px;
+            padding: 15px 10px;
             font-style: italic;
             color: var(--text-secondary);
+            background: #f9f9f9;
             border: none;
-            margin-top: 0;
+            border-radius: 6px;
+            margin-top: 10px;
         }
 
         /* ROW FOOTER */
@@ -8510,6 +8514,26 @@
         .suggestion-item:hover {
             color: var(--primary-color);
         }
+        .bubble-pop-hidden {
+            transform: scale(0) !important;
+            opacity: 0 !important;
+            max-height: 0 !important;
+            height: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border-width: 0 !important;
+            font-size: 0 !important;
+            line-height: 0 !important;
+            min-height: 0 !important;
+            gap: 0 !important;
+            color: transparent !important;
+            transition: transform 0.25s ease-in, opacity 0.25s ease-in, height 0.25s ease-in, max-height 0.25s ease-in, margin 0.25s ease-in, padding 0.25s ease-in, border-width 0.25s ease-in, font-size 0.25s ease-in, line-height 0.25s ease-in, min-height 0.25s ease-in, gap 0.25s ease-in !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 
@@ -8989,6 +9013,34 @@
                         </label>
                     </div>
                 </div>
+                
+                <!-- Add Devices By Default -->
+                <div class="settings-section draggable-section" data-section-id="add-devices-default">
+                    <div class="settings-section-title">
+                        Auto-Add Devices
+                        <span class="drag-handle" title="Drag to reorder"
+                            style="display: flex; align-items: center; margin-left: auto;">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </span>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 12px;">Add device listings by default when picking an amount of lines.</p>
+                    <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.85rem;">Enable Auto-Add Devices</span>
+                        <label class="switch-sm">
+                            <input type="checkbox" id="add-devices-default" onchange="toggleAddDevicesDefault(this.checked)">
+                            <span class="slider-sm"></span>
+                        </label>
+                    </div>
+                </div>
+
                 <!-- Follow Up Options -->
                 <div class="settings-section draggable-section" data-section-id="follow-up">
                     <div class="settings-section-title">
@@ -9010,7 +9062,7 @@
                     <div class="settings-row" style="display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 0.85rem;">Enable Follow Up Menu</span>
                         <label class="switch-sm">
-                            <input type="checkbox" id="enable-followup-modal"
+                            <input type="checkbox" id="enable-followup-modal" checked
                                 onchange="toggleFollowUpModal(this.checked)">
                             <span class="slider-sm"></span>
                         </label>
@@ -11576,8 +11628,14 @@
         let showPerLinePricing = false; // Show price per line breakdown
         let showComparePrices = true; // Show monthly prices on compare quote page
         let specifyProtectedDevices = 'if-differ'; // 'if-differ', 'always', 'never'
-        let enableFollowUpModal = false; // Enable/disable follow up modal after print
+        let addDevicesByDefault = false; // Add device listings automatically when changing lines
+        let enableFollowUpModal = true; // Enable/disable follow up modal after print
         let prefFollowUpTime = '14:00'; // Default to 2pm for preferred follow-up time
+
+        function toggleAddDevicesDefault(checked) {
+            addDevicesByDefault = checked;
+            saveSettingsToURL();
+        }
 
         function toggleFollowUpModal(checked) {
             enableFollowUpModal = checked;
@@ -12138,6 +12196,8 @@
                 sa: document.getElementById('store-address')?.value || '',
                 // Tax percentage
                 tp: taxPercentage || 0,
+                // Add Devices By Default
+                aadd: addDevicesByDefault,
                 // Follow-up
                 efu: enableFollowUpModal,
                 fut: prefFollowUpTime
@@ -12260,6 +12320,12 @@
                 if (settings.tp !== undefined) {
                     taxPercentage = settings.tp;
                     document.getElementById('tax-percentage').value = taxPercentage > 0 ? taxPercentage : '';
+                }
+                // Load Auto Add Devices 
+                if (settings.aadd !== undefined) {
+                    addDevicesByDefault = settings.aadd;
+                    const addDevicesCheck = document.getElementById('add-devices-default');
+                    if (addDevicesCheck) addDevicesCheck.checked = addDevicesByDefault;
                 }
                 // Load Follow-up Options
                 if (settings.efu !== undefined) {
@@ -15493,9 +15559,7 @@
                         </div>
                         <div class="step-col hidden-step step-col-3" id="${rowId}-col3">
                             <label class="step-label">Device Selection</label>
-                            <div style="margin-bottom: 5px;">
-                                <button class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30;" onclick="openModal('${rowId}')">+ Add Device</button>
-                            </div>
+                            <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30; margin-bottom: 5px; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
                             <div id="${rowId}-device-list" class="device-list-container"></div>
                             <div id="${rowId}-byod-placeholder" class="byod-placeholder">No devices added</div>
                         </div>
@@ -15553,9 +15617,7 @@
                     <div class="steps-container steps-device-row">
                         <div class="step-col hidden-step step-col-devices" id="${rowId}-col3">
                             <label class="step-label"><span class="step-number">3</span>Device Selection</label>
-                            <div style="margin-bottom: 5px;">
-                                <button class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30;" onclick="openModal('${rowId}')">+ Add Device</button>
-                            </div>
+                            <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30; margin-bottom: 5px; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
                             <div id="${rowId}-device-list" class="device-list-container"></div>
                             <div id="${rowId}-byod-placeholder" class="byod-placeholder">No devices added</div>
                         </div>
@@ -17606,6 +17668,31 @@
                 if (planName) {
                     revealStep(rowId, 'col3');
                 }
+                
+                // Auto add/remove devices based on line count if setting is enabled
+                let devicesChanged = false;
+                if (addDevicesByDefault) {
+                    while (STATE[rowId].devices.length < val) {
+                        STATE[rowId].devices.push({ label: '', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
+                        const newIndex = STATE[rowId].devices.length - 1;
+                        STATE[rowId].protectionStatus[newIndex] = true;
+                        STATE[rowId].protectionCosts[newIndex] = getDefaultProtectionCost(true);
+                        devicesChanged = true;
+                    }
+                }
+                if (STATE[rowId].devices.length > val) {
+                    STATE[rowId].devices.splice(val);
+                    devicesChanged = true;
+                    Object.keys(STATE[rowId].protectionStatus).forEach(k => { if (parseInt(k) >= val) delete STATE[rowId].protectionStatus[k]; });
+                    Object.keys(STATE[rowId].protectionCosts).forEach(k => { if (parseInt(k) >= val) delete STATE[rowId].protectionCosts[k]; });
+                }
+                if (devicesChanged) {
+                    renderDeviceList(rowId);
+                    calculateRow(rowId);
+                } else {
+                    // Update button state just in case
+                    renderDeviceList(rowId);
+                }
             } else {
                 // Hide plan and device columns when lines = 0
                 hideStep(rowId, 'col2');
@@ -17736,9 +17823,41 @@
             if (val > 0) {
                 revealStep(rowId, 'col3');
                 revealStep(rowId, 'col-voice-lines');
+                
+                // Auto add/remove devices based on upgrade count if setting is enabled
+                let devicesChanged = false;
+                if (addDevicesByDefault) {
+                    while (STATE[rowId].devices.length < val) {
+                        STATE[rowId].devices.push({ label: '', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
+                        const newIndex = STATE[rowId].devices.length - 1;
+                        STATE[rowId].protectionStatus[newIndex] = true;
+                        STATE[rowId].protectionCosts[newIndex] = getDefaultProtectionCost(false);
+                        devicesChanged = true;
+                    }
+                }
+                if (STATE[rowId].devices.length > val) {
+                    STATE[rowId].devices.splice(val);
+                    devicesChanged = true;
+                    Object.keys(STATE[rowId].protectionStatus).forEach(k => { if (parseInt(k) >= val) delete STATE[rowId].protectionStatus[k]; });
+                    Object.keys(STATE[rowId].protectionCosts).forEach(k => { if (parseInt(k) >= val) delete STATE[rowId].protectionCosts[k]; });
+                }
+                if (devicesChanged) {
+                    renderDeviceList(rowId);
+                    calculateRow(rowId);
+                } else {
+                    renderDeviceList(rowId);
+                }
             } else {
                 hideStep(rowId, 'col3');
                 hideStep(rowId, 'col-voice-lines');
+                
+                // Remove devices when upgrades go to 0
+                if (STATE[rowId].devices.length > 0) {
+                    STATE[rowId].devices = [];
+                    STATE[rowId].protectionStatus = {};
+                    STATE[rowId].protectionCosts = {};
+                    renderDeviceList(rowId);
+                }
             }
 
             // Update voice lines visibility based on whether any exist
@@ -18297,6 +18416,40 @@
             const deviceCol = document.getElementById(`${rowId}-col3`);
 
             listContainer.innerHTML = '';
+            
+            // Limit "Add Device" button to max lines
+            const addDeviceBtn = document.getElementById(`${rowId}-add-device-btn`);
+            if (addDeviceBtn) {
+                const addDeviceLinesEl = document.getElementById(`${rowId}-lines`);
+                const maxAllowed = addDeviceLinesEl ? parseInt(addDeviceLinesEl.value) || 0 : 0;
+                // If it's a new or existing quote, devices array length should not exceed maxAllowed lines/upgrades
+                if (STATE[rowId].devices && STATE[rowId].devices.length >= maxAllowed && maxAllowed > 0) {
+                    if (!addDeviceBtn.classList.contains('bubble-pop-hidden')) {
+                        addDeviceBtn.classList.add('bubble-pop-hidden');
+                        setTimeout(() => {
+                            if (addDeviceBtn.classList.contains('bubble-pop-hidden')) {
+                                addDeviceBtn.style.display = 'none';
+                            }
+                        }, 250);
+                    }
+                    // Instead of synchronously disabling which cancels WebKit CSS transitions mid-animation,
+                    // we rely on 'pointer-events: none' from the class immediately, and disable after it hides.
+                    setTimeout(() => {
+                        if (addDeviceBtn.classList.contains('bubble-pop-hidden')) {
+                            addDeviceBtn.disabled = true;
+                            addDeviceBtn.setAttribute('data-keep-disabled', 'true');
+                        }
+                    }, 250);
+                } else {
+                    addDeviceBtn.style.display = '';
+                    // Allow the display change to register before starting the pop-in animation
+                    setTimeout(() => {
+                        addDeviceBtn.classList.remove('bubble-pop-hidden');
+                    }, 10);
+                    addDeviceBtn.disabled = false;
+                    addDeviceBtn.removeAttribute('data-keep-disabled');
+                }
+            }
 
             const hasDevicesOrAccessories = STATE[rowId].devices.length > 0 || STATE[rowId].accessories.length > 0;
 
