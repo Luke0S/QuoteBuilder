@@ -11640,6 +11640,7 @@
         let specifyProtectedDevices = 'if-differ'; // 'if-differ', 'always', 'never'
         let addDevicesByDefault = false; // Add device listings automatically when changing lines
         let enableFollowUpModal = true; // Enable/disable follow up modal after print
+        let pendingPrintData = null; // Stores contact info and settings between finalizePrint() and beforeprint/afterprint
         let prefFollowUpTime = '14:00'; // Default to 2pm for preferred follow-up time
 
         function toggleAddDevicesDefault(checked) {
@@ -11791,15 +11792,46 @@
                 }
             });
 
-            // Handle print - ensure all carousel rows are visible
+            // Handle print - prepare layout and ensure all carousel rows are visible
             window.addEventListener('beforeprint', () => {
+                // If triggered from the contact modal (via finalizePrint), apply contact info and generate benefits
+                if (pendingPrintData) {
+                    const { repName, repPhone, custName, custPhone, includeAddress, storeAddress, includeBenefits } = pendingPrintData;
+                    const dateStr = new Date().toLocaleDateString();
+
+                    // Populate contact info in each row
+                    Object.keys(STATE).forEach(rowId => {
+                        const titleInput = document.getElementById(`${rowId}-title`);
+                        const printTitle = document.getElementById(`${rowId}-print-title`);
+                        const printQuoteId = document.getElementById(`${rowId}-print-quote-id`);
+                        const repNameEl = document.getElementById(`${rowId}-rep-name`);
+                        const repPhoneEl = document.getElementById(`${rowId}-rep-phone`);
+                        const custNameEl = document.getElementById(`${rowId}-cust-name`);
+                        const custPhoneEl = document.getElementById(`${rowId}-cust-phone`);
+                        const dateEl = document.getElementById(`${rowId}-print-date`);
+                        const addressEl = document.getElementById(`${rowId}-contact-address`);
+
+                        if (printTitle && titleInput) printTitle.textContent = titleInput.value;
+                        if (printQuoteId) printQuoteId.textContent = '';
+                        if (repNameEl) repNameEl.textContent = repName;
+                        if (repPhoneEl) repPhoneEl.textContent = repPhone ? `(${repPhone})` : '';
+                        if (custNameEl) custNameEl.textContent = custName;
+                        if (custPhoneEl) custPhoneEl.textContent = custPhone ? `(${custPhone})` : '';
+                        if (dateEl) dateEl.textContent = dateStr;
+                        if (addressEl) addressEl.textContent = includeAddress ? storeAddress : '';
+                    });
+
+                    // Generate plan benefits pages (if enabled)
+                    generatePlanBenefitsPages(includeBenefits);
+                }
+
                 const rows = document.querySelectorAll('.calculator-row');
                 rows.forEach(row => {
                     // Clear inline styles and add print-visible class
                     row.style.cssText = '';
                     row.classList.add('print-visible');
                     
-                    // Sync notes display for pure Ctrl+P printing
+                    // Sync notes display
                     const rowId = row.id;
                     if (rowId && typeof updateNotesDisplay === 'function') {
                         updateNotesDisplay(rowId);
@@ -11827,6 +11859,21 @@
                 const container = document.getElementById('rows-container');
                 if (container && container.classList.contains('carousel-mode')) {
                     updateCarouselView();
+                }
+                // If triggered from contact modal (via finalizePrint), restore device lists and show follow-up modal
+                if (pendingPrintData) {
+                    const { custName, custPhone, quotesDetailsString } = pendingPrintData;
+                    pendingPrintData = null;
+
+                    // Restore device lists to editable state after print
+                    Object.keys(STATE).forEach(rowId => {
+                        renderDeviceList(rowId);
+                    });
+
+                    // Show follow up modal if enabled
+                    if (enableFollowUpModal) {
+                        openFollowUpModal(custName, custPhone, quotesDetailsString);
+                    }
                 }
             });
 
@@ -14494,50 +14541,19 @@
         }
 
         function finalizePrint() {
-            const repName = document.getElementById('contact-rep-name').value;
-            const repPhone = document.getElementById('contact-rep-phone').value;
-            const custName = document.getElementById('contact-cust-name').value;
-            const custPhone = document.getElementById('contact-cust-phone').value;
-            const includeAddress = document.getElementById('include-store-address').checked;
-            const storeAddress = document.getElementById('store-address').value;
+            if (pendingPrintData) return; // Prevent multiple concurrent print operations
 
-            const now = new Date();
-            const dateStr = now.toLocaleDateString();
-
-            // Populate contact info and notes in each row
-            Object.keys(STATE).forEach(rowId => {
-                const titleInput = document.getElementById(`${rowId}-title`);
-                const printTitle = document.getElementById(`${rowId}-print-title`);
-                const printQuoteId = document.getElementById(`${rowId}-print-quote-id`);
-                const repNameEl = document.getElementById(`${rowId}-rep-name`);
-                const repPhoneEl = document.getElementById(`${rowId}-rep-phone`);
-                const custNameEl = document.getElementById(`${rowId}-cust-name`);
-                const custPhoneEl = document.getElementById(`${rowId}-cust-phone`);
-                const dateEl = document.getElementById(`${rowId}-print-date`);
-                const addressEl = document.getElementById(`${rowId}-contact-address`);
-                const notesTextarea = document.getElementById(`${rowId}-notes`);
-                const notesDisplay = document.getElementById(`${rowId}-notes-display`);
-
-                if (printTitle && titleInput) printTitle.textContent = titleInput.value;
-                if (printQuoteId) printQuoteId.textContent = '';
-                if (repNameEl) repNameEl.textContent = repName;
-                if (repPhoneEl) repPhoneEl.textContent = repPhone ? `(${repPhone})` : '';
-                if (custNameEl) custNameEl.textContent = custName;
-                if (custPhoneEl) custPhoneEl.textContent = custPhone ? `(${custPhone})` : '';
-                if (dateEl) dateEl.textContent = dateStr;
-
-                // Set address based on checkbox
-                if (addressEl) {
-                    addressEl.textContent = includeAddress ? storeAddress : '';
-                }
-
-                // Copy notes to display div for printing
-                updateNotesDisplay(rowId);
-            });
-
-            // Generate plan benefits pages (if enabled)
-            const includeBenefits = document.getElementById('include-benefits-page').checked;
-            generatePlanBenefitsPages(includeBenefits);
+            // Store contact info and print settings for use in beforeprint/afterprint handlers
+            pendingPrintData = {
+                repName: document.getElementById('contact-rep-name').value,
+                repPhone: document.getElementById('contact-rep-phone').value,
+                custName: document.getElementById('contact-cust-name').value,
+                custPhone: document.getElementById('contact-cust-phone').value,
+                includeAddress: document.getElementById('include-store-address').checked,
+                storeAddress: document.getElementById('store-address').value,
+                includeBenefits: document.getElementById('include-benefits-page').checked,
+                quotesDetailsString: ''
+            };
 
             // Gather quote details for Follow Up Modal
             let allQuotesDetails = [];
@@ -14611,49 +14627,31 @@
                 allQuotesDetails.push(`[Quote ${activeQuoteIndex}] Plan: ${planName} | Lines: ${lines} | Devices: ${devicesArr.length > 0 ? devicesArr.join(', ') : 'None'} | ${discountTotal} | ${rebateTotal} | Notes: ${notes} | Monthly Total: ${monthlyTotal}`);
                 activeQuoteIndex++;
             });
-            const quotesDetailsString = encodeURIComponent(allQuotesDetails.join(' || '));
+            pendingPrintData.quotesDetailsString = encodeURIComponent(allQuotesDetails.join(' || '));
 
             // Close all modals and sidebars
             closeContactModal();
             closeSettingsSidebar();
 
-            let afterPrintFired = false;
-
-            const afterPrintHandler = () => {
-                if (afterPrintFired) return;
-                afterPrintFired = true;
-
-                window.removeEventListener('afterprint', afterPrintHandler);
-
-                // Restore device lists to editable state after print
-                Object.keys(STATE).forEach(rowId => {
-                    renderDeviceList(rowId);
-                });
-
-                // Show follow up modal if enabled
-                if (enableFollowUpModal) {
-                    openFollowUpModal(custName, custPhone, quotesDetailsString);
-                }
-            };
-
-            // Add standard event listener
-            window.addEventListener('afterprint', afterPrintHandler);
-
-            // Add matchMedia listener (more reliable on iOS Safari)
+            // Add matchMedia listener (more reliable on iOS Safari where afterprint may not fire)
             const mediaQueryList = window.matchMedia('print');
+            const afterPrintFallback = () => {
+                if (!pendingPrintData) return; // Already handled by the afterprint event
+                window.dispatchEvent(new Event('afterprint'));
+            };
             if (mediaQueryList && mediaQueryList.addEventListener) {
                 mediaQueryList.addEventListener('change', mql => {
-                    if (!mql.matches) afterPrintHandler();
+                    if (!mql.matches) afterPrintFallback();
                 });
             } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
                 mediaQueryList.addListener(mql => {
-                    if (!mql.matches) afterPrintHandler();
+                    if (!mql.matches) afterPrintFallback();
                 });
             }
 
             // Fallback catch-all just in case neither event fires (e.g. some webviews)
             // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
-            setTimeout(afterPrintHandler, 300000);
+            setTimeout(afterPrintFallback, 300000);
 
             window.print();
         }
