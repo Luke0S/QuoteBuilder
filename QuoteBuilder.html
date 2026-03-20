@@ -14629,7 +14629,10 @@
             const printOverlay = document.getElementById('print-loading-overlay');
             if (printOverlay) printOverlay.style.display = 'flex';
 
-            // Give time for modals to close and screen to redraw devices, then print
+            // Give time for modals to close and screen to redraw before printing.
+            // Kept to 300 ms (down from 800 ms) so that window.print() is invoked
+            // as close to the user gesture as possible — iOS Safari blocks the print
+            // dialog when the call is delayed too far from the originating tap.
             setTimeout(() => {
                 let afterPrintFired = false;
                 
@@ -14668,9 +14671,11 @@
                     });
                 }
 
-                // Fallback catch-all just in case neither event fires (e.g. some webviews)
-                // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
-                setTimeout(afterPrintHandler, 300000);
+                // Fallback catch-all in case neither event fires on iOS/iPadOS (e.g. when
+                // the print dialog is blocked by the browser or afterprint never fires).
+                // This prevents the overlay from staying permanently stuck on iPad even if
+                // no print events are received.
+                setTimeout(afterPrintHandler, 5000);
 
                 // iOS Safari does not reliably fire beforeprint before showing the print
                 // preview, so we explicitly call preparePrintLayout() here (same logic
@@ -14684,7 +14689,7 @@
                 setTimeout(() => {
                     window.print();
                 }, 100);
-            }, 800);
+            }, 300);
         }
 
         function generatePlanBenefitsPages(includeBenefits) {
