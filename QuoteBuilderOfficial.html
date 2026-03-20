@@ -10167,7 +10167,7 @@
                 </div>
                 <div class="modal-footer" style="justify-content: flex-end; gap: 10px;">
 
-                    <button class="btn btn-primary" onclick="finalizePrint()">Print Quote</button>
+                    <button class="btn btn-primary" id="print-quote-btn">Print Quote</button>
                 </div>
             </div>
         </div>
@@ -12012,6 +12012,11 @@
                     lastSaveTime = now;
                     e.preventDefault();
                     saveDevice();
+                } else if (target.id === 'print-quote-btn' && target.closest('#contact-modal')) {
+                    lastSaveTime = now;
+                    lastButtonClickTime = now; // Prevent the click handler from also firing
+                    e.preventDefault();
+                    finalizePrint();
                 }
             }, { passive: false });
 
@@ -12026,10 +12031,8 @@
 
                 // Print Quote button (in contact-modal)
                 if (target.textContent.includes('Print Quote') && target.closest('#contact-modal')) {
-                    if (!target.onclick || target.getAttribute('data-needs-backup')) {
-                        lastButtonClickTime = now;
-                        finalizePrint();
-                    }
+                    lastButtonClickTime = now;
+                    finalizePrint();
                 }
 
                 // Save button in contact modal
