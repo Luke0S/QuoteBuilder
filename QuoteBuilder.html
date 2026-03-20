@@ -14629,67 +14629,64 @@
             const printOverlay = document.getElementById('print-loading-overlay');
             if (printOverlay) printOverlay.style.display = 'flex';
 
-            // Give time for modals to close and screen to redraw before printing.
-            // Kept to 300 ms (down from 800 ms) so that window.print() is invoked
-            // as close to the user gesture as possible — iOS Safari blocks the print
-            // dialog when the call is delayed too far from the originating tap.
-            setTimeout(() => {
-                let afterPrintFired = false;
-                
-                const afterPrintHandler = () => {
-                    if (afterPrintFired) return;
-                    afterPrintFired = true;
-                    
-                    window.removeEventListener('afterprint', afterPrintHandler);
-                    
-                    // Hide overlay immediately when print dialog closes
-                    if (printOverlay) printOverlay.style.display = 'none';
+            // iOS Safari (used by all iPad browsers) requires window.print() to be
+            // called synchronously in the direct call stack of the user's tap/click.
+            // Any setTimeout, Promise, or requestAnimationFrame between the gesture
+            // and window.print() causes WebKit to silently block the print dialog.
+            // All DOM preparation must therefore happen synchronously here.
 
-                    // Restore device lists to editable state after print
-                    Object.keys(STATE).forEach(rowId => {
-                        renderDeviceList(rowId);
-                    });
+            // Ensure all rows are visible and notes are synced before the dialog opens.
+            // This mirrors what the beforeprint handler does, covering iOS Safari which
+            // does not reliably fire beforeprint before showing the print preview.
+            preparePrintLayout();
 
-                    // Show follow up modal if enabled
-                    if (enableFollowUpModal) {
-                        openFollowUpModal(custName, custPhone, quotesDetailsString);
-                    }
-                };
+            let afterPrintFired = false;
 
-                // Add standard event listener
-                window.addEventListener('afterprint', afterPrintHandler);
-                
-                // Add matchMedia listener (more reliable on iOS Safari)
-                const mediaQueryList = window.matchMedia('print');
-                if (mediaQueryList && mediaQueryList.addEventListener) {
-                    mediaQueryList.addEventListener('change', mql => {
-                        if (!mql.matches) afterPrintHandler();
-                    });
-                } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
-                    mediaQueryList.addListener(mql => {
-                        if (!mql.matches) afterPrintHandler();
-                    });
+            const afterPrintHandler = () => {
+                if (afterPrintFired) return;
+                afterPrintFired = true;
+
+                window.removeEventListener('afterprint', afterPrintHandler);
+
+                // Hide overlay immediately when print dialog closes
+                if (printOverlay) printOverlay.style.display = 'none';
+
+                // Restore device lists to editable state after print
+                Object.keys(STATE).forEach(rowId => {
+                    renderDeviceList(rowId);
+                });
+
+                // Show follow up modal if enabled
+                if (enableFollowUpModal) {
+                    openFollowUpModal(custName, custPhone, quotesDetailsString);
                 }
+            };
 
-                // Fallback catch-all in case neither event fires on iOS/iPadOS (e.g. when
-                // the print dialog is blocked by the browser or afterprint never fires).
-                // This prevents the overlay from staying permanently stuck on iPad even if
-                // no print events are received.
-                setTimeout(afterPrintHandler, 5000);
+            // Add standard event listener
+            window.addEventListener('afterprint', afterPrintHandler);
 
-                // iOS Safari does not reliably fire beforeprint before showing the print
-                // preview, so we explicitly call preparePrintLayout() here (same logic
-                // as the beforeprint handler) to ensure all rows are visible and notes
-                // are synced before the dialog opens on any browser.
-                preparePrintLayout();
+            // Add matchMedia listener (more reliable on iOS Safari)
+            const mediaQueryList = window.matchMedia('print');
+            if (mediaQueryList && mediaQueryList.addEventListener) {
+                mediaQueryList.addEventListener('change', mql => {
+                    if (!mql.matches) afterPrintHandler();
+                });
+            } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
+                mediaQueryList.addListener(mql => {
+                    if (!mql.matches) afterPrintHandler();
+                });
+            }
 
-                // Allow iOS Safari to commit the DOM changes to its render tree before
-                // the print dialog opens. A single rAF is not enough on some iOS versions;
-                // 100 ms provides a reliable repaint cycle across tested iOS 15-17 devices.
-                setTimeout(() => {
-                    window.print();
-                }, 100);
-            }, 300);
+            // Fallback catch-all in case neither event fires on iOS/iPadOS (e.g. when
+            // the print dialog is blocked by the browser or afterprint never fires).
+            // This prevents the overlay from staying permanently stuck on iPad even if
+            // no print events are received.
+            setTimeout(afterPrintHandler, 5000);
+
+            // Call window.print() synchronously — must remain in the direct call stack
+            // of the user gesture (button click) to satisfy iOS Safari/WebKit's security
+            // policy. Do NOT wrap this in setTimeout or any other async wrapper.
+            window.print();
         }
 
         function generatePlanBenefitsPages(includeBenefits) {
