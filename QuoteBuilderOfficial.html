@@ -5625,9 +5625,6 @@
 
         /* PRINT STYLES */
         @media print {
-            #print-loading-overlay {
-                display: none !important;
-            }
 
             .hidden {
                 display: none !important;
@@ -8556,11 +8553,6 @@
 </head>
 
 <body>
-    <!-- Print Loading Overlay -->
-    <div id="print-loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 999998; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);">
-        <h2 style="color: var(--primary-color); font-size: 28px; margin: 0 0 10px 0; font-family: sans-serif;">Preparing for printing...</h2>
-        <!--<p style="color: var(--text-secondary); font-size: 16px; margin: 0; font-family: sans-serif;">Please wait a moment while the layout is optimized.</p>-->
-    </div>
 
     <!-- Expiration Overlay -->
     <div id="expiration-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999999; color: var(--text-main); flex-direction: column; justify-content: center; align-items: center; text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';">
@@ -14082,6 +14074,10 @@
         }
 
         function openContactModal() {
+            // Pre-render device lists for print so the layout is ready when user clicks Print
+            Object.keys(STATE).forEach(rowId => {
+                renderDeviceListForPrint(rowId);
+            });
             document.getElementById('contact-modal').classList.add('open');
         }
 
@@ -14534,9 +14530,6 @@
 
                 // Copy notes to display div for printing
                 updateNotesDisplay(rowId);
-
-                // Render devices for print (combines them if enabled, and applies print layout)
-                renderDeviceListForPrint(rowId);
             });
 
             // Generate plan benefits pages (if enabled)
@@ -14621,55 +14614,45 @@
             closeContactModal();
             closeSettingsSidebar();
 
-            // Show loading overlay so user knows it hasn't frozen
-            const printOverlay = document.getElementById('print-loading-overlay');
-            if (printOverlay) printOverlay.style.display = 'flex';
+            let afterPrintFired = false;
 
-            // Give time for modals to close and screen to redraw devices, then print
-            setTimeout(() => {
-                let afterPrintFired = false;
-                
-                const afterPrintHandler = () => {
-                    if (afterPrintFired) return;
-                    afterPrintFired = true;
-                    
-                    window.removeEventListener('afterprint', afterPrintHandler);
-                    
-                    // Hide overlay immediately when print dialog closes
-                    if (printOverlay) printOverlay.style.display = 'none';
+            const afterPrintHandler = () => {
+                if (afterPrintFired) return;
+                afterPrintFired = true;
 
-                    // Restore device lists to editable state after print
-                    Object.keys(STATE).forEach(rowId => {
-                        renderDeviceList(rowId);
-                    });
+                window.removeEventListener('afterprint', afterPrintHandler);
 
-                    // Show follow up modal if enabled
-                    if (enableFollowUpModal) {
-                        openFollowUpModal(custName, custPhone, quotesDetailsString);
-                    }
-                };
+                // Restore device lists to editable state after print
+                Object.keys(STATE).forEach(rowId => {
+                    renderDeviceList(rowId);
+                });
 
-                // Add standard event listener
-                window.addEventListener('afterprint', afterPrintHandler);
-                
-                // Add matchMedia listener (more reliable on iOS Safari)
-                const mediaQueryList = window.matchMedia('print');
-                if (mediaQueryList && mediaQueryList.addEventListener) {
-                    mediaQueryList.addEventListener('change', mql => {
-                        if (!mql.matches) afterPrintHandler();
-                    });
-                } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
-                    mediaQueryList.addListener(mql => {
-                        if (!mql.matches) afterPrintHandler();
-                    });
+                // Show follow up modal if enabled
+                if (enableFollowUpModal) {
+                    openFollowUpModal(custName, custPhone, quotesDetailsString);
                 }
+            };
 
-                // Fallback catch-all just in case neither event fires (e.g. some webviews)
-                // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
-                setTimeout(afterPrintHandler, 300000);
+            // Add standard event listener
+            window.addEventListener('afterprint', afterPrintHandler);
 
-                window.print();
-            }, 800);
+            // Add matchMedia listener (more reliable on iOS Safari)
+            const mediaQueryList = window.matchMedia('print');
+            if (mediaQueryList && mediaQueryList.addEventListener) {
+                mediaQueryList.addEventListener('change', mql => {
+                    if (!mql.matches) afterPrintHandler();
+                });
+            } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
+                mediaQueryList.addListener(mql => {
+                    if (!mql.matches) afterPrintHandler();
+                });
+            }
+
+            // Fallback catch-all just in case neither event fires (e.g. some webviews)
+            // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
+            setTimeout(afterPrintHandler, 300000);
+
+            window.print();
         }
 
         function generatePlanBenefitsPages(includeBenefits) {
