@@ -6066,14 +6066,6 @@
                 display: none !important;
             }
 
-            .notes-section {
-                background: #ffeef5 !important;
-                border: 1px solid var(--primary-color) !important;
-                border-radius: 4px !important;
-                padding: 10px !important;
-                min-height: 60px !important;
-            }
-
             .notes-container {
                 border: none !important;
                 background: transparent !important;
@@ -6206,6 +6198,7 @@
                 padding: 8px 12px;
                 background: #f5f5f5;
                 border: 1px solid #ccc;
+                border-radius: 4px !important;
                 font-size: 9px;
             }
 
@@ -6718,7 +6711,8 @@
             .stepper-wrapper {
                 border: 1px solid #ccc;
                 background: #f9f9f9;
-                border-radius: 2px;
+                border-radius: 4px !important;
+                overflow: hidden !important;
                 padding: 2px 4px;
             }
 
@@ -6746,7 +6740,7 @@
                 padding: 8px;
                 background: #f9f9f9;
                 border: 1px solid #ccc;
-                border-radius: 2px;
+                border-radius: 4px !important;
             }
 
             .plan-select-trigger {
@@ -6755,7 +6749,7 @@
                 background: #f9f9f9 !important;
                 height: 36px !important;
                 line-height: 36px;
-                border-radius: 0;
+                border-radius: 4px !important;
                 font-size: 12px !important;
             }
 
@@ -6817,7 +6811,7 @@
             }
 
             .device-cost-preview {
-                color: #000;
+                color: #E20074 !important;
                 font-size: 10px;
                 font-weight: 600;
                 line-height: 1.2;
@@ -7598,19 +7592,31 @@
                 display: none !important;
             }
 
-            /* For new mode in print: hide inline totals in footer but show notes and due-today side by side */
+            /* For new mode in print: combine notes and due-today into one wrapper */
             .row-footer.new-mode-footer {
                 display: flex !important;
             }
 
-            .row-footer.new-mode-footer .footer-top {
+            .footer-top,
+            .row-footer.new-mode-footer .footer-top,
+            .footer-top.hide-totals {
                 display: flex !important;
                 flex-wrap: nowrap !important;
                 flex-direction: row !important;
                 align-items: stretch !important;
+                background: #f9f9f9 !important;
+                border: 1px solid #cccccc !important;
+                border-radius: 4px !important;
+                overflow: hidden !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                margin-top: 10px !important;
+                width: 100% !important;
+                gap: 0 !important;
             }
 
-            .row-footer.new-mode-footer .footer-top .footer-totals-group {
+            .row-footer.new-mode-footer .footer-top .footer-totals-group,
+            .footer-top.hide-totals .footer-totals-group {
                 display: none !important;
                 visibility: hidden !important;
                 height: 0 !important;
@@ -7655,46 +7661,53 @@
                 display: none !important;
             }
 
-            .row-footer.new-mode-footer .footer-top .notes-section {
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                max-width: 100% !important;
-                margin: 0 !important;
+            .row-footer.new-mode-footer .footer-top .notes-section,
+            .footer-top.hide-totals .notes-section,
+            .footer-top .notes-section {
+                flex: 1 1 auto !important;
                 width: auto !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 10px 15px !important;
+                border: none !important;
+                background: #f9f9f9 !important;
+                border-radius: 0 !important;
+                order: 2 !important;
             }
 
-            .row-footer.new-mode-footer .footer-top .due-today-group {
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                max-width: 100% !important;
-                margin: 0 !important;
+            .row-footer.new-mode-footer .footer-top .due-today-group,
+            .footer-top.hide-totals .due-today-group,
+            .footer-top .due-today-group {
+                flex: 0 0 auto !important;
                 width: auto !important;
+                max-width: none !important;
+                min-width: 0 !important;
+                margin: 0 !important;
+                padding: 10px 15px !important;
+                background: transparent !important;
+                border: none !important;
+                border-right: 1px solid #cccccc !important;
+                border-radius: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+                box-sizing: border-box !important;
+                order: 1 !important;
             }
 
             /* Notes section - remove underline from title */
             .notes-section label {
                 border-bottom: none !important;
-            }
-
-            /* Override hide-totals in print to hide totals but keep due-today and notes side by side */
-            .footer-top.hide-totals .footer-totals-group {
-                display: none !important;
-            }
-
-            .footer-top.hide-totals .notes-section {
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                width: auto !important;
-            }
-
-            .footer-top.hide-totals .due-today-group {
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                width: auto !important;
+                font-size: 9px !important;
+                font-weight: 800 !important;
+                color: #333 !important;
+                margin: 0 0 2px 0 !important;
+                line-height: 1 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 0.5px !important;
+                display: block !important;
+                padding-bottom: 0 !important;
             }
 
             /* Hide page footer credit in print */
@@ -7748,33 +7761,11 @@
                 gap: 4px !important;
             }
 
-            .due-today-group {
-                padding: 4px 8px !important;
-                background: #f9f9f9 !important;
-                border: 1px solid #ccc !important;
-                border-radius: 4px !important;
-                margin: 0 !important;
-                margin-top: 0 !important;
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                gap: 2px !important;
-                flex: 1 1 0% !important;
-                min-width: 0 !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                width: auto !important;
-                box-sizing: border-box !important;
-                order: 1 !important;
-                align-self: stretch !important;
-            }
-
             .due-today-row {
                 display: flex !important;
                 flex-direction: row !important;
                 align-items: flex-start !important;
-                justify-content: center !important;
+                justify-content: flex-start !important;
                 gap: 15px !important;
             }
 
@@ -7792,7 +7783,7 @@
                 gap: 1px !important;
                 margin-left: 0 !important;
                 padding-left: 10px !important;
-                border-left: 1px solid #ccc !important;
+                border-left: none !important;
             }
 
             /* Hide savings-today when not visible (style.display = 'none') */
@@ -7807,7 +7798,7 @@
                 font-size: 9px !important;
                 font-weight: 800 !important;
                 color: #333 !important;
-                margin: 0 !important;
+                margin: 0 0 2px 0 !important;
                 line-height: 1 !important;
                 text-transform: uppercase !important;
                 letter-spacing: 0.5px !important;
@@ -7848,22 +7839,29 @@
                 padding-left: 0 !important;
             }
 
-            /* Hide due-today and notes when both totals are 0 */
+            /* Hide due-today when both totals are 0 */
+            .row-footer.new-mode-footer .footer-top.hide-due-today-section .due-today-group,
             .footer-top.hide-due-today-section .due-today-group {
                 display: none !important;
             }
 
+            .row-footer.new-mode-footer .footer-top.hide-due-today-section .notes-section,
             .footer-top.hide-due-today-section .notes-section {
-                width: 100% !important;
-                flex: 1 1 100% !important;
+                flex: 1 1 auto !important;
+                margin-left: 0 !important;
+                padding-left: 10px !important;
+                padding-right: 15px !important;
+                order: 1 !important;
             }
 
             /* If due today is hidden AND notes are empty, hide notes section fully on print */
+            .row-footer.new-mode-footer .footer-top.hide-due-today-section .notes-section.is-empty,
             .footer-top.hide-due-today-section .notes-section.is-empty {
                 display: none !important;
             }
             
             /* Completely remove footer-top from layout to prevent gap if everything inside is hidden */
+            .row-footer.new-mode-footer .footer-top.hide-due-today-section:has(.notes-section.is-empty),
             .footer-top.hide-due-today-section:has(.notes-section.is-empty) {
                 display: none !important;
                 margin: 0 !important;
@@ -7886,7 +7884,7 @@
                 border: 1px solid #E20074 !important;
                 padding: 4px 6px !important;
                 box-shadow: none !important;
-                border-radius: 2px !important;
+                border-radius: 4px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -7954,7 +7952,7 @@
                 border: 1px solid #E20074 !important;
                 padding: 4px 6px !important;
                 box-shadow: none !important;
-                border-radius: 2px !important;
+                border-radius: 4px !important;
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: flex-start !important;
@@ -7987,7 +7985,7 @@
                 border: 1px solid #E20074 !important;
                 padding: 8px 6px !important;
                 box-shadow: none !important;
-                border-radius: 2px !important;
+                border-radius: 4px !important;
                 display: block !important;
                 margin: 2px 0 !important;
                 width: 100% !important;
@@ -8533,6 +8531,26 @@
             color: transparent !important;
             transition: transform 0.25s ease-in, opacity 0.25s ease-in, height 0.25s ease-in, max-height 0.25s ease-in, margin 0.25s ease-in, padding 0.25s ease-in, border-width 0.25s ease-in, font-size 0.25s ease-in, line-height 0.25s ease-in, min-height 0.25s ease-in, gap 0.25s ease-in !important;
             pointer-events: none !important;
+        }
+
+        .add-device-btn-wrapper {
+            margin-bottom: 5px;
+            overflow: hidden;
+            position: relative;
+            z-index: 30;
+            max-height: 50px;
+            opacity: 1;
+            transform: scaleY(1);
+            transform-origin: top;
+            transition: max-height 0.3s ease-out, margin-bottom 0.3s ease-out, opacity 0.3s ease-out, transform 0.3s ease-out;
+        }
+
+        .add-device-btn-wrapper:has(> .bubble-pop-hidden),
+        .add-device-btn-wrapper:has(> [style*="display: none"]) {
+            margin-bottom: 0 !important;
+            max-height: 0 !important;
+            opacity: 0 !important;
+            transform: scaleY(0) !important;
         }
     </style>
 </head>
@@ -10238,7 +10256,7 @@
 
     <script>
         const QUOTE_BUILDER_VERSION = "3.0";
-        const QUOTE_BUILDER_EXPIRATION_DATE = "2026-4-18"; // Expiration Date (YYYY-MM-DD)
+        const QUOTE_BUILDER_EXPIRATION_DATE = "2026-4-20"; // Expiration Date (YYYY-MM-DD)
 
         // ============================================
         // PLAN DATA - Add "beyond: true/false" to specify Beyond plans
@@ -14009,11 +14027,16 @@
             // Teams deep link expects standard ISO-8601 formatting
             // Start by parsing local time safely
             const localDate = new Date(`${dateString}T${timeString}:00`);
-            const startTime = localDate.toISOString();
+            
+            // Strip milliseconds to ensure cross-platform compatibility (especially iPad/iOS Teams app)
+            // and use encodeURIComponent so characters don't break deep link parsing on mobile devices.
+            const startTimeStr = localDate.toISOString().replace(/\.\d{3}Z$/, 'Z');
+            const startTime = encodeURIComponent(startTimeStr);
             
             // Default 30 mins later for endTime
             const endLocalDate = new Date(localDate.getTime() + (30 * 60000));
-            const endTime = endLocalDate.toISOString();
+            const endTimeStr = endLocalDate.toISOString().replace(/\.\d{3}Z$/, 'Z');
+            const endTime = encodeURIComponent(endTimeStr);
 
             return `msteams:/l/meeting/new?subject=${subject}&content=${body}&startTime=${startTime}&endTime=${endTime}`;
         }
@@ -14604,13 +14627,18 @@
 
             // Give time for modals to close and screen to redraw devices, then print
             setTimeout(() => {
-                window.print();
+                let afterPrintFired = false;
+                
+                const afterPrintHandler = () => {
+                    if (afterPrintFired) return;
+                    afterPrintFired = true;
+                    
+                    window.removeEventListener('afterprint', afterPrintHandler);
+                    
+                    // Hide overlay immediately when print dialog closes
+                    if (printOverlay) printOverlay.style.display = 'none';
 
-                // Hide overlay immediately when print dialog closes
-                if (printOverlay) printOverlay.style.display = 'none';
-
-                // Restore device lists to editable state after print
-                setTimeout(() => {
+                    // Restore device lists to editable state after print
                     Object.keys(STATE).forEach(rowId => {
                         renderDeviceList(rowId);
                     });
@@ -14619,7 +14647,28 @@
                     if (enableFollowUpModal) {
                         openFollowUpModal(custName, custPhone, quotesDetailsString);
                     }
-                }, 500);
+                };
+
+                // Add standard event listener
+                window.addEventListener('afterprint', afterPrintHandler);
+                
+                // Add matchMedia listener (more reliable on iOS Safari)
+                const mediaQueryList = window.matchMedia('print');
+                if (mediaQueryList && mediaQueryList.addEventListener) {
+                    mediaQueryList.addEventListener('change', mql => {
+                        if (!mql.matches) afterPrintHandler();
+                    });
+                } else if (mediaQueryList && mediaQueryList.addListener) { // Fallback for older Safari
+                    mediaQueryList.addListener(mql => {
+                        if (!mql.matches) afterPrintHandler();
+                    });
+                }
+
+                // Fallback catch-all just in case neither event fires (e.g. some webviews)
+                // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
+                setTimeout(afterPrintHandler, 300000);
+
+                window.print();
             }, 800);
         }
 
@@ -15559,7 +15608,9 @@
                         </div>
                         <div class="step-col hidden-step step-col-3" id="${rowId}-col3">
                             <label class="step-label">Device Selection</label>
-                            <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30; margin-bottom: 5px; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
+                            <div id="${rowId}-add-device-wrapper" class="add-device-btn-wrapper">
+                                <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
+                            </div>
                             <div id="${rowId}-device-list" class="device-list-container"></div>
                             <div id="${rowId}-byod-placeholder" class="byod-placeholder">No devices added</div>
                         </div>
@@ -15617,7 +15668,9 @@
                     <div class="steps-container steps-device-row">
                         <div class="step-col hidden-step step-col-devices" id="${rowId}-col3">
                             <label class="step-label"><span class="step-number">3</span>Device Selection</label>
-                            <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; position: relative; z-index: 30; margin-bottom: 5px; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
+                            <div id="${rowId}-add-device-wrapper" class="add-device-btn-wrapper">
+                                <button id="${rowId}-add-device-btn" class="btn btn-secondary" style="width: 100%; display: block;" onclick="openModal('${rowId}')">+ Add Device</button>
+                            </div>
                             <div id="${rowId}-device-list" class="device-list-container"></div>
                             <div id="${rowId}-byod-placeholder" class="byod-placeholder">No devices added</div>
                         </div>
@@ -15862,9 +15915,8 @@
                     
                     <div class="disclosures-section">
                         <p class="disclosure-text">• Prices quoted may include limited time offers, and may change at any time. Contact representative to obtain the most up-to-date info.</p>
-                        <p class="disclosure-text">• Any applicable promotions & discounts will be applied within 2 bill cycles</p>
-                        <p class="disclosure-text">• Phone eligibility subject to credit approval</p>
-                        <p class="disclosure-credit">Quote generated with Quote Builder, made by Luke S.</p>
+                        <p class="disclosure-text">• Phone eligibility subject to credit approval | Any applicable promotions & discounts will be applied within 2 bill cycles</p>
+                        <p class="disclosure-credit">Quote generated with Quote Builder V${QUOTE_BUILDER_VERSION}, created by Luke Shrader</p>
                     </div>
                     
                     <div class="print-qr-wrapper" id="${rowId}-print-qr-wrapper">
@@ -17669,11 +17721,11 @@
                     revealStep(rowId, 'col3');
                 }
                 
-                // Auto add/remove devices based on line count if setting is enabled
+                // Auto add/remove devices based on line count if setting is enabled (and plan is selected)
                 let devicesChanged = false;
-                if (addDevicesByDefault) {
+                if (addDevicesByDefault && planName) {
                     while (STATE[rowId].devices.length < val) {
-                        STATE[rowId].devices.push({ label: '', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
+                        STATE[rowId].devices.push({ label: 'BYOD', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
                         const newIndex = STATE[rowId].devices.length - 1;
                         STATE[rowId].protectionStatus[newIndex] = true;
                         STATE[rowId].protectionCosts[newIndex] = getDefaultProtectionCost(true);
@@ -17828,7 +17880,7 @@
                 let devicesChanged = false;
                 if (addDevicesByDefault) {
                     while (STATE[rowId].devices.length < val) {
-                        STATE[rowId].devices.push({ label: '', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
+                        STATE[rowId].devices.push({ label: 'BYOD', cost: 0, down: 0, promo: 0, fmv: 0, tradeinName: '' });
                         const newIndex = STATE[rowId].devices.length - 1;
                         STATE[rowId].protectionStatus[newIndex] = true;
                         STATE[rowId].protectionCosts[newIndex] = getDefaultProtectionCost(false);
@@ -18430,7 +18482,7 @@
                             if (addDeviceBtn.classList.contains('bubble-pop-hidden')) {
                                 addDeviceBtn.style.display = 'none';
                             }
-                        }, 250);
+                        }, 300);
                     }
                     // Instead of synchronously disabling which cancels WebKit CSS transitions mid-animation,
                     // we rely on 'pointer-events: none' from the class immediately, and disable after it hides.
@@ -18439,7 +18491,7 @@
                             addDeviceBtn.disabled = true;
                             addDeviceBtn.setAttribute('data-keep-disabled', 'true');
                         }
-                    }, 250);
+                    }, 300);
                 } else {
                     addDeviceBtn.style.display = '';
                     // Allow the display change to register before starting the pop-in animation
