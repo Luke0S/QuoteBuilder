@@ -14641,11 +14641,13 @@
             preparePrintLayout();
 
             let afterPrintFired = false;
+            let fallbackTimer = null;
 
             const afterPrintHandler = () => {
                 if (afterPrintFired) return;
                 afterPrintFired = true;
 
+                clearTimeout(fallbackTimer);
                 window.removeEventListener('afterprint', afterPrintHandler);
 
                 // Hide overlay immediately when print dialog closes
@@ -14677,16 +14679,17 @@
                 });
             }
 
-            // Fallback catch-all in case neither event fires on iOS/iPadOS (e.g. when
-            // the print dialog is blocked by the browser or afterprint never fires).
-            // This prevents the overlay from staying permanently stuck on iPad even if
-            // no print events are received.
-            setTimeout(afterPrintHandler, 5000);
+            // Minimal delay to let the overlay paint before the print dialog opens.
+            // iOS Safari considers window.print() valid within a short window after the
+            // user gesture, so 100 ms is safe while still letting the DOM repaint.
+            setTimeout(function () {
+                window.print();
 
-            // Call window.print() synchronously — must remain in the direct call stack
-            // of the user gesture (button click) to satisfy iOS Safari/WebKit's security
-            // policy. Do NOT wrap this in setTimeout or any other async wrapper.
-            window.print();
+                // Fallback: dismiss overlay if afterprint / matchMedia never fire (iOS Safari).
+                // 1500 ms is long enough for the print dialog to appear but short enough
+                // that the overlay does not feel stuck if printing is blocked.
+                fallbackTimer = setTimeout(afterPrintHandler, 1500);
+            }, 100);
         }
 
         function generatePlanBenefitsPages(includeBenefits) {
