@@ -11799,19 +11799,20 @@
                 }
             });
 
-            // Handle print - ensure all carousel rows are visible
-            window.addEventListener('beforeprint', () => {
-                const rows = document.querySelectorAll('.calculator-row');
-                rows.forEach(row => {
+            // Shared helper: make all carousel rows visible and sync notes for printing.
+            // Called from the beforeprint event (desktop) and explicitly from finalizePrint()
+            // before window.print() to work around iOS Safari not reliably firing beforeprint.
+            function preparePrintLayout() {
+                document.querySelectorAll('.calculator-row').forEach(row => {
                     // Clear inline styles and add print-visible class
                     row.style.cssText = '';
                     row.classList.add('print-visible');
-                    
-                    // Sync notes display for pure Ctrl+P printing
+
+                    // Sync notes display for printing
                     const rowId = row.id;
                     if (rowId && typeof updateNotesDisplay === 'function') {
                         updateNotesDisplay(rowId);
-                        
+
                         // Check if notes are empty to potentially hide them
                         const notesDisplay = document.getElementById(`${rowId}-notes-display`);
                         const notesSection = document.getElementById(`${rowId}-notes-section`);
@@ -11824,7 +11825,10 @@
                         }
                     }
                 });
-            });
+            }
+
+            // Handle print - ensure all carousel rows are visible
+            window.addEventListener('beforeprint', preparePrintLayout);
 
             window.addEventListener('afterprint', () => {
                 const rows = document.querySelectorAll('.calculator-row');
@@ -14668,7 +14672,18 @@
                 // Set to 5 minutes so it doesn't interrupt long print dialogs on iOS
                 setTimeout(afterPrintHandler, 300000);
 
-                window.print();
+                // iOS Safari does not reliably fire beforeprint before showing the print
+                // preview, so we explicitly call preparePrintLayout() here (same logic
+                // as the beforeprint handler) to ensure all rows are visible and notes
+                // are synced before the dialog opens on any browser.
+                preparePrintLayout();
+
+                // Allow iOS Safari to commit the DOM changes to its render tree before
+                // the print dialog opens. A single rAF is not enough on some iOS versions;
+                // 100 ms provides a reliable repaint cycle across tested iOS 15-17 devices.
+                setTimeout(() => {
+                    window.print();
+                }, 100);
             }, 800);
         }
 
